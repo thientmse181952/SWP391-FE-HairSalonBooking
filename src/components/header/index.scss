@@ -1,0 +1,113 @@
+.header-wrapper {
+  background-color: #f9f3f1;
+  color: black;
+  padding-top: 10px;
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background-color: #f9f3f1;
+    margin-bottom: 10px;
+  }
+
+  .contact-info {
+    display: flex;
+    align-items: center;
+
+    .icon-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      svg {
+        color: black;
+        font-size: 20px;
+        cursor: pointer;
+
+        &:hover {
+          color: #f28a2d;
+        }
+      }
+
+      .separator {
+        display: inline-block;
+        width: 1px;
+        height: 20px;
+        background-color: #ecdcd6;
+        margin: 0 15px;
+      }
+    }
+
+    .phone-number {
+      margin-left: 15px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    svg {
+      font-size: 24px;
+    }
+
+    a {
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      color: black;
+
+      &:hover {
+        color: #f28a2d;
+      }
+    }
+
+    .separator {
+      display: inline-block;
+      width: 1px;
+      height: 20px;
+      background-color: #ecdcd6;
+      margin: 0 15px;
+    }
+  }
+
+  .header-bottom {
+    background-color: #fff;
+    padding: 10px 20px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+
+    a {
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+      font-size: 16px;
+      text-transform: uppercase;
+
+      &:hover {
+        color: #f28a2d;
+      }
+    }
+  }
+
+  .logo img {
+    width: 100px;
+    height: auto;
+  }
+}
