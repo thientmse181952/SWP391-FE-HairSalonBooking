@@ -9,7 +9,7 @@ function Footer() {
         <div className="footer-section">
           <div className="logo-gold">
             <img
-              src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/logo-gold.png?alt=media&token=05b447d2-3712-4216-aefe-bf40ebadfcfb"
+              src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Logo%2Flogo-gold.png?alt=media&token=1dc435a2-4211-44bc-a32d-165272af255a"
               alt="Kim Salon Logo Gold"
             />
           </div>

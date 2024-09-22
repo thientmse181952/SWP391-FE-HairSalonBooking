@@ -1,0 +1,136 @@
+.home-page {
+  .carousel-image {
+    width: 100%;
+    height: 550px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .carousel-image:hover {
+    transform: scale(1.05);
+  }
+
+  .introduction-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 120px; /* Điều chỉnh padding theo yêu cầu */
+    background-color: #fff;
+
+    .intro-image {
+      position: relative;
+      flex: 1;
+      padding-right: 40px; /* Tạo không gian cho vạch màu */
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: -20px; /* Vị trí của vạch màu */
+        top: 0;
+        width: 5px; /* Độ rộng của vạch màu */
+        height: 100%;
+        background-color: #cb9966; /* Màu của vạch */
+        border-radius: 5px; /* Bo góc vạch màu */
+      }
+
+      img {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .intro-text {
+      flex: 2;
+      padding-left: 40px;
+
+      h2 {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333;
+      }
+    }
+  }
+
+  .services {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f9f0eb; /* Màu nền nhạt */
+
+    h2 {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 cột */
+      gap: 10px; /* Giảm khoảng cách giữa các dịch vụ từ 20px xuống 10px */
+
+      .service-item {
+        text-align: center;
+
+        img {
+          width: 100%;
+          max-width: 350px;
+          height: 85%;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+          transition: transform 0.3s ease-in-out; /* Hiệu ứng chuyển đổi */
+        }
+
+        img:hover {
+          transform: scale(1.05); /* Hiệu ứng zoom khi hover */
+        }
+
+        p {
+          margin-top: 10px;
+          font-size: 20px;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .partners-section {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff;
+
+    img {
+      max-width: 500px;
+      width: 100%;
+      height: auto;
+    }
+
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 cột */
+      gap: 20px; /* Khoảng cách giữa các hình ảnh */
+      align-items: center;
+      margin-top: 15px;
+
+      img {
+        max-width: 150px;
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease-in-out;
+        margin: auto;
+
+        &:hover {
+          transform: scale(1.1); /* Phóng to nhẹ khi hover */
+        }
+      }
+    }
+  }
+}

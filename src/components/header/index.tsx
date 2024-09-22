@@ -27,7 +27,7 @@ function Header() {
         <div className="menu">
           <div className="logo">
             <img
-              src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/logo.png?alt=media&token=d47cf310-82a8-430f-b88d-6a23888bcc23"
+              src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Logo%2Flogo.png?alt=media&token=ee1b9b13-5b44-48c4-9106-cc3fee3681a7"
               alt="Kim Salon Logo"
             />
           </div>
