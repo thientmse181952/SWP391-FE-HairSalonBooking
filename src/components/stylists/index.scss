@@ -1,0 +1,138 @@
+.stylist-slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #f3f0eb;
+  position: relative;
+
+  .left-title {
+    position: relative;
+    left: -100px; /* Điều chỉnh vị trí cho hợp lý */
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #333;
+    margin-right: 50px; /* Tăng khoảng cách giữa tiêu đề và slider */
+  }
+
+  .slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 50px; /* Giảm khoảng cách giữa slider và tiêu đề */
+  }
+
+  .slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 1100px;
+    margin-bottom: 20px;
+
+    // Đảm bảo các hiệu ứng sẽ hoạt động khi có class `animating`
+    &.animating .slider-content {
+      transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+    }
+
+    .slider-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 1000px;
+      position: relative;
+      text-align: center;
+
+      .slider-content {
+        width: 330px;
+        opacity: 0.5;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out; // Thêm transition mượt mà
+
+        img {
+          width: 330px;
+          height: 500px;
+          object-fit: cover;
+          border-radius: 15px;
+          margin-bottom: 15px;
+        }
+
+        h3 {
+          font-size: 20px;
+          font-weight: bold;
+          color: #333;
+          margin-top: 10px;
+        }
+      }
+
+      .active {
+        opacity: 1;
+        transform: scale(1.05) translateX(0); // Hiệu ứng scale nhẹ và chuyển đổi vị trí
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out; // Mượt mà hơn
+        h3 {
+          font-size: 24px;
+          color: #333;
+        }
+      }
+
+      .inactive {
+        opacity: 0.3;
+        transform: scale(0.9) translateX(0); // Hiệu ứng scale nhỏ hơn và mờ dần
+        h3 {
+          font-size: 20px;
+          color: #999;
+        }
+      }
+    }
+
+    .prev-arrow,
+    .next-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      background-color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #f28a2d;
+        color: #fff;
+      }
+    }
+
+    .prev-arrow {
+      left: -60px;
+    }
+
+    .next-arrow {
+      right: -60px;
+    }
+  }
+
+  .dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      margin: 0 5px;
+      background-color: #ccc;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
+
+    .active-dot {
+      background-color: #f28a2d;
+    }
+  }
+}

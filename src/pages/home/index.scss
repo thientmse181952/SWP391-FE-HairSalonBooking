@@ -1,10 +1,10 @@
 .home-page {
   .carousel-image {
     width: 100%;
-    height: 550px;
+    height: 600px;
     object-fit: cover;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
   }
 
@@ -16,23 +16,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 120px; /* Điều chỉnh padding theo yêu cầu */
+    padding: 60px 120px;
     background-color: #fff;
 
     .intro-image {
       position: relative;
       flex: 1;
-      padding-right: 40px; /* Tạo không gian cho vạch màu */
+      padding-right: 40px;
 
       &::before {
         content: "";
         position: absolute;
-        left: -20px; /* Vị trí của vạch màu */
+        left: -20px;
         top: 0;
-        width: 5px; /* Độ rộng của vạch màu */
+        width: 5px;
         height: 100%;
-        background-color: #cb9966; /* Màu của vạch */
-        border-radius: 5px; /* Bo góc vạch màu */
+        background-color: #cb9966;
+        border-radius: 5px;
       }
 
       img {
@@ -64,7 +64,7 @@
   .services {
     text-align: center;
     padding: 60px 20px;
-    background-color: #f9f0eb; /* Màu nền nhạt */
+    background-color: #f3f0eb;
 
     h2 {
       font-size: 28px;
@@ -73,24 +73,26 @@
     }
 
     .services-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 cột */
-      gap: 10px; /* Giảm khoảng cách giữa các dịch vụ từ 20px xuống 10px */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
 
       .service-item {
+        flex: 0 1 calc(33.33% - 20px);
+        max-width: calc(33.33% - 20px);
         text-align: center;
+        margin-bottom: 20px;
 
         img {
-          width: 100%;
-          max-width: 350px;
+          width: 75%;
           height: 85%;
           border-radius: 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
-          transition: transform 0.3s ease-in-out; /* Hiệu ứng chuyển đổi */
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease-in-out;
         }
 
         img:hover {
-          transform: scale(1.05); /* Hiệu ứng zoom khi hover */
+          transform: scale(1.05);
         }
 
         p {
@@ -115,8 +117,8 @@
 
     .partners-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr); /* 4 cột */
-      gap: 20px; /* Khoảng cách giữa các hình ảnh */
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
       align-items: center;
       margin-top: 15px;
 
@@ -128,8 +130,62 @@
         margin: auto;
 
         &:hover {
-          transform: scale(1.1); /* Phóng to nhẹ khi hover */
+          transform: scale(1.1);
         }
+      }
+    }
+  }
+
+  // banner
+  .banner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+
+    h3 {
+      font-size: 28px; /* Tăng kích thước chữ */
+      font-weight: normal;
+      letter-spacing: 2px;
+      color: #333;
+      margin-bottom: 10px;
+      margin-top: 30px;
+    }
+
+    h1 {
+      font-size: 60px; /* Tăng kích thước chữ */
+      font-weight: bold;
+      letter-spacing: 4px;
+      color: #000;
+    }
+
+    .banner-image {
+      margin-bottom: 30px;
+
+      img {
+        width: 100%;
+        max-width: 1300px; /* Điều chỉnh max-width lên 1300px */
+        height: auto;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+    }
+
+    .booking-button {
+      background-color: #c58246;
+      color: #fff;
+      font-size: 22px; /* Tăng kích thước chữ */
+      font-weight: bold;
+      padding: 20px 50px; /* Tăng kích thước button */
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken(#c58246, 10%);
       }
     }
   }

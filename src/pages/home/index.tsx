@@ -1,6 +1,7 @@
 import React from "react";
 import { Carousel } from "antd";
 import "./index.scss";
+import HairStylistSlider from "../../components/stylists";
 
 const Home: React.FC = () => (
   <div className="home-page">
@@ -146,6 +147,22 @@ const Home: React.FC = () => (
           alt="Olaplex"
         />
       </div>
+    </div>
+
+    {/* Stylists */}
+    <HairStylistSlider />
+
+    {/* Banner */}
+    <div className="banner-container">
+      <h3>TÓC ĐẸP MỖI NGÀY CÙNG</h3>
+      <h1>KIM HAIR SALON</h1>
+      <div className="banner-image">
+        <img
+          src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Homepage%2Fbanner.png?alt=media&token=0c69993f-90b3-4e37-ac61-6845646fcadd"
+          alt="Kim Hair Salon"
+        />
+      </div>
+      <button className="booking-button">ĐẶT LỊCH NGAY</button>
     </div>
   </div>
 );
