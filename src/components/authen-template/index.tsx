@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import "./index.css";
+import "./index.scss";
 
 interface AuthenTemplateProps {
   children: ReactNode;

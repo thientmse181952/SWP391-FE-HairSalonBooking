@@ -1,8 +1,33 @@
 import { FaFacebookF, FaGoogle, FaUserCircle } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import "./index.scss";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useEffect, useState } from "react"; // Import hooks
 
 function Header() {
+  const navigate = useNavigate(); // Khởi tạo useNavigate
+  const [userPhone, setUserPhone] = useState<string | null>(null); // Tạo state để lưu số điện thoại người dùng
+
+  useEffect(() => {
+    // Kiểm tra localStorage xem người dùng đã đăng nhập hay chưa
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUserPhone(parsedData.phone); // Lưu số điện thoại vào state
+    }
+  }, []);
+
+  const handleLogoClick = () => {
+    navigate("/"); // Điều hướng về trang chủ khi nhấp vào logo
+  };
+
+  const handleLogout = () => {
+    // Xóa thông tin người dùng khỏi localStorage và chuyển hướng đến trang đăng nhập
+    localStorage.removeItem("userData");
+    setUserPhone(null); // Reset lại trạng thái userPhone
+    navigate("/login"); // Điều hướng về trang đăng nhập
+  };
+
   return (
     <div className="header-wrapper">
       <div className="header-top">
@@ -19,7 +44,19 @@ function Header() {
         <div className="user-section">
           <span className="separator"></span>
           <FaUserCircle />
-          <a href="#">Đăng nhập/Đăng ký</a>
+          {userPhone ? (
+            <div>
+              <span>Xin chào, {userPhone}</span>{" "}
+              {/* Hiển thị khi người dùng đã đăng nhập */}
+              <br />
+              <button className="logout-button" onClick={handleLogout}>
+                Đăng xuất
+              </button>{" "}
+              {/* Nút Đăng xuất */}
+            </div>
+          ) : (
+            <a href="login">Đăng nhập/Đăng ký</a> // Hiển thị khi người dùng chưa đăng nhập
+          )}
         </div>
       </div>
 
@@ -29,10 +66,12 @@ function Header() {
             <img
               src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Logo%2Flogo.png?alt=media&token=ee1b9b13-5b44-48c4-9106-cc3fee3681a7"
               alt="Kim Salon Logo"
+              onClick={handleLogoClick} // Gắn sự kiện click vào logo
+              style={{ cursor: "pointer" }} // Đặt con trỏ pointer khi hover vào logo
             />
           </div>
-          <a href="#">Trang Chủ</a>
-          <a href="#">Về Chúng Tôi</a>
+          <a href="/">Trang Chủ</a>
+          <a href="about-us">Về Chúng Tôi</a>
           <a href="#">Giá Dịch Vụ</a>
           <a href="#">Thương Hiệu</a>
           <a href="#">Bộ Sưu Tập</a>

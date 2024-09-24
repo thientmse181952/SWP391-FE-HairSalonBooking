@@ -1,0 +1,109 @@
+.authen-template {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Carousel%2Fcarousel1.jpg?alt=media&token=a16ce3ff-b5df-4b6f-931a-92101d59f123");
+
+  .authen-template__form {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Tạo bóng để nổi bật form */
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #000;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-form-item {
+  margin-bottom: 20px;
+  text-align: left; /* Căn chỉnh trái cho label */
+}
+
+.ant-input,
+.ant-input-password {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.login-button {
+  background-color: #c58246;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 100%;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #a8703b !important; /* Màu tối hơn khi hover */
+  }
+}
+
+.google-button {
+  margin-bottom: 20px;
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 1px solid #d9d9d9;
+    color: #000;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+}
+
+.forgot-password {
+  display: block;
+  text-align: right;
+  font-size: 14px;
+  color: #1890ff;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.register-link {
+  font-size: 14px;
+  margin-top: 20px;
+
+  a {
+    color: #1890ff;
+    font-weight: bold;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

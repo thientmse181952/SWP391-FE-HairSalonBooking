@@ -1,62 +1,88 @@
 import React from "react";
-import Form from "antd/es/form/Form";
-import AuthenTemplate from "../../components/authen-template";
-import { Button, Input } from "antd";
-import { getAuth, signInWithPopup, GoogleAuthProvider, UserCredential } from "firebase/auth";
+import { Button, Input, Form, message } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
-import './index.scss';
+import axios from "axios";
+import "./index.scss";
 
 const Login: React.FC = () => {
-  const handleLoginGoogle = async (): Promise<void> => {
-    const auth = getAuth();
+  const [form] = Form.useForm();
+
+  const handleLogin = async (values: {
+    username: string;
+    password: string;
+  }) => {
     try {
-      const result: UserCredential = await signInWithPopup(auth, GoogleAuthProvider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential?.accessToken;
-      const user = result.user;
-      console.log(user);
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      const email = error.customData?.email;
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      console.error("Error during Google login:", errorMessage);
+      const response = await axios.post("http://localhost:8080/api/login", {
+        username: values.username,
+        password: values.password,
+      });
+
+      if (response.status === 200) {
+        message.success("Đăng nhập thành công!");
+
+        // Lưu thông tin tài khoản vào localStorage
+        localStorage.setItem("userData", JSON.stringify(response.data));
+
+        // Chuyển hướng người dùng đến trang chủ hoặc trang chính
+        window.location.href = "/";
+      } else {
+        message.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng nhập:", error);
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
     }
   };
 
-  const handleLogin = (): void => {
-    // Logic for regular login
+  const onFinish = (values: { username: string; password: string }) => {
+    handleLogin(values);
   };
 
   return (
-    <AuthenTemplate>
-      <h1 className="title">Đăng nhập</h1>
-      <Form
-        labelCol={{
-          span: 24,
-        }}
-        className="form"
-      >
-        <Form.Item label="Tên đăng nhập" name="username">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Mật khẩu" name="password">
-          <Input.Password />
-        </Form.Item>
+    <div className="authen-template">
+      <div className="authen-template__form">
+        <h1 className="title">Đăng nhập</h1>
+        <Form
+          form={form}
+          labelCol={{ span: 24 }}
+          className="form"
+          onFinish={onFinish}
+        >
+          <Form.Item
+            label="Số điện thoại"
+            name="username"
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" className="login-button" onClick={handleLogin}>
-            Đăng nhập
-          </Button>
-        </Form.Item>
+          <Form.Item>
+            <Button type="primary" className="login-button" htmlType="submit">
+              Đăng nhập
+            </Button>
+          </Form.Item>
 
-        <Form.Item className="google-button">
-          <Button onClick={handleLoginGoogle} icon={<GoogleOutlined />} className="google-btn">
-            Đăng nhập bằng Google
-          </Button>
-        </Form.Item>
-      </Form>
-    </AuthenTemplate>
+          <Form.Item className="google-button">
+            <Button icon={<GoogleOutlined />} className="google-btn">
+              Đăng nhập bằng Google
+            </Button>
+          </Form.Item>
+
+          <Form.Item className="register-link">
+            <a href="/register">Chưa có tài khoản? Đăng ký tại đây</a>
+          </Form.Item>
+        </Form>
+      </div>
+    </div>
   );
 };
 

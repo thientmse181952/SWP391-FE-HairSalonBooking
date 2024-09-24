@@ -110,4 +110,17 @@
     width: 100px;
     height: auto;
   }
+
+  .logout-button {
+    background-color: transparent;
+    border: none;
+    color: #c58246;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
+    margin-top: 5px;
+    &:hover {
+      color: #a8703b;
+    }
+  }
 }

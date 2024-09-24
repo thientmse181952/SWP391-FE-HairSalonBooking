@@ -30,7 +30,6 @@ const AboutUs: React.FC = () => {
         </div>
       </div>
 
-      {/* Phần mới thêm vào */}
       <div className="mission-vision-section">
         <div className="mission-vision-image">
           <img
@@ -56,6 +55,43 @@ const AboutUs: React.FC = () => {
               Trở thành chuỗi Salon xanh và bền vững được yêu thích nhất tại
               Việt Nam đạt chuẩn quốc tế.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Phần mới thêm về GIÁ TRỊ CỐT LÕI */}
+      <div className="core-values-section">
+        <h2 className="section-title">GIÁ TRỊ CỐT LÕI</h2>
+        <div className="core-values-content">
+          <div className="core-values-image">
+            <img
+              src={
+                "https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/AboutUs%2Fbanner3.png?alt=media&token=db296390-bd2c-4a2e-8094-6481446bfd8f"
+              }
+              alt="Giá Trị Cốt Lõi"
+            />
+          </div>
+          <div className="core-values-text">
+            <div className="core-value-item">
+              <h3>TÂM</h3>
+              <p>Sự chân thành, tử tế.</p>
+            </div>
+            <div className="core-value-item">
+              <h3>TÍN</h3>
+              <p>Sự thanh tín, tận tâm.</p>
+            </div>
+            <div className="core-value-item">
+              <h3>TRÍ</h3>
+              <p>Sự thông tuệ - tư duy đúng đắn.</p>
+            </div>
+            <div className="core-value-item">
+              <h3>TÀI</h3>
+              <p>Tài năng mà khiêm nhường và không ngừng học hỏi.</p>
+            </div>
+            <div className="core-value-item">
+              <h3>TÂM</h3>
+              <p>Hướng đến giá trị bền vững và lâu dài.</p>
+            </div>
           </div>
         </div>
       </div>
