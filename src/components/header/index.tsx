@@ -74,7 +74,7 @@ function Header() {
           <a href="about-us">Về Chúng Tôi</a>
           <a href="#">Giá Dịch Vụ</a>
           <a href="#">Thương Hiệu</a>
-          <a href="#">Bộ Sưu Tập</a>
+          <a href="collection">Bộ Sưu Tập</a>
           <a href="#">Đặt Lịch</a>
         </div>
       </div>

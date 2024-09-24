@@ -6,7 +6,7 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import ResetPassword from "./pages/reset-password";
 import CustomerInformation from "./pages/customer-information";
-
+import Collection from "./pages/collection";
 
 function App() {
   const router = createBrowserRouter([
@@ -39,6 +39,11 @@ function App() {
       path: "customerInformation",
       element: <Layout />,
       children: [{ path: "", element: <CustomerInformation /> }],
+    },
+    {
+      path: "collection",
+      element: <Layout />,
+      children: [{ path: "", element: <Collection /> }],
     },
   ]);
 
