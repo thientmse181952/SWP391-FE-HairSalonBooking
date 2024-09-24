@@ -5,6 +5,7 @@ import HairStylistSlider from "../../components/stylists";
 const AboutUs: React.FC = () => {
   return (
     <div className="about-us">
+      {/* Phần Về Kim Hair Salon */}
       <div className="about-us-header">
         <h3>Về Kim Hair Salon, Sứ Mệnh, Tầm Nhìn</h3>
       </div>
@@ -31,6 +32,7 @@ const AboutUs: React.FC = () => {
         </div>
       </div>
 
+      {/* Phần Sứ Mệnh và Tầm Nhìn */}
       <div className="mission-vision-section">
         <div className="mission-vision-image">
           <img
@@ -60,7 +62,7 @@ const AboutUs: React.FC = () => {
         </div>
       </div>
 
-      {/* Phần mới thêm về GIÁ TRỊ CỐT LÕI */}
+      {/* Phần Giá Trị Cốt Lõi */}
       <div className="core-values-section">
         <h2 className="section-title">GIÁ TRỊ CỐT LÕI</h2>
         <div className="core-values-content">
@@ -98,6 +100,8 @@ const AboutUs: React.FC = () => {
       </div>
 
       {/* Thông tin về nhà sáng lập */}
+
+      {/* Phần Người Sáng Lập */}
       <div className="founder-section">
         <div className="founder-header">
           <h3>Người Sáng Lập</h3>
