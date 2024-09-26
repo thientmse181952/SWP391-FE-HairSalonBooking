@@ -17,11 +17,10 @@ const Register: React.FC = () => {
   const registerUser = async (values: Store) => {
     try {
       const response = await axios.post("http://localhost:8080/api/register", {
-        // fullname: values.fullname,
         email: values.email,
         phone: values.phone,
-
         password: values.password,
+        fullname: values.fullname,
         gender: values.gender,
       });
 
@@ -69,13 +68,13 @@ const Register: React.FC = () => {
           <Input />
         </Form.Item>
 
-        {/* <Form.Item
+        <Form.Item
           label="Tên của bạn"
           name="fullname"
-          rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
         >
           <Input />
-        </Form.Item> */}
+        </Form.Item>
 
         <Form.Item
           label="Email của bạn"

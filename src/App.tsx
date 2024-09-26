@@ -8,6 +8,7 @@ import ResetPassword from "./pages/reset-password";
 import CustomerInformation from "./pages/customer-information";
 import Collection from "./pages/collection";
 import Services from "./pages/services";
+import Brand from "./pages/brand";
 
 function App() {
   const router = createBrowserRouter([
@@ -50,6 +51,11 @@ function App() {
       path: "services",
       element: <Layout />,
       children: [{ path: "", element: <Services /> }],
+    },
+    {
+      path: "brand",
+      element: <Layout />,
+      children: [{ path: "", element: <Brand /> }],
     },
   ]);
 
