@@ -6,7 +6,13 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import ResetPassword from "./pages/reset-password";
 import CustomerInformation from "./pages/customer-information";
-
+import AdminInfo from "./pages/admin/admin-info";
+import LayoutPanel from "./components/layout-panel";
+import AdminPersonnelManagement from "./pages/admin/admin-personnel-management"; // Import đúng các component
+import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration";
+import AdminDashboard from "./pages/admin/admin-dashboard";
+import AdminCalendarManagement from "./pages/admin/admin-calendar-management";
+import AdminServiceManagement from "./pages/admin/admin-service-management";
 
 function App() {
   const router = createBrowserRouter([
@@ -39,6 +45,18 @@ function App() {
       path: "customerInformation",
       element: <Layout />,
       children: [{ path: "", element: <CustomerInformation /> }],
+    },
+    {
+      path: "adminpage",
+      element: <LayoutPanel />,
+      children: [
+        { path: "adminInfo", element: <AdminInfo /> },//Đường dẫn cho admin thông tin
+        { path: "adminPersonnelManagement", element: <AdminPersonnelManagement /> }, // Đường dẫn cho Tất cả nhân sự
+        { path: "adminEmployeeRegistration", element: <AdminEmployeeRegistration /> }, // Đường dẫn cho Đăng ký nhân viên
+        { path: "adminDashboard", element: <AdminDashboard /> }, // Đường dẫn cho Dashboard
+        { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
+        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+      ],
     },
   ]);
 
