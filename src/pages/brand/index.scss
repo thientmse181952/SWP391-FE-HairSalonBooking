@@ -1,0 +1,31 @@
+.brand-section {
+  text-align: center;
+  background-color: #fff;
+
+  img {
+    max-width: 600px;
+    width: 100%;
+    height: auto;
+  }
+
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 40px;
+
+    img {
+      max-width: 150px;
+      width: 100%;
+      height: auto;
+      transition: transform 0.3s ease-in-out;
+      margin: auto;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}

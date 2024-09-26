@@ -13,6 +13,10 @@ import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration
 import AdminDashboard from "./pages/admin/admin-dashboard";
 import AdminCalendarManagement from "./pages/admin/admin-calendar-management";
 import AdminServiceManagement from "./pages/admin/admin-service-management";
+import Collection from "./pages/collection";
+import Services from "./pages/services";
+import Brand from "./pages/brand";
+
 
 function App() {
   const router = createBrowserRouter([
@@ -37,12 +41,12 @@ function App() {
       children: [{ path: "", element: <Register /> }],
     },
     {
-      path: "resetPassword",
+      path: "reset-password",
       element: <Layout />,
       children: [{ path: "", element: <ResetPassword /> }],
     },
     {
-      path: "customerInformation",
+      path: "customer-information",
       element: <Layout />,
       children: [{ path: "", element: <CustomerInformation /> }],
     },
@@ -57,6 +61,21 @@ function App() {
         { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
         { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
       ],
+    },
+      {
+      path: "collection",
+      element: <Layout />,
+      children: [{ path: "", element: <Collection /> }],
+    },
+    {
+      path: "services",
+      element: <Layout />,
+      children: [{ path: "", element: <Services /> }],
+    },
+    {
+      path: "brand",
+      element: <Layout />,
+      children: [{ path: "", element: <Brand /> }],
     },
   ]);
 
