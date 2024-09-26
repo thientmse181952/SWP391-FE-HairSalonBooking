@@ -70,12 +70,12 @@ function Header() {
               style={{ cursor: "pointer" }} // Đặt con trỏ pointer khi hover vào logo
             />
           </div>
-          <a href="/">Trang Chủ</a>
-          <a href="about-us">Về Chúng Tôi</a>
-          <a href="#">Giá Dịch Vụ</a>
-          <a href="#">Thương Hiệu</a>
-          <a href="collection">Bộ Sưu Tập</a>
-          <a href="#">Đặt Lịch</a>
+          <span onClick={() => navigate("/")}>Trang Chủ</span>
+          <span onClick={() => navigate("/about-us")}>Về Chúng Tôi</span>
+          <span onClick={() => navigate("/services")}>Giá Dịch Vụ</span>
+          <span onClick={() => navigate("/brand")}>Thương Hiệu</span>
+          <span onClick={() => navigate("/collection")}>Bộ Sưu Tập</span>
+          <span onClick={() => navigate("/booking")}>Đặt Lịch</span>
         </div>
       </div>
     </div>

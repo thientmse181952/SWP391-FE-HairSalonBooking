@@ -3,9 +3,11 @@ import { Button, Input, Form, message } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const handleLogin = async (values: {
     username: string;
@@ -24,7 +26,7 @@ const Login: React.FC = () => {
         localStorage.setItem("userData", JSON.stringify(response.data));
 
         // Chuyển hướng người dùng đến trang chủ hoặc trang chính
-        window.location.href = "/";
+        navigate("/");
       } else {
         message.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin!");
       }
@@ -78,7 +80,9 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item className="register-link">
-            <a href="/register">Chưa có tài khoản? Đăng ký tại đây</a>
+            <span onClick={() => navigate("/register")}>
+              Chưa có tài khoản? Đăng ký tại đây
+            </span>
           </Form.Item>
         </Form>
       </div>

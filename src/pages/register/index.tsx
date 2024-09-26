@@ -7,9 +7,11 @@ import { Store } from "antd/lib/form/interface"; // Kiểu cho giá trị form
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import axios from "axios"; // Import axios
 import "./index.scss";
+import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-  const [form] = useForm(); // Khởi tạo form
+  const [form] = useForm(); // Khởi tạo form\
+  const navigate = useNavigate();
 
   // Hàm gửi yêu cầu đăng ký
   const registerUser = async (values: Store) => {
@@ -27,7 +29,7 @@ const Register: React.FC = () => {
       if (response.status === 201 || response.status === 200) {
         message.success("Đăng ký thành công!");
         // Chuyển hướng đến trang đăng nhập hoặc trang chính
-        window.location.href = "/login";
+        navigate("/login");
       } else {
         message.error("Đăng ký thất bại, vui lòng thử lại!");
       }
@@ -153,7 +155,9 @@ const Register: React.FC = () => {
         </Form.Item>
 
         <Form.Item className="login-link">
-          <a href="/login">Đã có tài khoản? Đăng nhập</a>
+          <span onClick={() => navigate("/login")}>
+            Đã có tài khoản? Đăng nhập
+          </span>
         </Form.Item>
       </Form>
     </AuthenTemplate>
