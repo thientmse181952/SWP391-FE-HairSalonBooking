@@ -4,6 +4,8 @@ import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
 import { useNavigate } from "react-router-dom";
+import { googleProvider } from "../../config/firebase";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
@@ -34,6 +36,32 @@ const Login: React.FC = () => {
       console.error("Lỗi khi đăng nhập:", error);
       message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
     }
+  };
+
+  const handleLoginGoogle = () => {
+    const auth = getAuth();
+    signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+        console.log(user);
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        console.log(error);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
   };
 
   const onFinish = (values: { username: string; password: string }) => {
@@ -74,7 +102,11 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item className="google-button">
-            <Button icon={<GoogleOutlined />} className="google-btn">
+            <Button
+              icon={<GoogleOutlined />}
+              className="google-btn"
+              onClick={handleLoginGoogle}
+            >
               Đăng nhập bằng Google
             </Button>
           </Form.Item>
