@@ -1,150 +1,114 @@
-import React, { useEffect } from "react";
-import { Button, Form, Input, message } from "antd";
-import { useForm } from "antd/lib/form/Form"; 
-import { RuleObject } from "rc-field-form/lib/interface"; 
-import { Store } from "antd/lib/form/interface"; 
-import { ValidateErrorEntity } from "rc-field-form/lib/interface";
-import axios from "axios"; 
-import { Outlet } from "react-router-dom"; // Import Outlet
+import React from 'react';
+import { Table } from 'antd';
+import type { TableColumnsType, TableProps } from 'antd';
 
-const AdminCalendarManagement: React.FC = () => {
-  const [form] = useForm();
+interface DataType {
+  key: React.Key;
+  name: string;
+  age: number;
+  address: string;
+}
 
-  const fetchAdminInfo = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/api/admin-info"); 
-      if (response.status === 200) {
-        form.setFieldsValue({
-          fullname: response.data.fullname,
-          phone: response.data.phone,
-          email: response.data.email,
-        });
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi lấy thông tin admin:", error);
-      message.error("Không thể lấy thông tin, vui lòng thử lại sau!");
-    }
-  };
+const columns: TableColumnsType<DataType> = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    filters: [
+      {
+        text: 'Joe',
+        value: 'Joe',
+      },
+      {
+        text: 'Category 1',
+        value: 'Category 1',
+        children: [
+          {
+            text: 'Yellow',
+            value: 'Yellow',
+          },
+          {
+            text: 'Pink',
+            value: 'Pink',
+          },
+        ],
+      },
+      {
+        text: 'Category 2',
+        value: 'Category 2',
+        children: [
+          {
+            text: 'Green',
+            value: 'Green',
+          },
+          {
+            text: 'Black',
+            value: 'Black',
+          },
+        ],
+      },
+    ],
+    filterMode: 'tree',
+    filterSearch: true,
+    onFilter: (value, record) => record.name.includes(value as string),
+    width: '30%',
+  },
+  {
+    title: 'Age',
+    dataIndex: 'age',
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: 'Address',
+    dataIndex: 'address',
+    filters: [
+      {
+        text: 'London',
+        value: 'London',
+      },
+      {
+        text: 'New York',
+        value: 'New York',
+      },
+    ],
+    onFilter: (value, record) => record.address.startsWith(value as string),
+    filterSearch: true,
+    width: '40%',
+  },
+];
 
-  const updateUser = async (values: Store) => {
-    try {
-      const response = await axios.put(
-        "http://localhost:8080/api/update-admin",
-        {
-          fullname: values.fullname,
-          email: values.email,
-          phone: values.phone,
-          password: values.password,
-        }
-      );
+const data: DataType[] = [
+  {
+    key: '1',
+    name: 'John Brown',
+    age: 32,
+    address: 'New York No. 1 Lake Park',
+  },
+  {
+    key: '2',
+    name: 'Jim Green',
+    age: 42,
+    address: 'London No. 1 Lake Park',
+  },
+  {
+    key: '3',
+    name: 'Joe Black',
+    age: 32,
+    address: 'Sydney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Jim Red',
+    age: 32,
+    address: 'London No. 2 Lake Park',
+  },
+];
 
-      if (response.status === 200) {
-        message.success("Cập nhật thành công!");
-      } else {
-        message.error("Cập nhật thất bại, vui lòng thử lại!");
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi cập nhật thông tin:", error);
-      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
-    }
-  };
-
-  const onFinish = (values: Store): void => {
-    console.log("Success:", values);
-    updateUser(values);
-  };
-
-  const onFinishFailed = (errorInfo: ValidateErrorEntity): void => {
-    console.log("Failed:", errorInfo);
-  };
-
-  useEffect(() => {
-    fetchAdminInfo();
-  }, []);
-
-  return (
-    <div className="card"> {/* Thêm lớp card ở đây */}
-      <Form
-        form={form}
-        labelCol={{ span: 24 }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-      >
-        <h1>calendar management</h1>
-        <Form.Item
-          label="Tên của bạn"
-          name="fullname"
-          rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Số điện thoại"
-          name="phone"
-          rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại của bạn!" },
-            { pattern: /^[0-9]+$/, message: "Số điện thoại phải là chữ số!" },
-            { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Email của bạn"
-          name="email"
-          rules={[
-            { required: false, message: "Vui lòng nhập email của bạn!" },
-            { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Mật Khẩu"
-          name="password"
-          rules={[
-            { required: false, message: "Vui lòng nhập mật khẩu của bạn!" },
-            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-          ]}
-          hasFeedback
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item
-          label="Nhập lại mật khẩu"
-          name="rePassword"
-          dependencies={["password"]}
-          hasFeedback
-          rules={[
-            { required: false, message: "Vui lòng xác nhận mật khẩu của bạn!" },
-            ({ getFieldValue }) => ({
-              validator(_: RuleObject, value: string) {
-                if (!value || getFieldValue("password") === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error("Hai mật khẩu không khớp!"));
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item className="submit-button">
-          <Button type="primary" htmlType="submit">
-            Cập Nhật
-          </Button>
-        </Form.Item>
-      </Form>
-      
-      {/* Thêm Outlet ở đây */}
-      <Outlet />
-    </div>
-  );
+const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
+  console.log('params', pagination, filters, sorter, extra);
 };
 
-export default AdminCalendarManagement;
+const App: React.FC = () => (
+  <Table<DataType> columns={columns} dataSource={data} onChange={onChange} />
+);
+
+export default App;
