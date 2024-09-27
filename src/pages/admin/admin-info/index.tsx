@@ -5,7 +5,7 @@ import { RuleObject } from "rc-field-form/lib/interface";
 import { Store } from "antd/lib/form/interface"; 
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import axios from "axios"; 
-import { Outlet } from "react-router-dom"; // Import Outlet
+import { Outlet } from "react-router-dom"; 
 import './index.scss';
 
 const AdminInfo: React.FC = () => {
@@ -13,12 +13,12 @@ const AdminInfo: React.FC = () => {
 
   const fetchAdminInfo = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/admin-info"); 
+      const response = await axios.get("https://<your-mockapi-id>.mockapi.io/api/v1/admin-info"); 
       if (response.status === 200) {
         form.setFieldsValue({
-          fullname: response.data.fullname,
-          phone: response.data.phone,
-          email: response.data.email,
+          fullname: response.data[0].fullname,
+          phone: response.data[0].phone,
+          email: response.data[0].email,
         });
       }
     } catch (error) {
@@ -30,7 +30,7 @@ const AdminInfo: React.FC = () => {
   const updateUser = async (values: Store) => {
     try {
       const response = await axios.put(
-        "http://localhost:8080/api/update-admin",
+        "https://<your-mockapi-id>.mockapi.io/api/v1/admin-info/1", // Cập nhật ID phù hợp
         {
           fullname: values.fullname,
           email: values.email,
@@ -64,7 +64,7 @@ const AdminInfo: React.FC = () => {
   }, []);
 
   return (
-    <div className="card"> {/* Thêm lớp card ở đây */}
+    <div className="card">
       <Form
         form={form}
         labelCol={{ span: 24 }}
@@ -142,7 +142,6 @@ const AdminInfo: React.FC = () => {
         </Form.Item>
       </Form>
       
-      {/* Thêm Outlet ở đây */}
       <Outlet />
     </div>
   );

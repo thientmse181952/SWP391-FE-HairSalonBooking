@@ -1,20 +1,16 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../sidebar";
-import './index.scss'
+import './index.scss';
 
-function LayoutPanel() {
+function LayoutAdmin() {
   return (
-    <>
-      <div className="layout-panel">
+    <div className="layout-panel">
       <Sidebar />
       <div className="outlet-container">
         <Outlet />
       </div>
     </div>
-
-      
-    </>
   );
 }
 
-export default LayoutPanel;
+export default LayoutAdmin;

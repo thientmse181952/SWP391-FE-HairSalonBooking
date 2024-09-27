@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { TableProps } from 'antd';
 import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import "./index.scss"
 
 interface DataType {
   key: string;

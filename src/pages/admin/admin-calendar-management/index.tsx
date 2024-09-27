@@ -1,53 +1,27 @@
-import React, { useEffect } from "react";
-import { Button, Form, Input, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Input, message, Select, Typography, Calendar } from "antd";
 import { useForm } from "antd/lib/form/Form"; 
 import { RuleObject } from "rc-field-form/lib/interface"; 
 import { Store } from "antd/lib/form/interface"; 
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import axios from "axios"; 
-import { Outlet } from "react-router-dom"; // Import Outlet
+import { Outlet } from "react-router-dom"; 
+
+import { DatePicker, Space } from "antd";
+
+const { RangePicker } = DatePicker;
+
+const { Option } = Select;
+const { Title } = Typography;
 
 const AdminCalendarManagement: React.FC = () => {
   const [form] = useForm();
-
-  const fetchAdminInfo = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/api/admin-info"); 
-      if (response.status === 200) {
-        form.setFieldsValue({
-          fullname: response.data.fullname,
-          phone: response.data.phone,
-          email: response.data.email,
-        });
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi lấy thông tin admin:", error);
-      message.error("Không thể lấy thông tin, vui lòng thử lại sau!");
-    }
-  };
-
-  const updateUser = async (values: Store) => {
-    try {
-      const response = await axios.put(
-        "http://localhost:8080/api/update-admin",
-        {
-          fullname: values.fullname,
-          email: values.email,
-          phone: values.phone,
-          password: values.password,
-        }
-      );
-
-      if (response.status === 200) {
-        message.success("Cập nhật thành công!");
-      } else {
-        message.error("Cập nhật thất bại, vui lòng thử lại!");
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi cập nhật thông tin:", error);
-      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
-    }
-  };
+  const [selectedStylist, setSelectedStylist] = useState<string | undefined>(undefined);
+  const stylistOptions = [
+    { id: '1', name: 'Stylist 1' },
+    { id: '2', name: 'Stylist 2' },
+    { id: '3', name: 'Stylist 3' },
+  ];
 
   const onFinish = (values: Store): void => {
     console.log("Success:", values);
@@ -58,91 +32,73 @@ const AdminCalendarManagement: React.FC = () => {
     console.log("Failed:", errorInfo);
   };
 
-  useEffect(() => {
-    fetchAdminInfo();
-  }, []);
+  const handleStylistChange = (value: string) => {
+    setSelectedStylist(value);
+  };
+
+  const onDateSelect = (date: any) => {
+    console.log("Ngày đã chọn:", date.format("YYYY-MM-DD"));
+  };
+
+
 
   return (
-    <div className="card"> {/* Thêm lớp card ở đây */}
-      <Form
-        form={form}
-        labelCol={{ span: 24 }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-      >
-        <h1>calendar management</h1>
-        <Form.Item
-          label="Tên của bạn"
-          name="fullname"
-          rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
-        >
-          <Input />
+    <div className="card">
+      <Title level={2}>Quản Lý Lịch Stylist</Title>
+      <Form>
+      
+        <Form.Item label="Chọn Stylist">
+          <Select
+            placeholder="Chọn Stylist"
+            style={{ width: 200 }}
+            onChange={handleStylistChange}
+          >
+            {stylistOptions.map(stylist => (
+              <Option key={stylist.id} value={stylist.name}>
+                {stylist.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
 
-        <Form.Item
-          label="Số điện thoại"
-          name="phone"
-          rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại của bạn!" },
-            { pattern: /^[0-9]+$/, message: "Số điện thoại phải là chữ số!" },
-            { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+        
+      </Form>
 
-        <Form.Item
-          label="Email của bạn"
-          name="email"
-          rules={[
-            { required: false, message: "Vui lòng nhập email của bạn!" },
-            { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+      <div style={{ marginTop: '20px' }}>
+        <Calendar onSelect={onDateSelect} />
+      </div>
 
-        <Form.Item
-          label="Mật Khẩu"
-          name="password"
-          rules={[
-            { required: false, message: "Vui lòng nhập mật khẩu của bạn!" },
-            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-          ]}
-          hasFeedback
-        >
-          <Input.Password />
-        </Form.Item>
+      <div style={{ marginTop: '20px' }}>
+        {selectedStylist && <Title level={4}>Stylist đã chọn: {selectedStylist}</Title>}
+      </div>
 
-        <Form.Item
-          label="Nhập lại mật khẩu"
-          name="rePassword"
-          dependencies={["password"]}
-          hasFeedback
-          rules={[
-            { required: false, message: "Vui lòng xác nhận mật khẩu của bạn!" },
-            ({ getFieldValue }) => ({
-              validator(_: RuleObject, value: string) {
-                if (!value || getFieldValue("password") === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error("Hai mật khẩu không khớp!"));
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
+      
+  <Space direction="vertical" size={12}>
+    <RangePicker />
+    <RangePicker showTime />
+    <RangePicker picker="week" />
+    <RangePicker picker="month" />
+    <RangePicker picker="quarter" />
+    <RangePicker
+      picker="year"
+      id={{
+        start: 'startInput',
+        end: 'endInput',
+      }}
+      onFocus={(_, info) => {
+        console.log('Focus:', info.range);
+      }}
+      onBlur={(_, info) => {
+        console.log('Blur:', info.range);
+      }}
+    />
+  </Space>
 
-        <Form.Item className="submit-button">
+      <Form.Item className="submit-button">
           <Button type="primary" htmlType="submit">
-            Cập Nhật
+            Cập nhật
           </Button>
         </Form.Item>
-      </Form>
-      
-      {/* Thêm Outlet ở đây */}
-      <Outlet />
     </div>
   );
 };

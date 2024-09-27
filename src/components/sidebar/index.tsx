@@ -7,6 +7,7 @@ import {
   ScheduleOutlined,
   SettingOutlined,
   LogoutOutlined,
+  FolderOutlined
 } from "@ant-design/icons";
 import { NavLink } from "react-router-dom"; // Thêm NavLink
 import "./index.scss";
@@ -21,6 +22,7 @@ const Sidebar: React.FC = () => {
     { id: "dashboard", label: "Dashboard", icon: <DashboardOutlined />, path: "/adminpage/adminDashboard" },
     { id: "schedule", label: "Xếp lịch Stylist", icon: <ScheduleOutlined />, path: "/adminpage/adminCalendarManagement" },
     { id: "services", label: "Quản lý dịch vụ", icon: <SettingOutlined />, path: "/adminpage/adminServiceManagement" },
+    { id: "selection", label: "Quản lý bộ sưu tập", icon: <FolderOutlined />, path: "/adminpage/AdminSelection" },
     { id: "exit", label: "Đăng xuất", icon: <LogoutOutlined />, path: "/" }, // Thêm đường dẫn cho đăng xuất nếu cần
   ];
 

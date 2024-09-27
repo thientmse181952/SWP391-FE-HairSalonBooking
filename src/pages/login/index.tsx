@@ -3,12 +3,8 @@ import { Button, Input, Form, message } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
-<<<<<<< HEAD
-import { googleProvider } from "../../config/firebase.js";
-=======
+import { googleProvider } from "../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
-import { googleProvider } from "../../config/firebase";
->>>>>>> 8268d27640aaa7dc9de307daa1deb04eff0eb45e
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login: React.FC = () => {
@@ -72,30 +68,6 @@ const Login: React.FC = () => {
     handleLogin(values);
   };
 
-  const handleLoginGoogle = () => {
-    const auth = getAuth();
-    signInWithPopup(auth, googleProvider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const Token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        console.log(error);
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
-  };
 
   return (
     <div className="authen-template">
@@ -131,15 +103,11 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item className="google-button">
-<<<<<<< HEAD
-            <Button onClick={handleLoginGoogle} icon={<GoogleOutlined />} className="google-btn">
-=======
             <Button
               icon={<GoogleOutlined />}
               className="google-btn"
               onClick={handleLoginGoogle}
             >
->>>>>>> 8268d27640aaa7dc9de307daa1deb04eff0eb45e
               Đăng nhập bằng Google
             </Button>
           </Form.Item>

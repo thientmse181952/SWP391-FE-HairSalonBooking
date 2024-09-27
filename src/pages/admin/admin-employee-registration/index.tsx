@@ -6,6 +6,7 @@ import { Store } from "antd/lib/form/interface";
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import axios from "axios"; 
 import { Outlet } from "react-router-dom"; // Import Outlet
+import AddTemplate from "../../../components/add-template";
 
 const AdminEmployeeRegistration: React.FC = () => {
   const [form] = useForm();
@@ -63,7 +64,7 @@ const AdminEmployeeRegistration: React.FC = () => {
   }, []);
 
   return (
-    <div className="card"> {/* Thêm lớp card ở đây */}
+    <AddTemplate>
       <Form
         form={form}
         labelCol={{ span: 24 }}
@@ -140,10 +141,8 @@ const AdminEmployeeRegistration: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
-      
-      {/* Thêm Outlet ở đây */}
-      <Outlet />
-    </div>
+
+      </AddTemplate>
   );
 };
 

@@ -2,7 +2,8 @@
   .submit-button,
   .login-link {
     display: flex;
-    justify-content: center; /* Căn giữa */
+    justify-content: center;
+    align-items: center; /* Căn trai */
   }
 
   .submit-button {
@@ -44,8 +45,15 @@
   box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
   padding: 10px; // Thêm padding để nội dung không bị dính vào viền
   display: flex;
+  flex-direction: column;
   align-items: center; // Canh giữa nội dung theo chiều dọc
   justify-content: center; // Canh giữa nội dung theo chiều ngang
   max-width: 95%; // Giới hạn tối đa chiều rộng nếu cần
   margin: auto; // Canh giữa thẻ card trong layout
+}
+
+.card h1{
+  font-size:xx-large;
+  text-transform: uppercase;
+  padding: 20px;
 }
