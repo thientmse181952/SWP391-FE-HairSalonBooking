@@ -17,10 +17,11 @@ const Register: React.FC = () => {
   const registerUser = async (values: Store) => {
     try {
       const response = await axios.post("http://localhost:8080/api/register", {
+        fullName: values.fullname,
         email: values.email,
         phone: values.phone,
         password: values.password,
-        fullname: values.fullname,
+        role: "CUSTOMER", // Mặc định đặt là CUSTOMER
         gender: values.gender,
       });
 

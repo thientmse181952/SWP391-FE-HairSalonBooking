@@ -58,7 +58,7 @@ const Brand: React.FC = () => {
   return (
     <div className="brand-section">
       <img
-        src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Brand%2Fthuong-hieu.png?alt=media&token=dacf5a50-7ada-497b-a7d6-29cb2bcf0930"
+        src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/Brand%2Fthuong-hieu.png?alt=media&token=9c8f7cb9-bfa4-4e7a-91fc-9fd5709791a7"
         alt="Doi-tac"
       />
       <div className="brand-grid">
