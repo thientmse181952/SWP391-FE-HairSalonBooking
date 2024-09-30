@@ -51,13 +51,13 @@ const AdminServiceManagement: React.FC = () => {
       >
         
       
-        <Form.Item label="Fullname">
+        <Form.Item label="Tên dịch vụ">
           <Input />
         </Form.Item>
         <Form.Item label="Gender">
           <Radio.Group>
-            <Radio value="apple"> Male </Radio>
-            <Radio value="pear"> Female </Radio>
+            <Radio value="male"> Nam </Radio>
+            <Radio value="female"> Nữ </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item label="Select">

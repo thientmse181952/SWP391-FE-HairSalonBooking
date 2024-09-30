@@ -13,6 +13,8 @@ import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration
 import AdminDashboard from "./pages/admin/admin-dashboard";
 import AdminCalendarManagement from "./pages/admin/admin-calendar-management";
 import AdminServiceManagement from "./pages/admin/admin-service-management";
+import AdminCategory from "./components/admin-category"; // Thêm dấu phẩy ở đây
+import AddSelection from "./pages/admin/addmin-add-selection";
 
 function App() {
   const router = createBrowserRouter([
@@ -48,14 +50,15 @@ function App() {
     },
     {
       path: "adminpage",
-      element: <LayoutPanel />,
+      element: <AdminCategory />,
       children: [
-        { path: "adminInfo", element: <AdminInfo /> },//Đường dẫn cho admin thông tin
+        { path: "adminInfo", element: <AdminInfo /> }, // Đường dẫn cho admin thông tin
         { path: "adminPersonnelManagement", element: <AdminPersonnelManagement /> }, // Đường dẫn cho Tất cả nhân sự
         { path: "adminEmployeeRegistration", element: <AdminEmployeeRegistration /> }, // Đường dẫn cho Đăng ký nhân viên
         { path: "adminDashboard", element: <AdminDashboard /> }, // Đường dẫn cho Dashboard
         { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, 
+        { path: "AddSelection", element: <AddSelection /> },// Đường dẫn cho Quản lý dịch vụ
       ],
     },
   ]);
