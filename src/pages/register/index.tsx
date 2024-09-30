@@ -7,19 +7,20 @@ import { Store } from "antd/lib/form/interface"; // Kiểu cho giá trị form
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import axios from "axios"; // Import axios
 import "./index.scss";
+import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-  const [form] = useForm(); // Khởi tạo form
+  const [form] = useForm(); // Khởi tạo form\
+  const navigate = useNavigate();
 
   // Hàm gửi yêu cầu đăng ký
   const registerUser = async (values: Store) => {
     try {
       const response = await axios.post("http://localhost:8080/api/register", {
-        // fullname: values.fullname,
         email: values.email,
         phone: values.phone,
-
         password: values.password,
+        fullname: values.fullname,
         gender: values.gender,
       });
 
@@ -27,7 +28,7 @@ const Register: React.FC = () => {
       if (response.status === 201 || response.status === 200) {
         message.success("Đăng ký thành công!");
         // Chuyển hướng đến trang đăng nhập hoặc trang chính
-        window.location.href = "/login";
+        navigate("/login");
       } else {
         message.error("Đăng ký thất bại, vui lòng thử lại!");
       }
@@ -67,13 +68,13 @@ const Register: React.FC = () => {
           <Input />
         </Form.Item>
 
-        {/* <Form.Item
+        <Form.Item
           label="Tên của bạn"
           name="fullname"
-          rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
         >
           <Input />
-        </Form.Item> */}
+        </Form.Item>
 
         <Form.Item
           label="Email của bạn"
@@ -153,7 +154,9 @@ const Register: React.FC = () => {
         </Form.Item>
 
         <Form.Item className="login-link">
-          <a href="/login">Đã có tài khoản? Đăng nhập</a>
+          <span onClick={() => navigate("/login")}>
+            Đã có tài khoản? Đăng nhập
+          </span>
         </Form.Item>
       </Form>
     </AuthenTemplate>

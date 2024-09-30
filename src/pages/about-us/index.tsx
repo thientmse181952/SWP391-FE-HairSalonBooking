@@ -1,6 +1,7 @@
 import React from "react";
 import "./index.scss";
 import HairStylistSlider from "../../components/stylists";
+import ScrollToTop from "../../components/scroll-to-top";
 
 const AboutUs: React.FC = () => {
   return (
@@ -173,6 +174,7 @@ const AboutUs: React.FC = () => {
         </div>
         <HairStylistSlider />
       </div>
+      <ScrollToTop />
     </div>
   );
 };

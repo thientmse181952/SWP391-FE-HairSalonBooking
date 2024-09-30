@@ -1,0 +1,66 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #F3F0EB;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+ 
+ 
+
+  .logo {
+    margin-bottom: 30px;
+
+    img {
+      width: 100px; // Điều chỉnh kích thước logo
+    }
+  }
+
+  .options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+
+    li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, color 0.3s; // Thêm hiệu ứng cho color
+
+      svg {
+        font-size: 20px; // Kích thước icon
+        margin-right: 10px;
+      }
+
+      span {
+        font-size: 16px;
+        transition: color 0.3s; // Thêm hiệu ứng cho chữ
+      }
+
+      &:hover {
+        background-color: #e9ecef;
+      }
+
+      // Hiệu ứng khi nhấp chuột
+      &:active {
+        transform: scale(0.95); // Giảm kích thước khi nhấp
+        background-color: #d1d3d5; // Màu nền khi nhấp
+      }
+
+      // Hiệu ứng cho option đã chọn
+      &.selected {
+        background-color: #343a40; // Màu nền tối
+        color: #ffffff; // Màu chữ sáng
+        transform: translateX(5px); // Dịch sang bên phải
+        font-weight: bold; // Chữ đậm hơn
+
+        span {
+          color: #ffffff; // Đảm bảo màu chữ sáng
+        }
+      }
+    }
+  }
+}

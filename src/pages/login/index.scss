@@ -5,13 +5,13 @@
     margin-top: 10px; /* Khoảng cách trên liên kết đăng nhập */
     display: flex;
     justify-content: center; /* Căn giữa */
-    a {
-      color: #1890ff !important;
-      font-weight: bold !important;
-      text-decoration: none !important; /* Không gạch chân mặc định */
+    span {
+      color: #1890ff;
+      font-weight: bold;
+      text-decoration: none; /* Không gạch chân mặc định */
 
       &:hover {
-        text-decoration: underline !important; /* Hiệu ứng gạch chân khi hover */
+        text-decoration: underline; /* Hiệu ứng gạch chân khi hover */
       }
     }
   }
