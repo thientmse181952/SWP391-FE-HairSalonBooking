@@ -1,0 +1,25 @@
+.scroll-to-top {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  z-index: 1000;
+  background-color: #c58246;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-color: #e6a86e;
+    transform: scale(1.1); // Phóng to nhẹ khi hover
+  }
+
+  .anticon {
+    font-size: 24px;
+    color: white;
+  }
+}

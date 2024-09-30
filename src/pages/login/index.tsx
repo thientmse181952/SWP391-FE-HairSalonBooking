@@ -3,11 +3,15 @@ import { Button, Input, Form, message } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
-import { googleProvider } from "../../config/firebase.js";
+import { googleProvider } from "../../config/firebase.ts";
+
+import { useNavigate } from "react-router-dom";
+
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const handleLogin = async (values: {
     username: string;
@@ -22,11 +26,19 @@ const Login: React.FC = () => {
       if (response.status === 200) {
         message.success("Đăng nhập thành công!");
 
+        // Giả sử response.data chứa token và fullName trong các trường 'token' và 'fullName'
+        const token = response.data.token;
+        const fullName = response.data.fullName; // Lấy fullName từ response
+
+        // Lưu token và fullName vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("fullName", fullName); // Lưu fullName
+
         // Lưu thông tin tài khoản vào localStorage
         localStorage.setItem("userData", JSON.stringify(response.data));
 
         // Chuyển hướng người dùng đến trang chủ hoặc trang chính
-        window.location.href = "/";
+        navigate("/");
       } else {
         message.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin!");
       }
@@ -36,21 +48,24 @@ const Login: React.FC = () => {
     }
   };
 
-  const onFinish = (values: { username: string; password: string }) => {
-    handleLogin(values);
-  };
-
   const handleLoginGoogle = () => {
     const auth = getAuth();
     signInWithPopup(auth, googleProvider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        const Token = credential.accessToken;
+        const token = credential.accessToken;
         // The signed-in user info.
         const user = result.user;
         // IdP data available using getAdditionalUserInfo(result)
-        // ...
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("fullName", user.displayName); // Lưu fullName từ Google
+
+        // Chuyển hướng người dùng đến trang chủ hoặc trang chính
+        navigate("/");
+
+        console.log(user);
       })
       .catch((error) => {
         // Handle Errors here.
@@ -63,6 +78,10 @@ const Login: React.FC = () => {
         const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
       });
+  };
+
+  const onFinish = (values: { username: string; password: string }) => {
+    handleLogin(values);
   };
 
   return (
@@ -99,13 +118,19 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item className="google-button">
-            <Button onClick={handleLoginGoogle} icon={<GoogleOutlined />} className="google-btn">
+            <Button
+              icon={<GoogleOutlined />}
+              className="google-btn"
+              onClick={handleLoginGoogle}
+            >
               Đăng nhập bằng Google
             </Button>
           </Form.Item>
 
           <Form.Item className="register-link">
-            <a href="/register">Chưa có tài khoản? Đăng ký tại đây</a>
+            <span onClick={() => navigate("/register")}>
+              Chưa có tài khoản? Đăng ký tại đây
+            </span>
           </Form.Item>
         </Form>
       </div>

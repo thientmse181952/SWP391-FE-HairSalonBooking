@@ -1,9 +1,12 @@
 import React from "react";
 import "./index.scss";
+import HairStylistSlider from "../../components/stylists";
+import ScrollToTop from "../../components/scroll-to-top";
 
 const AboutUs: React.FC = () => {
   return (
     <div className="about-us">
+      {/* Phần Về Kim Hair Salon */}
       <div className="about-us-header">
         <h3>Về Kim Hair Salon, Sứ Mệnh, Tầm Nhìn</h3>
       </div>
@@ -30,6 +33,7 @@ const AboutUs: React.FC = () => {
         </div>
       </div>
 
+      {/* Phần Sứ Mệnh và Tầm Nhìn */}
       <div className="mission-vision-section">
         <div className="mission-vision-image">
           <img
@@ -59,7 +63,7 @@ const AboutUs: React.FC = () => {
         </div>
       </div>
 
-      {/* Phần mới thêm về GIÁ TRỊ CỐT LÕI */}
+      {/* Phần Giá Trị Cốt Lõi */}
       <div className="core-values-section">
         <h2 className="section-title">GIÁ TRỊ CỐT LÕI</h2>
         <div className="core-values-content">
@@ -89,12 +93,88 @@ const AboutUs: React.FC = () => {
               <p>Tài năng mà khiêm nhường và không ngừng học hỏi.</p>
             </div>
             <div className="core-value-item">
-              <h3>TÂM</h3>
+              <h3>TẦM</h3>
               <p>Hướng đến giá trị bền vững và lâu dài.</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Thông tin về nhà sáng lập */}
+
+      {/* Phần Người Sáng Lập */}
+      <div className="founder-section">
+        <div className="founder-header">
+          <h3>Người Sáng Lập</h3>
+        </div>
+        <div className="founder-content">
+          <div className="founder-image">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/swp391-7123d.appspot.com/o/AboutUs%2Fbanner4.png?alt=media&token=eafd6bb1-2a45-4dc8-b4f1-d82b737ca69f"
+              alt="Le Hieu"
+            />
+            <p className="quote">
+              “Mỗi sản phẩm tóc được đầu tư thời gian và trí tuệ như một tác
+              phẩm nghệ thuật. Vẻ đẹp nghệ thuật của tạo mẫu tóc đến từ sự khéo
+              léo của đôi bàn tay, cảm xúc của trái tim kết hợp cùng tư duy sáng
+              tạo mang lại vẻ đẹp hoàn mỹ cho từng khách hàng.”
+              <br />– Lê Hiếu Hair Stylist.
+            </p>
+          </div>
+          <div className="founder-info">
+            <h1>HAIR STYLIST LÊ HIẾU</h1>
+            <p>
+              Hair Stylist Lê Hiếu đóng vai trò là người sáng lập và điều hành
+              tại Kim Hair Salon. Anh Lê Hiếu đã xây dựng thương hiệu bằng năng
+              lực và tầm nhìn của bản thân, minh chứng từ những hợp tác với các
+              đối tác uy tín trong ngành tóc, có thể kể đến: L’Oréal, Kerastase,
+              Dyson,... Anh còn là Giám khảo cho các cuộc thi: Idol Hair;
+              Vietnam TOP Hairstylist; L’OREAL Beauty. Năm 2017, anh đại diện
+              cho Việt Nam tham gia đồng sáng tạo xu hướng tóc cùng nghệ sĩ các
+              nước: Thái Lan, Trung Quốc, Hàn Quốc,...
+            </p>
+            <div className="milestones">
+              <div className="milestone-item">
+                <h3>Từ năm 2014 – 2018</h3>
+                <p>
+                  Anh sáng lập và Điều hành Học viện Việt Nam BASIC HAIR và thực
+                  hiện thường xuyên các buổi WORKSHOP, SEMINAR, HAIR SHOW...
+                </p>
+              </div>
+              <div className="milestone-item">
+                <h3>Từ năm 2015-2021</h3>
+                <p>
+                  Anh là ID Artist đồng hành cùng nhãn hàng tóc chuyên nghiệp
+                  L’Oréal Professionnel Vietnam.
+                </p>
+              </div>
+              <div className="milestone-item">
+                <h3>Năm 2019</h3>
+                <p>
+                  Anh là Cố vấn và Vận hành tổ chức Chương trình ASIA BEAUTOPIA
+                  – Triển lãm Quốc tế về Làm Đẹp và Sức Khỏe Châu Á.
+                </p>
+              </div>
+              <div className="milestone-item">
+                <h3>Từ năm 2019-2022</h3>
+                <p>
+                  Anh là Phó Chủ tịch, trưởng ban thiết kế tóc khu vực miền Nam
+                  VNBA – Hội Đào Tạo – Phát Triển Nghề Làm Đẹp Việt Nam.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stylists */}
+      <div className="hairstylist-section">
+        <div className="hairstylist-header">
+          <h3>Hair Stylist Tại Kim Hair Salon</h3>
+        </div>
+        <HairStylistSlider />
+      </div>
+      <ScrollToTop />
     </div>
   );
 };
