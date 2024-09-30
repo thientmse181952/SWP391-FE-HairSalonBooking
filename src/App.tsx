@@ -16,8 +16,8 @@ import AdminServiceManagement from "./pages/admin/admin-service-management";
 import Collection from "./pages/collection";
 import Services from "./pages/services/services-list";
 import Brand from "./pages/brand";
-import ServicesDetail from "./pages/services/services-detail";
-import { Navigate } from "react-router-dom"; // Import Navigate
+import ServicesDetail from "./pages/services/services-detail"; // Import component ServicesDetail
+import Booking from "./pages/booking";
 
 function App() {
   const router = createBrowserRouter([
@@ -75,7 +75,6 @@ function App() {
     {
       path: "collection",
       element: <Layout />,
-
       children: [
         { path: "", element: <Collection /> },
         { path: ":categoryName", element: <Collection /> },
@@ -86,13 +85,18 @@ function App() {
       element: <Layout />,
       children: [
         { path: "", element: <Services /> },
-        { path: "detail", element: <ServicesDetail /> },
+        { path: "detail/:id", element: <ServicesDetail /> }, // Đường dẫn chi tiết dịch vụ có `id`
       ],
     },
     {
       path: "brand",
       element: <Layout />,
       children: [{ path: "", element: <Brand /> }],
+    },
+    {
+      path: "booking",
+      element: <Layout />,
+      children: [{ path: "", element: <Booking /> }],
     },
   ]);
 

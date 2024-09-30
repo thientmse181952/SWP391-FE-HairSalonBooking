@@ -26,6 +26,14 @@ const Login: React.FC = () => {
       if (response.status === 200) {
         message.success("Đăng nhập thành công!");
 
+        // Giả sử response.data chứa token và fullName trong các trường 'token' và 'fullName'
+        const token = response.data.token;
+        const fullName = response.data.fullName; // Lấy fullName từ response
+
+        // Lưu token và fullName vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("fullName", fullName); // Lưu fullName
+
         // Lưu thông tin tài khoản vào localStorage
         localStorage.setItem("userData", JSON.stringify(response.data));
 
@@ -50,7 +58,13 @@ const Login: React.FC = () => {
         // The signed-in user info.
         const user = result.user;
         // IdP data available using getAdditionalUserInfo(result)
-        // ...
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("fullName", user.displayName); // Lưu fullName từ Google
+
+        // Chuyển hướng người dùng đến trang chủ hoặc trang chính
+        navigate("/");
+
         console.log(user);
       })
       .catch((error) => {

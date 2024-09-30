@@ -99,9 +99,15 @@
       font-weight: bold;
       font-size: 16px;
       text-transform: uppercase;
+      cursor: pointer;
+
+      &.active {
+        color: #f28a2d; // Màu của mục khi active
+        border-bottom: 2px solid #f28a2d; // Thêm gạch dưới khi active
+      }
 
       &:hover {
-        color: #f28a2d;
+        color: #f28a2d; // Màu khi hover
       }
     }
   }
