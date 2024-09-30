@@ -8,15 +8,16 @@ import ResetPassword from "./pages/reset-password";
 import CustomerInformation from "./pages/customer-information";
 import AdminInfo from "./pages/admin/admin-info";
 import LayoutPanel from "./components/layout-panel";
-import AdminPersonnelManagement from "./pages/admin/admin-personnel-management"; // Import đúng các component
+import AdminPersonnelManagement from "./pages/admin/admin-personnel-management";
 import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration";
 import AdminDashboard from "./pages/admin/admin-dashboard";
 import AdminCalendarManagement from "./pages/admin/admin-calendar-management";
 import AdminServiceManagement from "./pages/admin/admin-service-management";
 import Collection from "./pages/collection";
-import Services from "./pages/services";
+import Services from "./pages/services/services-list";
 import Brand from "./pages/brand";
-
+import ServicesDetail from "./pages/services/services-detail";
+import { Navigate } from "react-router-dom"; // Import Navigate
 
 function App() {
   const router = createBrowserRouter([
@@ -54,23 +55,39 @@ function App() {
       path: "adminpage",
       element: <LayoutPanel />,
       children: [
-        { path: "adminInfo", element: <AdminInfo /> },//Đường dẫn cho admin thông tin
-        { path: "adminPersonnelManagement", element: <AdminPersonnelManagement /> }, // Đường dẫn cho Tất cả nhân sự
-        { path: "adminEmployeeRegistration", element: <AdminEmployeeRegistration /> }, // Đường dẫn cho Đăng ký nhân viên
-        { path: "adminDashboard", element: <AdminDashboard /> }, // Đường dẫn cho Dashboard
-        { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+        { path: "adminInfo", element: <AdminInfo /> },
+        {
+          path: "adminPersonnelManagement",
+          element: <AdminPersonnelManagement />,
+        },
+        {
+          path: "adminEmployeeRegistration",
+          element: <AdminEmployeeRegistration />,
+        },
+        { path: "adminDashboard", element: <AdminDashboard /> },
+        {
+          path: "adminCalendarManagement",
+          element: <AdminCalendarManagement />,
+        },
+        { path: "adminServiceManagement", element: <AdminServiceManagement /> },
       ],
     },
-      {
+    {
       path: "collection",
       element: <Layout />,
-      children: [{ path: "", element: <Collection /> }],
+
+      children: [
+        { path: "", element: <Collection /> },
+        { path: ":categoryName", element: <Collection /> },
+      ],
     },
     {
       path: "services",
       element: <Layout />,
-      children: [{ path: "", element: <Services /> }],
+      children: [
+        { path: "", element: <Services /> },
+        { path: "detail", element: <ServicesDetail /> },
+      ],
     },
     {
       path: "brand",

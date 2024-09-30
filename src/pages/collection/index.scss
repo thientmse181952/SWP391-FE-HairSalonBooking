@@ -83,7 +83,7 @@
     }
 
     .collection-gallery {
-      flex: 2;
+      flex: 3;
 
       .collection-title {
         font-size: 32px;
@@ -130,6 +130,12 @@
             border-radius: 5px;
           }
         }
+      }
+
+      .ant-pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
       }
     }
   }

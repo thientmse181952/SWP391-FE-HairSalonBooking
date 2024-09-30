@@ -2,6 +2,7 @@ import React from "react";
 import { Carousel } from "antd";
 import "./index.scss";
 import HairStylistSlider from "../../components/stylists";
+import ScrollToTop from "../../components/scroll-to-top";
 
 const Home: React.FC = () => (
   <div className="home-page">
@@ -164,6 +165,7 @@ const Home: React.FC = () => (
       </div>
       <button className="booking-button">ĐẶT LỊCH NGAY</button>
     </div>
+    <ScrollToTop />
   </div>
 );
 

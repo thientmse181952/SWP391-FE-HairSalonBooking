@@ -1,9 +1,10 @@
 .brand-section {
   text-align: center;
-  background-color: #fff;
+  background-color: #f5f5f5;
 
   img {
-    max-width: 600px;
+    margin: 50px 0;
+    max-width: 700px;
     width: 100%;
     height: auto;
   }
@@ -14,7 +15,7 @@
     gap: 20px;
     align-items: center;
     margin-top: 15px;
-    margin-bottom: 40px;
+    padding-bottom: 80px;
 
     img {
       max-width: 150px;

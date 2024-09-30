@@ -55,7 +55,12 @@ function Header() {
               {/* Nút Đăng xuất */}
             </div>
           ) : (
-            <a href="login">Đăng nhập/Đăng ký</a> // Hiển thị khi người dùng chưa đăng nhập
+            <span
+              onClick={() => navigate("/login")}
+              style={{ cursor: "pointer" }}
+            >
+              Đăng nhập/Đăng ký
+            </span>
           )}
         </div>
       </div>
