@@ -174,7 +174,6 @@ const AboutUs: React.FC = () => {
         </div>
         <HairStylistSlider />
       </div>
-
       <ScrollToTop />
     </div>
   );
