@@ -4,13 +4,9 @@ import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
 import { googleProvider } from "../../config/firebase.ts";
-<<<<<<< HEAD
-import { useNavigate } from "react-router-dom";
-=======
 
 import { useNavigate } from "react-router-dom";
 
->>>>>>> admin-panel
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login: React.FC = () => {
@@ -87,11 +83,6 @@ const Login: React.FC = () => {
   const onFinish = (values: { username: string; password: string }) => {
     handleLogin(values);
   };
-
-<<<<<<< HEAD
-
-=======
->>>>>>> admin-panel
   return (
     <div className="authen-template">
       <div className="authen-template__form">

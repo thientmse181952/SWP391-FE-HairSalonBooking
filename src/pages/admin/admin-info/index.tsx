@@ -1,148 +1,294 @@
-import React, { useEffect } from "react";
-import { Button, Form, Input, message } from "antd";
-import { useForm } from "antd/lib/form/Form"; 
-import { RuleObject } from "rc-field-form/lib/interface"; 
-import { Store } from "antd/lib/form/interface"; 
-import { ValidateErrorEntity } from "rc-field-form/lib/interface";
-import axios from "axios"; 
-import { Outlet } from "react-router-dom"; 
-import './index.scss';
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  Image,
+  Modal,
+  Upload,
+  Radio,
+  InputNumber,
+  Checkbox,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
+interface Stylist {
+  name: string;
+  age: number;
+  phone: string;
+  avatarUrl: string;
+  role: string;
+  password: string;
+  confirmPassword: string;
+}
 
 const AdminInfo: React.FC = () => {
-  const [form] = useForm();
+  const [stylist, setStylist] = useState<Stylist>({
+    name: "",
+    age: "",
+    phone: "",
+    avatarUrl: "",
+    role: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const fetchAdminInfo = async () => {
-    try {
-      const response = await axios.get("https://<your-mockapi-id>.mockapi.io/api/v1/admin-info"); 
-      if (response.status === 200) {
-        form.setFieldsValue({
-          fullname: response.data[0].fullname,
-          phone: response.data[0].phone,
-          email: response.data[0].email,
-        });
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi lấy thông tin admin:", error);
-      message.error("Không thể lấy thông tin, vui lòng thử lại sau!");
-    }
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const [showModal, setShowmodal] = useState<boolean>(false);
+
+  const handleChange = (changedValues: any) => {
+    setStylist((prev) => ({ ...prev, ...changedValues }));
   };
 
-  const updateUser = async (values: Store) => {
-    try {
-      const response = await axios.put(
-        "https://<your-mockapi-id>.mockapi.io/api/v1/admin-info/1", // Cập nhật ID phù hợp
-        {
-          fullname: values.fullname,
-          email: values.email,
-          phone: values.phone,
-          password: values.password,
-        }
-      );
-
-      if (response.status === 200) {
-        message.success("Cập nhật thành công!");
-      } else {
-        message.error("Cập nhật thất bại, vui lòng thử lại!");
-      }
-    } catch (error) {
-      console.error("Đã xảy ra lỗi khi cập nhật thông tin:", error);
-      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
-    }
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
-  const onFinish = (values: Store): void => {
-    console.log("Success:", values);
-    updateUser(values);
+  const handleSubmit = (values: Stylist) => {
+    if (values.password !== values.confirmPassword) {
+      alert("Mật khẩu không khớp!");
+      return;
+    }
+    console.log("Thêm stylist:", values);
   };
 
   const onFinishFailed = (errorInfo: ValidateErrorEntity): void => {
     console.log("Failed:", errorInfo);
   };
 
-  useEffect(() => {
-    fetchAdminInfo();
-  }, []);
-
   return (
-    <div className="card">
+    <div>
+      <h1>QUẢN LÝ STYLIST</h1>
+      <br />
       <Form
-        form={form}
-        labelCol={{ span: 24 }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+        layout="vertical"
+        initialValues={stylist}
+        onValuesChange={handleChange}
+        onFinish={handleSubmit}
       >
-        <h1>Thông Tin Cá Nhân Của Admin</h1>
         <Form.Item
-          label="Tên của bạn"
-          name="fullname"
-          rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
+          label="Tên"
+          name="name"
+          rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
         >
-          <Input />
+          {isEditing ? <Input /> : <span>{stylist.name}</span>}
+        </Form.Item>
+
+        <Form.Item
+          label="Tuổi"
+          name="age"
+          rules={[{ required: true, message: "Vui lòng nhập tuổi!" }]}
+        >
+          {isEditing ? <Input type="number" /> : <span>{stylist.age}</span>}
         </Form.Item>
 
         <Form.Item
           label="Số điện thoại"
           name="phone"
-          rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại của bạn!" },
-            { pattern: /^[0-9]+$/, message: "Số điện thoại phải là chữ số!" },
-            { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
-          ]}
+          rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
         >
-          <Input />
+          {isEditing ? <Input /> : <span>{stylist.phone}</span>}
         </Form.Item>
 
         <Form.Item
-          label="Email của bạn"
-          name="email"
-          rules={[
-            { required: false, message: "Vui lòng nhập email của bạn!" },
-            { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
-          ]}
+          label="Ảnh đại diện"
+          name="avatarUrl"
+          rules={[{ required: true, message: "Vui lòng nhập URL ảnh!" }]}
         >
-          <Input />
+          {isEditing ? <Input /> : <Image src={stylist.avatarUrl} width={50} />}
         </Form.Item>
 
         <Form.Item
-          label="Mật Khẩu"
-          name="password"
-          rules={[
-            { required: false, message: "Vui lòng nhập mật khẩu của bạn!" },
-            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-          ]}
-          hasFeedback
+          label="Vai trò"
+          name="role"
+          rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
         >
-          <Input.Password />
+          {isEditing ? (
+            <Select>
+              <Select.Option value="option1">Cắt tóc</Select.Option>
+              <Select.Option value="option2">Uốn tóc</Select.Option>
+              <Select.Option value="option3">Dưỡng tóc</Select.Option>
+            </Select>
+          ) : (
+            <span>{stylist.role}</span>
+          )}
         </Form.Item>
 
-        <Form.Item
-          label="Nhập lại mật khẩu"
-          name="rePassword"
-          dependencies={["password"]}
-          hasFeedback
-          rules={[
-            { required: true, message: "Vui lòng xác nhận mật khẩu của bạn!" },
-            ({ getFieldValue }) => ({
-              validator(_: RuleObject, value: string) {
-                if (!value || getFieldValue("password") === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error("Hai mật khẩu không khớp!"));
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
+        {isEditing && (
+          <>
+            <Form.Item
+              label="Mật khẩu"
+              name="password"
+              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+            >
+              <Input.Password />
+            </Form.Item>
 
-        <Form.Item className="submit-button">
-          <Button type="primary" htmlType="submit">
-            Cập Nhật
-          </Button>
+            <Form.Item
+              label="Xác nhận mật khẩu"
+              name="confirmPassword"
+              rules={[
+                { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+          </>
+        )}
+
+        <Form.Item>
+          {isEditing ? (
+            <Button type="primary" htmlType="submit">
+              Lưu thông tin
+            </Button>
+          ) : (
+            <Button type="default" onClick={handleEdit}>
+              Sửa thông tin
+            </Button>
+          )}
         </Form.Item>
       </Form>
-      
-      <Outlet />
+
+      <Button
+        type="primary"
+        htmlType="submit"
+        style={{ marginLeft: "8px" }}
+        onClick={() => setShowmodal(true)}
+      >
+        Thêm Stylist
+      </Button>
+
+      <Modal
+        open={showModal}
+        onCancel={() => {
+          setShowmodal(false);
+        }}
+      >
+        <Form 
+        labelCol={{ span: 24 }}
+        onFinishFailed={onFinishFailed}
+        >
+          <h1>THÊM THÔNG TIN STYLIST MỚI</h1>
+          <br />
+          <Form.Item
+            label="Họ và Tên của Stylist"
+            name="fullname"
+            rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Tuổi"
+            name="age"
+            rules={[
+              { required: true, message: "Vui lòng nhập tuổi!" },
+              { min: 20 }
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>
+
+          <Form.Item
+            label="Giới tính"
+            name="gender"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
+          >
+            <Radio.Group>
+              <Radio value="Male">Nam</Radio>
+              <Radio value="Female">Nữ</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item
+            label="Email của stylist"
+            name="email"
+            rules={[
+              { required: false, message: "Vui lòng nhập email của bạn!" },
+              { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Dịch vụ khác"
+            name="disabled"
+            valuePropName="checked"
+          >
+            <Checkbox>Cắt tóc kiểu</Checkbox>
+            <Checkbox>Uốn tóc</Checkbox>
+            <Checkbox>Dưỡng tóc</Checkbox>
+            <Checkbox>Gội đầu thư giản</Checkbox>
+            <Checkbox>Nhuộm thời trang</Checkbox>
+            <Checkbox>Hấp dầu</Checkbox>
+          </Form.Item>
+
+          <Form.Item label="Upload Ảnh đại diện" valuePropName="fileList">
+            <Upload action="/upload.do" listType="picture-card">
+              <button style={{ border: 0, background: "none" }} type="button">
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </button>
+            </Upload>
+          </Form.Item>
+
+          <br />
+          <h1>TẠO TÀI KHOẢN CHO STYLIST</h1>
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập số điện thoại của bạn!",
+              },
+              { pattern: /^[0-9]+$/, message: "Số điện thoại phải là chữ số!" },
+              { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Mật Khẩu"
+            name="password"
+            rules={[
+              { required: true, message: "Vui lòng nhập mật khẩu của bạn!" },
+              { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+            ]}
+            hasFeedback
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            label="Nhập lại mật khẩu"
+            name="rePassword"
+            dependencies={["password"]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng xác nhận mật khẩu của bạn!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_: RuleObject, value: string) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Hai mật khẩu không khớp!"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          
+        </Form>
+      </Modal>
     </div>
   );
 };

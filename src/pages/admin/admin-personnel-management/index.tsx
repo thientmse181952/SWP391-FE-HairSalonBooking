@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
+import { Flex, Splitter, Typography } from 'antd';
 
 interface DataType {
   key: React.Key;
@@ -110,5 +111,25 @@ const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter,
 const App: React.FC = () => (
   <Table<DataType> columns={columns} dataSource={data} onChange={onChange} />
 );
+
+
+
+
+const Desc: React.FC<Readonly<{ text?: string | number }>> = (props) => (
+  <Flex justify="center" align="center" style={{ height: '100%' }}>
+    <Typography.Title type="secondary" level={5} style={{ whiteSpace: 'nowrap' }}>
+      {props.text}
+    </Typography.Title>
+  </Flex>
+);
+
+  <Splitter style={{ height: 200, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+    <Splitter.Panel defaultSize="40%" min="20%" max="70%">
+      <Desc text="First" />
+    </Splitter.Panel>
+    <Splitter.Panel>
+      <Desc text="Second" />
+    </Splitter.Panel>
+  </Splitter>
 
 export default App;
