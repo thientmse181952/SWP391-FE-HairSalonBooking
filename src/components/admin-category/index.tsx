@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   DesktopOutlined,
   FileOutlined,
@@ -6,9 +6,9 @@ import {
   TeamOutlined,
   UserOutlined,
   UploadOutlined,
-} from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { Link, Outlet } from 'react-router-dom';
+} from "@ant-design/icons";
+import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Link, Outlet } from "react-router-dom";
 import AdminPersonnelManagement from "./pages/admin/admin-personnel-management"; // Import đúng các component
 import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration";
 import AdminDashboard from "./pages/admin/admin-dashboard";
@@ -17,7 +17,12 @@ import AdminServiceManagement from "./pages/admin/admin-service-management";
 
 const { Header, Content, Footer, Sider } = Layout;
 
-function getItem(label: React.ReactNode, key: string, icon?: React.ReactNode, children?: any) {
+function getItem(
+  label: React.ReactNode,
+  key: string,
+  icon?: React.ReactNode,
+  children?: any
+) {
   return {
     key,
     icon,
@@ -27,14 +32,23 @@ function getItem(label: React.ReactNode, key: string, icon?: React.ReactNode, ch
 }
 
 const items = [
-  getItem('Admin Information', 'adminInfo', <PieChartOutlined />),
-  getItem('Personnel Management', 'adminPersonnelManagement', <DesktopOutlined />), // Đường dẫn cho Tất cả nhân sự
-  getItem('Employee Registration', 'adminEmployeeRegistration', <UserOutlined />), // Đường dẫn cho Đăng ký nhân viên
-  getItem('Dashboard', 'adminDashboard', <TeamOutlined />), // Đường dẫn cho Dashboard
-  getItem('Calendar Management', 'adminCalendarManagement', <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
-  getItem('Service Management', 'adminServiceManagement', <UserOutlined />),
-  getItem('Add Selection', 'aminAddSelection', <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
-  getItem('Logout', 'logout', <UploadOutlined  />), // Thêm mục đăng xuất
+  getItem("Admin Information", "adminInfo", <PieChartOutlined />),
+  getItem(
+    "Personnel Management",
+    "adminPersonnelManagement",
+    <DesktopOutlined />
+  ), // Đường dẫn cho Tất cả nhân sự
+  getItem(
+    "Employee Registration",
+    "adminEmployeeRegistration",
+    <UserOutlined />
+  ), // Đường dẫn cho Đăng ký nhân viên
+  getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
+  getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
+  getItem("Service Management", "adminServiceManagement", <UserOutlined />),
+  getItem("Category Management", "category-management", <UserOutlined />),
+  getItem("Add Selection", "adminAddSelection", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
+  getItem("Logout", "logout", <UploadOutlined />), // Thêm mục đăng xuất
 ];
 
 const AdminCategory: React.FC = () => {
@@ -45,29 +59,36 @@ const AdminCategory: React.FC = () => {
 
   const handleLogout = () => {
     // Xử lý đăng xuất ở đây
-    window.location.href = '/'; // Chuyển hướng về trang chính
+    window.location.href = "/"; // Chuyển hướng về trang chính
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+      >
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
-          defaultSelectedKeys={['adminInfo']}
+          defaultSelectedKeys={["adminInfo"]}
           mode="inline"
-          items={items.map(item => ({
+          items={items.map((item) => ({
             ...item,
-            label: item.key === 'logout' ? (
-              <span onClick={handleLogout}>{item.label}</span>
-            ) : item.label,
+            label:
+              item.key === "logout" ? (
+                <span onClick={handleLogout}>{item.label}</span>
+              ) : (
+                item.label
+              ),
           }))}
         />
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }} />
-        <Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
+        <Content style={{ margin: "0 16px" }}>
+          <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Admin</Breadcrumb.Item>
             <Breadcrumb.Item>Category</Breadcrumb.Item>
           </Breadcrumb>
@@ -82,7 +103,7 @@ const AdminCategory: React.FC = () => {
             <Outlet />
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
+        <Footer style={{ textAlign: "center" }}>
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
         </Footer>
       </Layout>

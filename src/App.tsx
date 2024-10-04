@@ -22,6 +22,7 @@ import Services from "./pages/services/services-list";
 import Brand from "./pages/brand";
 import ServicesDetail from "./pages/services/services-detail"; // Import component ServicesDetail
 import Booking from "./pages/booking";
+import CategoryManagement from "./pages/admin/category-management";
 
 function App() {
   const router = createBrowserRouter([
@@ -60,14 +61,22 @@ function App() {
       element: <AdminCategory />,
       children: [
         { path: "adminInfo", element: <AdminInfo /> }, // Đường dẫn cho admin thông tin
-        { path: "adminPersonnelManagement", element: <AdminPersonnelManagement /> }, // Đường dẫn cho Tất cả nhân sự
-        { path: "adminEmployeeRegistration", element: <AdminEmployeeRegistration /> }, // Đường dẫn cho Đăng ký nhân viên
+        {
+          path: "adminPersonnelManagement",
+          element: <AdminPersonnelManagement />,
+        }, // Đường dẫn cho Tất cả nhân sự
+        {
+          path: "adminEmployeeRegistration",
+          element: <AdminEmployeeRegistration />,
+        }, // Đường dẫn cho Đăng ký nhân viên
         { path: "adminDashboard", element: <AdminDashboard /> }, // Đường dẫn cho Dashboard
-        { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
-        { path: "adminSelection", element: <AdminSelection /> }, 
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> },// Đường dẫn cho Quản lý dịch vụ
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, 
-        { path: "AddSelection", element: <AddSelection /> },// Đường dẫn cho Quản lý dịch vụ
+        {
+          path: "adminCalendarManagement",
+          element: <AdminCalendarManagement />,
+        }, // Đường dẫn cho Xếp lịch Stylist
+        { path: "adminSelection", element: <AdminSelection /> },
+        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+        { path: "AddSelection", element: <AddSelection /> }, // Đường dẫn cho Quản lý dịch vụ
         { path: "adminInfo", element: <AdminInfo /> },
         {
           path: "adminPersonnelManagement",
@@ -83,6 +92,7 @@ function App() {
           element: <AdminCalendarManagement />,
         },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> },
+        { path: "category-management", element: <CategoryManagement /> },
       ],
     },
     {

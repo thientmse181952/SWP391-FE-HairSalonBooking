@@ -2,8 +2,6 @@
   background-color: #f9f3f1;
   color: black;
   padding-top: 10px;
- 
- 
 
   .header-top {
     display: flex;
@@ -12,7 +10,6 @@
     padding: 0 20px;
     background-color: #f9f3f1;
     margin-bottom: 10px;
-  
   }
 
   .contact-info {
@@ -86,6 +83,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    transition: all 0.3s ease; // Hiệu ứng mượt khi thay đổi
+  }
+
+  .sticky {
+    position: fixed; // Cố định khi người dùng cuộn
+    top: 0; // Cố định ở đầu trang
+    left: 0;
+    z-index: 1000; // Đảm bảo header luôn nằm trên các phần tử khác
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Hiệu ứng đổ bóng để làm nổi bật
   }
 
   .menu {
@@ -116,8 +123,8 @@
   }
 
   .logo img {
-    width: 100px;
-    height: auto;
+    width: 70px;
+    height: 70px;
   }
 
   .logout-button {

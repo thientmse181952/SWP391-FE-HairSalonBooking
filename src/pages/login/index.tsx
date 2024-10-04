@@ -4,13 +4,7 @@ import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
 import { googleProvider } from "../../config/firebase.ts";
-<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
-=======
-
-import { useNavigate } from "react-router-dom";
-
->>>>>>> admin-panel
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login: React.FC = () => {
@@ -30,19 +24,48 @@ const Login: React.FC = () => {
       if (response.status === 200) {
         message.success("Đăng nhập thành công!");
 
-        // Giả sử response.data chứa token và fullName trong các trường 'token' và 'fullName'
+        // Lấy token và fullName từ response
         const token = response.data.token;
-        const fullName = response.data.fullName; // Lấy fullName từ response
+        const fullName = response.data.fullName;
+        const email = response.data.email; // Giả sử email của người dùng hiện tại cũng được trả về
 
         // Lưu token và fullName vào localStorage
         localStorage.setItem("token", token);
-        localStorage.setItem("fullName", fullName); // Lưu fullName
+        localStorage.setItem("fullName", fullName);
 
         // Lưu thông tin tài khoản vào localStorage
         localStorage.setItem("userData", JSON.stringify(response.data));
 
-        // Chuyển hướng người dùng đến trang chủ hoặc trang chính
-        navigate("/");
+        // Gọi API /api/account để lấy tất cả thông tin tài khoản
+        try {
+          const accountResponse = await axios.get(
+            "http://localhost:8080/api/account",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          // Duyệt qua tất cả các tài khoản để tìm tài khoản hiện tại dựa trên email
+          const currentUser = accountResponse.data.find(
+            (user) => user.email === email // So sánh email từ response với danh sách tài khoản
+          );
+
+          if (currentUser) {
+            // Kiểm tra vai trò của tài khoản hiện tại
+            if (currentUser.role === "MANAGER") {
+              navigate("/adminpage");
+            } else {
+              navigate("/");
+            }
+          } else {
+            message.error("Không tìm thấy tài khoản người dùng hiện tại!");
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin tài khoản:", error);
+          message.error("Đã xảy ra lỗi khi lấy thông tin tài khoản!");
+        }
       } else {
         message.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin!");
       }
@@ -56,31 +79,20 @@ const Login: React.FC = () => {
     const auth = getAuth();
     signInWithPopup(auth, googleProvider)
       .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
+        // Nhận token từ Google
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
-        // The signed-in user info.
         const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // Lưu thông tin người dùng vào localStorage
+
+        // Lưu token và fullName vào localStorage
         localStorage.setItem("token", token);
-        localStorage.setItem("fullName", user.displayName); // Lưu fullName từ Google
+        localStorage.setItem("fullName", user.displayName);
 
         // Chuyển hướng người dùng đến trang chủ hoặc trang chính
         navigate("/");
-
-        console.log(user);
       })
       .catch((error) => {
-        // Handle Errors here.
         console.log(error);
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
       });
   };
 
@@ -88,10 +100,6 @@ const Login: React.FC = () => {
     handleLogin(values);
   };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> admin-panel
   return (
     <div className="authen-template">
       <div className="authen-template__form">
