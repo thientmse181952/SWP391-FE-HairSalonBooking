@@ -44,7 +44,7 @@ const items = [
   getItem("Service Management", "adminServiceManagement", <UserOutlined />),
   getItem("Category Management", "category-management", <UserOutlined />),
   getItem("Add Collection", "CollectionManagement", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
-  getItem("Logout", "logout", <UploadOutlined />), // Thêm mục đăng xuất
+ getItem("Logout", "logout", <UploadOutlined />), // Thêm mục đăng xuất
 ];
 
 const AdminCategory: React.FC = () => {

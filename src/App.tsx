@@ -12,7 +12,7 @@ import AdminEmployeeRegistration from "./pages/admin/stylist-management";
 import AdminDashboard from "./pages/admin/admin-dashboard";
 import AdminCalendarManagement from "./pages/admin/calendar-management";
 import AdminServiceManagement from "./pages/admin/service-management";
-import AdminSelection from "./pages/admin/collection-manament";
+import AdminSelection from "./pages/admin/collection-management";
 
 import AdminCategory from "./components/admin-category";
 
@@ -29,8 +29,7 @@ import StylistFeedback from "./pages/stylist-page/stylist-feedback";
 import StylistPerformance from "./pages/stylist-page/stylist-performance";
 import StylistSchedule from "./pages/stylist-page/stylist-work-schedule";
 import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
-import CollectionManagement from "./pages/admin/collection-manament";
-
+import CollectionManagement from "./pages/admin/collection-management";
 function App() {
   const router = createBrowserRouter([
     {
@@ -83,7 +82,9 @@ function App() {
         }, // Đường dẫn cho Xếp lịch Stylist
         { path: "adminSelection", element: <AdminSelection /> },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+
         { path: "CollectionManagement", element: <CollectionManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+
         { path: "adminInfo", element: <AdminInfo /> },
         {
           path: "adminPersonnelManagement",
