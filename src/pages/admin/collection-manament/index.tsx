@@ -251,7 +251,7 @@ const CollectionManagement: React.FC = () => {
               listType="picture-card"
               fileList={fileList}
               onChange={handleChange}
-            >
+            >45
               {fileList.length >= 1 ? null : uploadButton}
             </Upload>
           </Form.Item>
