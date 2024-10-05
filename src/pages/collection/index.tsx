@@ -90,7 +90,8 @@ const Collection: React.FC = () => {
   // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentImages = filteredImages.slice(startIndex, endIndex); // Chỉ phân trang sau khi lọc
+  const currentImages = filteredImages.slice(startIndex, endIndex); 
+  // Chỉ phân trang sau khi lọc
 
   if (loading) {
     return (

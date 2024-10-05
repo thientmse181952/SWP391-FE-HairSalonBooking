@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
-import { Flex, Splitter, Typography } from 'antd';
+import { Flex, Typography } from 'antd';
 
 interface DataType {
   key: React.Key;
@@ -123,13 +123,13 @@ const Desc: React.FC<Readonly<{ text?: string | number }>> = (props) => (
   </Flex>
 );
 
-  <Splitter style={{ height: 200, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
-    <Splitter.Panel defaultSize="40%" min="20%" max="70%">
-      <Desc text="First" />
-    </Splitter.Panel>
-    <Splitter.Panel>
-      <Desc text="Second" />
-    </Splitter.Panel>
-  </Splitter>
+  // <Splitter style={{ height: 200, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+  //   <Splitter.Panel defaultSize="40%" min="20%" max="70%">
+  //     <Desc text="First" />
+  //   </Splitter.Panel>
+  //   <Splitter.Panel>
+  //     <Desc text="Second" />
+  //   </Splitter.Panel>
+  // </Splitter>
 
 export default App;

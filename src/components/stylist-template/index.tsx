@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import {
   DesktopOutlined,
   FileOutlined,
   PieChartOutlined,
   TeamOutlined,
-  UserOutlined,
   UploadOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import { Link, Outlet } from "react-router-dom";
-
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -23,31 +23,20 @@ function getItem(
     key,
     icon,
     children,
-    label: <Link to={`/adminpage/${key}`}>{label}</Link>, // Cập nhật đường dẫn
+    label: <Link to={`/stylistpage/${key}`}>{label}</Link>,
   };
 }
 
 const items = [
-  getItem("Admin Information", "adminInfo", <PieChartOutlined />),
-  getItem(
-    "Personnel Management",
-    "adminPersonnelManagement",
-    <DesktopOutlined />
-  ), // Đường dẫn cho Tất cả nhân sự
-  getItem(
-    "Employee Registration",
-    "adminEmployeeRegistration",
-    <UserOutlined />
-  ), // Đường dẫn cho Đăng ký nhân viên
-  getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
-  getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
-  getItem("Service Management", "adminServiceManagement", <UserOutlined />),
-  getItem("Category Management", "category-management", <UserOutlined />),
-  getItem("Add Collection", "CollectionManagement", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
-  getItem("Logout", "logout", <UploadOutlined />), // Thêm mục đăng xuất
+  getItem("Stylist Information", "stylistInfo", <PieChartOutlined />),
+  getItem("Stylist Feedback", "stylistFeedback", <DesktopOutlined />),
+  getItem("Stylist Performance", "stylistPerformance", <UserOutlined />),
+  getItem("Stylist Schedule", "stylistSchedule", <TeamOutlined />),
+  getItem("Stylist Day Off", "stylistDayoff", <FileOutlined />),
+  getItem("Logout", "logout", <UploadOutlined />)
 ];
 
-const AdminCategory: React.FC = () => {
+const StylistPage: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -60,15 +49,11 @@ const AdminCategory: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
-          defaultSelectedKeys={["adminInfo"]}
+          defaultSelectedKeys={["stylistInfo"]}
           mode="inline"
           items={items.map((item) => ({
             ...item,
@@ -85,7 +70,7 @@ const AdminCategory: React.FC = () => {
         <Header style={{ padding: 0, background: colorBgContainer }} />
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>Admin</Breadcrumb.Item>
+            <Breadcrumb.Item>Stylist</Breadcrumb.Item>
             <Breadcrumb.Item>Category</Breadcrumb.Item>
           </Breadcrumb>
           <div
@@ -107,4 +92,4 @@ const AdminCategory: React.FC = () => {
   );
 };
 
-export default AdminCategory;
+export default StylistPage;

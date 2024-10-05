@@ -60,7 +60,7 @@ const AdminInfo: React.FC = () => {
 
   return (
     <div>
-      <h1>QUẢN LÝ STYLIST</h1>
+      <h1>Thông tin Admin</h1>
       <br />
       <Form
         layout="vertical"

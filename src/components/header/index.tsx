@@ -1,14 +1,20 @@
+import { useNavigate, useLocation } from "react-router-dom"; // Import useNavigate và useLocation
+import { useEffect, useState } from "react"; // Import hooks
 import { FaFacebookF, FaGoogle, FaUserCircle } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import "./index.scss";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useNavigate và useLocation
-import { useEffect, useState } from "react"; // Import hooks
 
 function Header() {
   const navigate = useNavigate(); // Khởi tạo useNavigate
   const location = useLocation(); // Khởi tạo useLocation để lấy URL hiện tại
   const [userFullName, setUserFullName] = useState<string | null>(null); // Tạo state để lưu fullName người dùng
   const [token, setToken] = useState<string | null>(null); // Tạo state để lưu token
+  const [isSticky, setIsSticky] = useState(false); // State để theo dõi khi header-bottom cần cố định
+
+  useEffect(() => {
+    // Cuộn lên đầu trang mỗi khi location.pathname thay đổi với hiệu ứng mượt
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]); // Theo dõi sự thay đổi của pathname
 
   useEffect(() => {
     // Kiểm tra localStorage xem người dùng đã đăng nhập hay chưa
@@ -24,6 +30,24 @@ function Header() {
       setToken(null); // Reset token
     }
   }, [location]); // Theo dõi `location` để cập nhật khi điều hướng
+
+  useEffect(() => {
+    // Theo dõi sự kiện cuộn để thay đổi state cho header-bottom
+    const handleScroll = () => {
+      const headerTopHeight =
+        document.querySelector(".header-top")?.clientHeight || 0;
+      if (window.scrollY >= headerTopHeight) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleLogoClick = () => {
     navigate("/"); // Điều hướng về trang chủ khi nhấp vào logo
@@ -60,13 +84,10 @@ function Header() {
           <FaUserCircle />
           {userFullName ? (
             <div>
-              <span>Xin chào, {userFullName}</span>{" "}
-              {/* Hiển thị tên đầy đủ khi người dùng đã đăng nhập */}
-              <br />
+              <span>Xin chào, {userFullName}</span> <br />
               <button className="logout-button" onClick={handleLogout}>
                 Đăng xuất
               </button>{" "}
-              {/* Nút Đăng xuất */}
             </div>
           ) : (
             <span
@@ -79,7 +100,7 @@ function Header() {
         </div>
       </div>
 
-      <div className="header-bottom">
+      <div className={`header-bottom ${isSticky ? "sticky" : ""}`}>
         <div className="menu">
           <div className="logo">
             <img

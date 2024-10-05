@@ -7,21 +7,29 @@ import Register from "./pages/register";
 import ResetPassword from "./pages/reset-password";
 import CustomerInformation from "./pages/customer-information";
 import AdminInfo from "./pages/admin/admin-info";
-import AdminPersonnelManagement from "./pages/admin/admin-personnel-management"; // Import đúng các component
-import AdminEmployeeRegistration from "./pages/admin/admin-employee-registration";
+import AdminPersonnelManagement from "./pages/admin/customer-list"; // Import đúng các component
+import AdminEmployeeRegistration from "./pages/admin/stylist-management";
 import AdminDashboard from "./pages/admin/admin-dashboard";
-import AdminCalendarManagement from "./pages/admin/admin-calendar-management";
-import AdminServiceManagement from "./pages/admin/admin-service-management";
-import AdminSelection from "./pages/admin/admin-selection-manament";
+import AdminCalendarManagement from "./pages/admin/calendar-management";
+import AdminServiceManagement from "./pages/admin/service-management";
+import AdminSelection from "./pages/admin/collection-manament";
 
-import AdminCategory from "./components/admin-category"; // Thêm dấu phẩy ở đây
-import AddSelection from "./pages/admin/addmin-add-selection";
+import AdminCategory from "./components/admin-category";
+
+import StylistCategory from "./components/stylist-template" // Thêm dấu phẩy ở đây
 
 import Collection from "./pages/collection";
 import Services from "./pages/services/services-list";
 import Brand from "./pages/brand";
 import ServicesDetail from "./pages/services/services-detail"; // Import component ServicesDetail
 import Booking from "./pages/booking";
+import CategoryManagement from "./pages/admin/category-management";
+import StylistInfo from "./pages/stylist-page/stylist-info";
+import StylistFeedback from "./pages/stylist-page/stylist-feedback";
+import StylistPerformance from "./pages/stylist-page/stylist-performance";
+import StylistSchedule from "./pages/stylist-page/stylist-work-schedule";
+import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
+import CollectionManagement from "./pages/admin/collection-manament";
 
 function App() {
   const router = createBrowserRouter([
@@ -60,14 +68,22 @@ function App() {
       element: <AdminCategory />,
       children: [
         { path: "adminInfo", element: <AdminInfo /> }, // Đường dẫn cho admin thông tin
-        { path: "adminPersonnelManagement", element: <AdminPersonnelManagement /> }, // Đường dẫn cho Tất cả nhân sự
-        { path: "adminEmployeeRegistration", element: <AdminEmployeeRegistration /> }, // Đường dẫn cho Đăng ký nhân viên
+        {
+          path: "adminPersonnelManagement",
+          element: <AdminPersonnelManagement />,
+        }, // Đường dẫn cho Tất cả nhân sự
+        {
+          path: "adminEmployeeRegistration",
+          element: <AdminEmployeeRegistration />,
+        }, // Đường dẫn cho Đăng ký nhân viên
         { path: "adminDashboard", element: <AdminDashboard /> }, // Đường dẫn cho Dashboard
-        { path: "adminCalendarManagement", element: <AdminCalendarManagement /> }, // Đường dẫn cho Xếp lịch Stylist
-        { path: "adminSelection", element: <AdminSelection /> }, 
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> },// Đường dẫn cho Quản lý dịch vụ
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, 
-        { path: "AddSelection", element: <AddSelection /> },// Đường dẫn cho Quản lý dịch vụ
+        {
+          path: "adminCalendarManagement",
+          element: <AdminCalendarManagement />,
+        }, // Đường dẫn cho Xếp lịch Stylist
+        { path: "adminSelection", element: <AdminSelection /> },
+        { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
+        { path: "CollectionManagement", element: <CollectionManagement /> }, // Đường dẫn cho Quản lý dịch vụ
         { path: "adminInfo", element: <AdminInfo /> },
         {
           path: "adminPersonnelManagement",
@@ -83,8 +99,36 @@ function App() {
           element: <AdminCalendarManagement />,
         },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> },
+        { path: "category-management", element: <CategoryManagement /> },
       ],
     },
+
+
+
+    {
+      path: "stylistpage",
+      element: <StylistCategory/>,
+      children: [
+        { path: "stylistInfo", element: <StylistInfo /> }, // Đường dẫn cho admin thông tin
+        {
+          path: "stylistFeedback",
+          element: <StylistFeedback/>,
+        }, // Đường dẫn cho Tất cả nhân sự
+        {
+          path: "stylistPerformance",
+          element: <StylistPerformance />,
+        }, // Đường dẫn cho Đăng ký nhân viên
+        { path: "stylistSchedule", 
+          element: <StylistSchedule /> }, // Đường dẫn cho Dashboard
+        {
+          path: "StylistDayoff",
+          element: <StylistDayoff />,
+        },
+        
+      ],
+    },
+
+
     {
       path: "collection",
       element: <Layout />,

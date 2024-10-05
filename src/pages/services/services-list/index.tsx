@@ -29,7 +29,8 @@ const Services = () => {
       try {
         const response = await api.get("/category");
         setCategories(response.data);
-        setActiveCategory(response.data[0]?.id); // Đặt category mặc định là category đầu tiên
+        setActiveCategory(response.data[0]?.id); 
+        // Đặt category mặc định là category đầu tiên
       } catch (error) {
         console.error("Lỗi khi lấy danh sách category: ", error);
       }
