@@ -27,9 +27,9 @@ const Services = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/category");
+        const response = await api.get("/category/getCategory");
         setCategories(response.data);
-        setActiveCategory(response.data[0]?.id); 
+        setActiveCategory(response.data[0]?.id);
         // Đặt category mặc định là category đầu tiên
       } catch (error) {
         console.error("Lỗi khi lấy danh sách category: ", error);

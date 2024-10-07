@@ -5,7 +5,6 @@ import { Button, Table, Modal, Form, Input, Popconfirm, message } from "antd";
 import api from "../../../config/axios"; // Sử dụng axios để gọi API
 
 const CategoryManagement: React.FC = () => {
-  
   const [categories, setCategories] = useState([]); // Trạng thái lưu danh sách danh mục
   const [loading, setLoading] = useState(true); // Trạng thái loading khi gọi API
   const [openModal, setOpenModal] = useState(false); // Trạng thái modal thêm/sửa danh mục
@@ -16,7 +15,7 @@ const CategoryManagement: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/category");
+        const response = await api.get("/category/getCategory");
         setCategories(response.data); // Lưu dữ liệu danh mục vào state
         setLoading(false); // Tắt loading sau khi lấy dữ liệu xong
       } catch (error) {
@@ -45,7 +44,7 @@ const CategoryManagement: React.FC = () => {
       setOpenModal(false); // Đóng modal sau khi thành công
       form.resetFields(); // Reset form
       // Fetch lại danh sách sau khi thêm hoặc cập nhật thành công
-      const response = await api.get("/category");
+      const response = await api.get("/category/getCategory");
       setCategories(response.data);
       setEditingCategory(null); // Reset trạng thái chỉnh sửa
     } catch (error) {
@@ -66,7 +65,7 @@ const CategoryManagement: React.FC = () => {
       await api.delete(`/category/${id}`);
       message.success("Xóa danh mục thành công!");
       // Fetch lại danh sách sau khi xóa thành công
-      const response = await api.get("/category");
+      const response = await api.get("/category/getCategory");
       setCategories(response.data);
     } catch (error) {
       message.error("Lỗi khi xóa danh mục!");

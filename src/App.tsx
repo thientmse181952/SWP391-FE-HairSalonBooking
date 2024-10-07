@@ -16,7 +16,7 @@ import AdminSelection from "./pages/admin/collection-management";
 
 import AdminCategory from "./components/admin-category";
 
-import StylistCategory from "./components/stylist-template" // Thêm dấu phẩy ở đây
+import StylistCategory from "./components/stylist-template"; // Thêm dấu phẩy ở đây
 
 import Collection from "./pages/collection";
 import Services from "./pages/services/services-list";
@@ -30,6 +30,8 @@ import StylistPerformance from "./pages/stylist-page/stylist-performance";
 import StylistSchedule from "./pages/stylist-page/stylist-work-schedule";
 import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
 import CollectionManagement from "./pages/admin/collection-management";
+import ChangePassword from "./pages/change-password";
+import Test from "./pages/test";
 function App() {
   const router = createBrowserRouter([
     {
@@ -41,6 +43,10 @@ function App() {
       path: "about-us",
       element: <Layout />,
       children: [{ path: "", element: <AboutUs /> }],
+    },
+    {
+      path: "test",
+      children: [{ path: "", element: <Test /> }],
     },
     {
       path: "login",
@@ -56,6 +62,11 @@ function App() {
       path: "reset-password",
       element: <Layout />,
       children: [{ path: "", element: <ResetPassword /> }],
+    },
+    {
+      path: "change-password",
+      element: <Layout />,
+      children: [{ path: "", element: <ChangePassword /> }],
     },
     {
       path: "customer-information",
@@ -104,31 +115,26 @@ function App() {
       ],
     },
 
-
-
     {
       path: "stylistpage",
-      element: <StylistCategory/>,
+      element: <StylistCategory />,
       children: [
         { path: "stylistInfo", element: <StylistInfo /> }, // Đường dẫn cho admin thông tin
         {
           path: "stylistFeedback",
-          element: <StylistFeedback/>,
+          element: <StylistFeedback />,
         }, // Đường dẫn cho Tất cả nhân sự
         {
           path: "stylistPerformance",
           element: <StylistPerformance />,
         }, // Đường dẫn cho Đăng ký nhân viên
-        { path: "stylistSchedule", 
-          element: <StylistSchedule /> }, // Đường dẫn cho Dashboard
+        { path: "stylistSchedule", element: <StylistSchedule /> }, // Đường dẫn cho Dashboard
         {
           path: "StylistDayoff",
           element: <StylistDayoff />,
         },
-        
       ],
     },
-
 
     {
       path: "collection",

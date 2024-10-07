@@ -49,30 +49,39 @@
 
   .user-section {
     display: flex;
-    align-items: center;
+    align-items: center; /* Căn giữa theo chiều dọc */
     gap: 10px;
-
-    svg {
-      font-size: 24px;
-    }
-
-    span {
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: bold;
-      color: black;
-
-      &:hover {
-        color: #f28a2d;
-      }
-    }
 
     .separator {
       display: inline-block;
       width: 1px;
-      height: 20px;
+      height: 24px; /* Đảm bảo dấu gạch đủ cao để khớp với icon */
       background-color: #ecdcd6;
-      margin: 0 15px;
+      margin-right: 10px;
+    }
+
+    svg {
+      font-size: 24px; /* Kích thước của icon người dùng */
+    }
+
+    .account-actions {
+      display: flex;
+      align-items: center; /* Đảm bảo căn giữa theo chiều dọc */
+      gap: 15px; /* Khoảng cách giữa "Thông tin tài khoản" và "Đăng xuất" */
+
+      .account-info,
+      .logout-button {
+        background-color: transparent;
+        border: none;
+        color: #c58246;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 14px;
+        line-height: 1; /* Đảm bảo không có khoảng trắng thừa trong text */
+        &:hover {
+          color: #a8703b;
+        }
+      }
     }
   }
 
@@ -134,7 +143,6 @@
     cursor: pointer;
     text-decoration: underline;
     font-size: 14px;
-    margin-top: 5px;
     &:hover {
       color: #a8703b;
     }

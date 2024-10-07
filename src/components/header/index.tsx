@@ -80,14 +80,23 @@ function Header() {
         </div>
 
         <div className="user-section">
-          <span className="separator"></span>
+          <div className="separator"></div>{" "}
+          {/* Dấu gạch phân cách ở bên trái */}
           <FaUserCircle />
           {userFullName ? (
             <div>
               <span>Xin chào, {userFullName}</span> <br />
-              <button className="logout-button" onClick={handleLogout}>
-                Đăng xuất
-              </button>{" "}
+              <div className="account-actions">
+                <button
+                  className="account-info"
+                  onClick={() => navigate("/customer-information")}
+                >
+                  Thông tin tài khoản
+                </button>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
             </div>
           ) : (
             <span

@@ -107,7 +107,7 @@ const CustomerInformation: React.FC = () => {
         </Form.Item>
 
         <Form.Item className="login-link">
-          <a href="/resetPassword">Bạn muốn đổi mật khẩu</a>
+          <a href="/change-password">Bạn muốn đổi mật khẩu?</a>
         </Form.Item>
       </Form>
     </AuthenTemplate>

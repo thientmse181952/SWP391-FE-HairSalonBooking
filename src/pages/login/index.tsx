@@ -101,7 +101,6 @@ const Login: React.FC = () => {
     handleLogin(values);
   };
 
-
   return (
     <div className="authen-template">
       <div className="authen-template__form">
@@ -148,6 +147,12 @@ const Login: React.FC = () => {
           <Form.Item className="register-link">
             <span onClick={() => navigate("/register")}>
               Chưa có tài khoản? Đăng ký tại đây
+            </span>
+          </Form.Item>
+
+          <Form.Item className="forgot-password-link">
+            <span onClick={() => navigate("/reset-password")}>
+              Quên mật khẩu?
             </span>
           </Form.Item>
         </Form>

@@ -23,26 +23,36 @@ import uploadFile from "../../../utils/file";
 const { Option } = Select;
 
 const CollectionManagement: React.FC = () => {
-  const [collections, setCollections] = useState([]); 
-  const [filteredCollections, setFilteredCollections] = useState([]); 
-  const [fileList, setFileList] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [openModal, setOpenModal] = useState(false); 
-  const [editingCollection, setEditingCollection] = useState<any>(null); 
-  const [selectedCollection, setSelectedCollection] = useState<any>(null); 
-  const [categories, setCategories] = useState([]); 
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-  const [form] = Form.useForm(); 
+  const [collections, setCollections] = useState([]);
+  const [filteredCollections, setFilteredCollections] = useState([]);
+  const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<any>(null);
+  const [selectedCollection, setSelectedCollection] = useState<any>(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    undefined
+  );
+  const [form] = Form.useForm();
 
+  // Fetch dữ liệu bộ sưu tập và danh mục
   useEffect(() => {
     const fetchCollectionsAndCategories = async () => {
       try {
         const [collectionResponse, categoryResponse] = await Promise.all([
           api.get("/collection"),
-          api.get("/category"),
+          api.get("/category/getCategory"),
         ]);
-        setCollections(collectionResponse.data);
-        setFilteredCollections(collectionResponse.data);
+
+        // Sắp xếp các collection theo thứ tự thời gian giảm dần
+        const sortedCollections = collectionResponse.data.sort(
+          (a: any, b: any) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setCollections(sortedCollections);
+        setFilteredCollections(sortedCollections);
         setCategories(categoryResponse.data);
         setLoading(false);
       } catch (error) {
@@ -52,27 +62,45 @@ const CollectionManagement: React.FC = () => {
     fetchCollectionsAndCategories();
   }, []);
 
+  // Lọc bộ sưu tập theo danh mục
   const handleCategoryFilter = (value: string) => {
     setSelectedCategory(value);
     if (value) {
-      setFilteredCollections(collections.filter(collection => collection.category === value));
+      setFilteredCollections(
+        collections.filter((collection) => collection.category === value)
+      );
     } else {
       setFilteredCollections(collections);
     }
   };
 
+  // Hàm định dạng thời gian
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  // Thêm hoặc cập nhật bộ sưu tập
   const onFinish = async (values: any) => {
     try {
       let imageUrl = "";
       if (fileList.length > 0) {
         const file = fileList[0];
-        imageUrl = await uploadFile(file.originFileObj); 
+        imageUrl = await uploadFile(file.originFileObj);
       }
+
+      const currentDate = formatDate(new Date());
 
       const collectionData = {
         ...values,
-        collectionImage: imageUrl || editingCollection?.collectionImage || "", 
+        collectionImage: imageUrl || editingCollection?.collectionImage || "",
         deleted: false,
+        date: currentDate,
       };
 
       if (editingCollection) {
@@ -85,15 +113,23 @@ const CollectionManagement: React.FC = () => {
 
       setOpenModal(false);
       form.resetFields();
+
+      // Lấy lại dữ liệu mới nhất sau khi thêm hoặc cập nhật
       const response = await api.get("/collection");
-      setCollections(response.data);
-      setFilteredCollections(response.data);
+      const sortedCollections = response.data.sort(
+        (a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      setCollections(sortedCollections);
+      setFilteredCollections(sortedCollections);
       setEditingCollection(null);
     } catch (error) {
       console.error("Lỗi khi tạo/cập nhật bộ sưu tập:", error);
     }
   };
 
+  // Chỉnh sửa bộ sưu tập
   const handleEdit = (collection: any) => {
     setEditingCollection(collection);
     form.setFieldsValue({
@@ -102,13 +138,19 @@ const CollectionManagement: React.FC = () => {
     setOpenModal(true);
   };
 
+  // Xóa bộ sưu tập
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/collection/${id}`);
       message.success("Xóa bộ sưu tập thành công!");
       const response = await api.get("/collection");
-      setCollections(response.data);
-      setFilteredCollections(response.data);
+      const sortedCollections = response.data.sort(
+        (a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      setCollections(sortedCollections);
+      setFilteredCollections(sortedCollections);
     } catch (error) {
       message.error("Lỗi khi xóa bộ sưu tập!");
     }
@@ -124,6 +166,7 @@ const CollectionManagement: React.FC = () => {
     </button>
   );
 
+  // Cấu trúc bảng hiển thị bộ sưu tập
   const columns = [
     {
       title: "ID",
@@ -136,12 +179,22 @@ const CollectionManagement: React.FC = () => {
       key: "category",
     },
     {
-      title: "Ảnh bộ sưu tập",
+      title: "Hình ảnh",
       dataIndex: "collectionImage",
       key: "collectionImage",
       render: (imageUrl: string) => (
-        <img src={imageUrl} alt="Collection" style={{ width: 50, height: 50 }} />
+        <img
+          src={imageUrl}
+          alt="Collection"
+          style={{ width: 50, height: 50 }}
+        />
       ),
+    },
+    {
+      title: "Ngày tạo", // Cột 'date' mới
+      dataIndex: "date",
+      key: "date",
+      render: (date: string) => (date ? date.split("T")[0] : "Chưa có ngày"), // Hiển thị ngày (bỏ phần giờ)
     },
     {
       title: "Hành động",
@@ -170,10 +223,6 @@ const CollectionManagement: React.FC = () => {
     },
   ];
 
-  const handleView = (collection: any) => {
-    setSelectedCollection(collection);
-  };
-
   return (
     <Row gutter={16}>
       <Col span={16}>
@@ -190,7 +239,11 @@ const CollectionManagement: React.FC = () => {
             </Option>
           ))}
         </Select>
-        <Button type="primary" onClick={() => setOpenModal(true)} style={{ marginBottom: 16 }}>
+        <Button
+          type="primary"
+          onClick={() => setOpenModal(true)}
+          style={{ marginBottom: 16 }}
+        >
           Thêm Bộ Sưu Tập
         </Button>
         <Table
@@ -199,25 +252,32 @@ const CollectionManagement: React.FC = () => {
           rowKey="id"
           loading={loading}
           onRow={(record) => ({
-            onClick: () => handleView(record),
+            onClick: () => setSelectedCollection(record),
           })}
           style={{ marginTop: 20 }}
         />
       </Col>
       <Col span={8}>
         {selectedCollection && (
-          <Card title="Thông tin bộ sưu tập" style={{ width: '100%' }}>
+          <Card title="Thông tin bộ sưu tập" style={{ width: "100%" }}>
             <img
               src={selectedCollection.collectionImage}
               alt="Collection"
-              style={{ width: '100%', height: 'auto', marginBottom: 16 }}
+              style={{ width: "100%", height: "auto", marginBottom: 16 }}
             />
-            <p><strong>Danh mục:</strong> {selectedCollection.category}</p>
+            <p>
+              <strong>Danh mục:</strong> {selectedCollection.category}
+            </p>
+            <p>
+              <strong>Ngày tạo:</strong> {selectedCollection.date || "Chưa có"}
+            </p>
           </Card>
         )}
       </Col>
       <Modal
-        title={editingCollection ? "Chỉnh sửa bộ sưu tập" : "Thêm bộ sưu tập mới"}
+        title={
+          editingCollection ? "Chỉnh sửa bộ sưu tập" : "Thêm bộ sưu tập mới"
+        }
         visible={openModal}
         onCancel={() => {
           setOpenModal(false);
@@ -242,7 +302,9 @@ const CollectionManagement: React.FC = () => {
           <Form.Item
             label="Upload Ảnh"
             valuePropName="fileList"
-            getValueFromEvent={(e: any) => (Array.isArray(e) ? e : e && e.fileList)}
+            getValueFromEvent={(e: any) =>
+              Array.isArray(e) ? e : e && e.fileList
+            }
             rules={[
               { required: true, message: "Vui lòng upload ảnh bộ sưu tập!" },
             ]}
@@ -251,7 +313,7 @@ const CollectionManagement: React.FC = () => {
               listType="picture-card"
               fileList={fileList}
               onChange={handleChange}
-            >45
+            >
               {fileList.length >= 1 ? null : uploadButton}
             </Upload>
           </Form.Item>

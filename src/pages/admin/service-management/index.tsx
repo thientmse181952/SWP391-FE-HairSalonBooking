@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -12,6 +10,9 @@ import {
   Upload,
   Popconfirm,
   message,
+  Col,
+  Card,
+  Row,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
@@ -28,18 +29,19 @@ const normFile = (e: any) => {
 };
 
 const AdminServiceManagement: React.FC = () => {
-  const [services, setServices] = useState([]); 
-  // Trạng thái lưu danh sách dịch vụ
-  const [categories, setCategories] = useState([]); 
-  // Trạng thái lưu danh sách danh mục
-  const [fileList, setFileList] = useState([]); 
-  // Trạng thái lưu danh sách file upload
-  const [loading, setLoading] = useState(true); 
-  // Trạng thái loading
-  const [openModal, setOpenModal] = useState(false); 
-  // Trạng thái mở modal thêm/sửa
-  const [editingService, setEditingService] = useState<any>(null); // Trạng thái lưu dịch vụ đang chỉnh sửa
-  const [form] = Form.useForm(); // Sử dụng form của Ant Design
+  const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
+    undefined
+  );
+  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
+  const [form] = Form.useForm();
 
   // Fetch danh sách dịch vụ và danh mục từ API
   useEffect(() => {
@@ -47,81 +49,145 @@ const AdminServiceManagement: React.FC = () => {
       try {
         const [serviceResponse, categoryResponse] = await Promise.all([
           api.get("/service"),
-          api.get("/category"),
+          api.get("/category/getCategory"),
         ]);
-        setServices(serviceResponse.data);
+
+        const sortedServices = serviceResponse.data.sort(
+          (a: any, b: any) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setServices(sortedServices);
+        setFilteredServices(sortedServices); // Đặt dịch vụ đã được sắp xếp vào state
         setCategories(categoryResponse.data);
         setLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy danh mục hoặc dịch vụ:", error);
       }
     };
+
     fetchServicesAndCategories();
   }, []);
 
-  // Tạo một map từ categoryId đến nameCategory để tra cứu nhanh
   const categoryMap = categories.reduce((map: any, category: any) => {
     map[category.id] = category.nameCategory;
     return map;
   }, {});
 
-  // Xử lý khi form được submit để thêm hoặc sửa dịch vụ
+  // Hàm lọc dịch vụ theo danh mục
+  const handleCategoryFilter = (value: number | undefined) => {
+    setSelectedCategory(value);
+    let filtered = services;
+
+    if (value) {
+      filtered = filtered.filter(
+        (service) => service.category === value.toString()
+      );
+    }
+
+    // Lọc dịch vụ theo từ khóa tìm kiếm nếu có
+    if (searchTerm) {
+      filtered = filtered.filter((service) =>
+        service.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredServices(filtered);
+  };
+
+  // Hàm xử lý tìm kiếm theo tên dịch vụ
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+
+    let filtered = services;
+
+    // Lọc dịch vụ theo từ khóa tìm kiếm
+    if (term) {
+      filtered = filtered.filter((service) =>
+        service.name.toLowerCase().includes(term.toLowerCase())
+      );
+    }
+
+    // Lọc theo danh mục hiện tại nếu có
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (service) => service.category === selectedCategory.toString()
+      );
+    }
+
+    setFilteredServices(filtered);
+  };
+
+  const handleView = (service: any) => {
+    setSelectedService(service);
+  };
+
   const onFinish = async (values: any) => {
     try {
       let imageUrl = "";
       if (fileList.length > 0) {
         const file = fileList[0];
-        imageUrl = await uploadFile(file.originFileObj); // Upload ảnh và nhận URL
+        imageUrl = await uploadFile(file.originFileObj);
       }
+
+      const currentDate = formatDate(new Date());
 
       const serviceData = {
         ...values,
-        category: values.categoryId, // Đảm bảo category được gửi dưới dạng ID
-        serviceImage: imageUrl || editingService?.serviceImage || "", // Thêm URL ảnh vào dữ liệu
-        deleted: false,
+        price: values.price.toString(), // Chuyển đổi price thành chuỗi
+        duration: values.duration.toString(), // Chuyển đổi duration thành chuỗi
+        category: values.categoryId.toString(), // Chuyển đổi categoryId thành chuỗi
+        serviceImage: imageUrl || editingService?.serviceImage || "",
+        date: currentDate, // Thêm thời gian hiện tại
       };
 
       if (editingService) {
-        // Cập nhật dịch vụ
         await api.put(`/service/${editingService.id}`, serviceData);
         message.success("Cập nhật dịch vụ thành công!");
       } else {
-        // Thêm mới dịch vụ
         await api.post("/service", serviceData);
         message.success("Thêm dịch vụ thành công!");
       }
 
-      // Đóng modal và reset form
       setOpenModal(false);
       form.resetFields();
-      // Fetch lại danh sách dịch vụ sau khi thêm hoặc cập nhật
       const response = await api.get("/service");
-      setServices(response.data);
-      setEditingService(null); // Reset trạng thái chỉnh sửa
+      const sortedServices = response.data.sort(
+        (a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setServices(sortedServices);
+      setFilteredServices(sortedServices);
+      setEditingService(null);
     } catch (error) {
-      console.error("Lỗi khi tạo/cập nhật dịch vụ:", error);
+      console.error(
+        "Lỗi khi tạo/cập nhật dịch vụ:",
+        error.response?.data || error.message
+      );
     }
   };
 
-  // Xử lý khi nhấn nút "Sửa", mở modal và điền thông tin dịch vụ vào form
   const handleEdit = (service: any) => {
     setEditingService(service);
     form.setFieldsValue({
       ...service,
-      categoryId: service.category, 
-      // Gán categoryId từ dữ liệu dịch vụ khi chỉnh sửa
+      categoryId: service.category,
     });
     setOpenModal(true);
   };
 
-  // Xử lý khi nhấn nút "Xóa", gọi API DELETE
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/service/${id}`);
       message.success("Xóa dịch vụ thành công!");
-      // Fetch lại danh sách sau khi xóa
       const response = await api.get("/service");
-      setServices(response.data);
+      const sortedServices = response.data.sort(
+        (a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setServices(sortedServices);
+      setFilteredServices(sortedServices);
     } catch (error) {
       message.error("Lỗi khi xóa dịch vụ!");
     }
@@ -137,7 +203,17 @@ const AdminServiceManagement: React.FC = () => {
     </button>
   );
 
-  // Cấu trúc cột của bảng dịch vụ
+  // Hàm định dạng ngày giờ
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const columns = [
     {
       title: "ID",
@@ -161,9 +237,28 @@ const AdminServiceManagement: React.FC = () => {
     },
     {
       title: "Danh mục",
-      dataIndex: "category", // Sử dụng categoryId để lấy tên danh mục
-      key: "category",
-      render: (categoryId: number) => categoryMap[categoryId] || "N/A", // Hiển thị tên danh mục thay vì ID
+      dataIndex: "category",
+      key: "categoryId",
+      render: (categoryId: number) => categoryMap[categoryId] || "N/A",
+    },
+    {
+      title: "Ngày tạo", // Cột 'date' mới
+      dataIndex: "date",
+      key: "date",
+      render: (date: string) => (date ? date.split("T")[0] : "Chưa có ngày"), // Hiển thị ngày
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "serviceImage",
+      key: "serviceImage",
+      render: (imageUrl: string, service: any) => (
+        <img
+          src={imageUrl}
+          alt="Service"
+          style={{ width: 50, height: 50, cursor: "pointer" }}
+          onClick={() => handleView(service)}
+        />
+      ),
     },
     {
       title: "Hành động",
@@ -193,31 +288,78 @@ const AdminServiceManagement: React.FC = () => {
   ];
 
   return (
-    <div className="card">
-      <h1>Quản Lý Dịch Vụ</h1>
-      <Button type="primary" onClick={() => setOpenModal(true)}>
-        Thêm Dịch Vụ
-      </Button>
-      {/* Hiển thị bảng chứa dịch vụ */}
-      <Table
-        columns={columns}
-        dataSource={services}
-        rowKey="id"
-        loading={loading}
-        style={{ marginTop: 20 }}
-      />
-      {/* Modal thêm/sửa dịch vụ */}
+    <Row gutter={16}>
+      <Col span={16}>
+        <h1>Quản Lý Dịch Vụ</h1>
+        <div style={{ display: "flex", marginBottom: 16 }}>
+          <Input
+            className="custom-search-input"
+            placeholder="Tìm kiếm dịch vụ"
+            value={searchTerm}
+            onChange={handleSearch}
+            style={{ width: 200, marginRight: 16 }}
+          />
+          <Select
+            placeholder="Chọn danh mục"
+            style={{ width: 200, marginRight: 16 }}
+            onChange={handleCategoryFilter}
+            allowClear
+          >
+            {categories.map((category: any) => (
+              <Select.Option key={category.id} value={category.id}>
+                {category.nameCategory}
+              </Select.Option>
+            ))}
+          </Select>
+
+          <Button type="primary" onClick={() => setOpenModal(true)}>
+            Thêm Dịch Vụ
+          </Button>
+        </div>
+        <Table
+          columns={columns}
+          dataSource={filteredServices}
+          rowKey="id"
+          loading={loading}
+          style={{ marginTop: 20 }}
+        />
+      </Col>
+      <Col span={8}>
+        {selectedService && (
+          <Card title="Thông tin dịch vụ" style={{ width: "100%" }}>
+            <img
+              src={selectedService.serviceImage}
+              alt="Service"
+              style={{ width: "100%", height: "auto", marginBottom: 16 }}
+            />
+            <p>
+              <strong>Tên dịch vụ:</strong> {selectedService.name}
+            </p>
+            <p>
+              <strong>Danh mục:</strong> {categoryMap[selectedService.category]}
+            </p>
+            <p>
+              <strong>Giá:</strong> {selectedService.price}
+            </p>
+            <p>
+              <strong>Thời lượng:</strong> {selectedService.duration} phút
+            </p>
+            <p>
+              <strong>Ngày tạo:</strong> {selectedService.date || "Chưa có"}
+            </p>
+          </Card>
+        )}
+      </Col>
       <Modal
         title={editingService ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ mới"}
         visible={openModal}
         onCancel={() => {
           setOpenModal(false);
-          setEditingService(null); // Đặt lại trạng thái
+          setEditingService(null);
         }}
         footer={null}
       >
         <Form form={form} onFinish={onFinish}>
-          {/* Tên dịch vụ */}
           <Form.Item
             label="Tên dịch vụ"
             name="name"
@@ -225,7 +367,6 @@ const AdminServiceManagement: React.FC = () => {
           >
             <Input />
           </Form.Item>
-          {/* Mô tả dịch vụ */}
           <Form.Item
             label="Mô tả"
             name="description"
@@ -235,7 +376,6 @@ const AdminServiceManagement: React.FC = () => {
           >
             <TextArea rows={4} />
           </Form.Item>
-          {/* Giá dịch vụ */}
           <Form.Item
             label="Giá"
             name="price"
@@ -243,7 +383,6 @@ const AdminServiceManagement: React.FC = () => {
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
-          {/* Thời lượng dịch vụ */}
           <Form.Item
             label="Thời lượng (phút)"
             name="duration"
@@ -253,7 +392,6 @@ const AdminServiceManagement: React.FC = () => {
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
-          {/* Stylist */}
           <Form.Item
             label="Stylist"
             name="stylist"
@@ -264,7 +402,6 @@ const AdminServiceManagement: React.FC = () => {
               <Select.Option value="2">Stylist 2</Select.Option>
             </Select>
           </Form.Item>
-          {/* Danh mục dịch vụ */}
           <Form.Item
             label="Danh mục"
             name="categoryId"
@@ -280,7 +417,6 @@ const AdminServiceManagement: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
-          {/* Upload ảnh dịch vụ */}
           <Form.Item
             label="Upload Ảnh"
             valuePropName="fileList"
@@ -297,7 +433,6 @@ const AdminServiceManagement: React.FC = () => {
               {fileList.length >= 1 ? null : uploadButton}
             </Upload>
           </Form.Item>
-          {/* Nút thêm/sửa */}
           <Form.Item>
             <Button type="primary" htmlType="submit">
               {editingService ? "Cập nhật" : "Thêm dịch vụ"}
@@ -305,7 +440,7 @@ const AdminServiceManagement: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </Row>
   );
 };
 

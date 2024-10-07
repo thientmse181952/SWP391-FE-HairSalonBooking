@@ -1,15 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.scss";
-import { DatePicker, Button, Checkbox, Select, message } from "antd";
+import { DatePicker, Button, Select, message } from "antd";
 import dayjs from "dayjs";
+import api from "../../config/axios"; // Thêm axios để gọi API
 
 const { Option } = Select;
-
-const services = [
-  { label: "Cắt tóc", value: "haircut" },
-  { label: "Uốn tóc", value: "perm" },
-  // Thêm các dịch vụ khác
-];
 
 const hairStylists = [
   { name: "Stylist Lê Hiếu", value: "le-hieu" },
@@ -36,13 +31,29 @@ const Booking: React.FC = () => {
   const [selectedService, setSelectedService] = useState<string[]>([]);
   const [selectedStylist, setSelectedStylist] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [services, setServices] = useState<any[]>([]); // State để lưu danh sách dịch vụ từ API
+
+  // Gọi API để lấy danh sách dịch vụ từ API GET /service
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await api.get("/service");
+        setServices(response.data); // Lưu danh sách dịch vụ vào state
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách dịch vụ:", error);
+        message.error("Không thể tải danh sách dịch vụ.");
+      }
+    };
+
+    fetchServices(); // Gọi hàm fetch dịch vụ khi component mount
+  }, []);
 
   const handleDateChange = (date: any) => {
     setSelectedDate(date);
   };
 
-  const handleServiceChange = (checkedValue: string[]) => {
-    setSelectedService(checkedValue);
+  const handleServiceChange = (value: string[]) => {
+    setSelectedService(value);
   };
 
   const handleStylistChange = (value: string) => {
@@ -89,11 +100,19 @@ const Booking: React.FC = () => {
 
       <div className="form-group">
         <label>Chọn dịch vụ</label>
-        <Checkbox.Group
-          options={services}
-          onChange={handleServiceChange}
+        <Select
+          mode="multiple" // Cho phép chọn nhiều
+          style={{ width: "100%" }}
+          placeholder="Chọn dịch vụ"
           value={selectedService}
-        />
+          onChange={handleServiceChange}
+        >
+          {services.map((service) => (
+            <Option key={service.id} value={service.name}>
+              {service.name}
+            </Option>
+          ))}
+        </Select>
       </div>
 
       <div className="form-group">

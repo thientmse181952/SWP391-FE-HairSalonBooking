@@ -1,8 +1,8 @@
 .authen-template {
   min-height: 80vh;
 
-  .register-link {
-    margin-top: 10px; /* Khoảng cách trên liên kết đăng nhập */
+  .register-link,
+  .forgot-password-link {
     display: flex;
     justify-content: center; /* Căn giữa */
     span {

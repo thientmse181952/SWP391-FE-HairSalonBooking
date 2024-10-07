@@ -9,6 +9,7 @@ interface ImageData {
   id: number;
   category: string;
   collectionImage: string;
+  date: string; // Thêm thuộc tính date
 }
 
 const categories = [
@@ -57,7 +58,7 @@ const Collection: React.FC = () => {
     const fetchData = async () => {
       setLoading(true); // Bắt đầu loading
       try {
-        const response = await api.get("/collection"); // Gọi API để lấy tất cả dữ liệu
+        const response = await api.get("/collection"); // Gọi đúng endpoint API
         setImageData(response.data); // Lưu dữ liệu vào state
         setLoading(false); // Kết thúc loading
       } catch (error) {
@@ -68,13 +69,21 @@ const Collection: React.FC = () => {
     fetchData(); // Thực hiện lấy dữ liệu
   }, []); // Chạy chỉ một lần khi component được mount
 
+  useEffect(() => {
+    if (titleRef.current) {
+      // Thêm 100px khi cuộn tới tiêu đề
+      window.scrollTo({
+        top: titleRef.current.offsetTop - 100, // Trừ đi 100px để tạo khoảng cách
+        behavior: "smooth",
+      });
+    }
+  }, [categoryName]); // Theo dõi sự thay đổi của categoryName để cuộn
+
   // Chuyển hướng đến trang category tương ứng và cuộn lên collection-title
+  // Cập nhật hàm handleCategoryClick để dùng setTimeout trước khi scroll để đảm bảo cập nhật URL xong mới cuộn tới tiêu đề
   const handleCategoryClick = (category: string) => {
     setCurrentPage(1); // Reset trang về 1 khi chọn category mới
-    navigate(`/collection/${category}`);
-    if (titleRef.current) {
-      titleRef.current.scrollIntoView({ behavior: "smooth" }); // Cuộn đến collection-title
-    }
+    navigate(`/collection/${category}`); // Thay đổi URL mà không cần xử lý cuộn ngay tại đây
   };
 
   // Xử lý phân trang
@@ -90,7 +99,7 @@ const Collection: React.FC = () => {
   // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentImages = filteredImages.slice(startIndex, endIndex); 
+  const currentImages = filteredImages.slice(startIndex, endIndex);
   // Chỉ phân trang sau khi lọc
 
   if (loading) {

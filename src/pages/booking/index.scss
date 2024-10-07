@@ -1,94 +1,112 @@
 .booking-wrapper {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 40px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  
-    h1 {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 20px;
+    font-family: "Times New Roman", serif;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .date-picker {
+      display: flex;
+      align-items: center;
+
+      .day-of-week {
+        margin-left: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+      }
+    }
+
+    /* Style for the checkbox and label alignment */
+    .ant-checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ant-checkbox-group-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px; /* Adjust font size */
+      margin-right: 10px;
+      margin-bottom: 10px;
+
+      .ant-checkbox {
+        margin-right: 5px; /* Space between checkbox and label */
+      }
+    }
+  }
+
+  .stylist-select {
+    width: 100%;
+  }
+
+  .time-slot-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    margin-top: 10px;
+
+    .time-slot {
       text-align: center;
-      font-size: 32px;
-      margin-bottom: 20px;
-      font-family: "Times New Roman", serif;
-    }
-  
-    .form-group {
-      margin-bottom: 20px;
-  
-      label {
-        display: block;
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 8px;
-      }
-  
-      .date-picker {
-        display: flex;
-        align-items: center;
-  
-        .day-of-week {
-          margin-left: 10px;
-          font-size: 16px;
-          font-weight: 500;
-          color: #666;
-        }
-      }
-    }
-  
-    .stylist-select {
-      width: 100%;
-    }
-  
-    .time-slot-wrapper {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-gap: 10px;
-      margin-top: 10px;
-  
-      .time-slot {
-        text-align: center;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #dcdcdc;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-  
-        &.available {
-          background-color: #f0f0f0;
-          color: #333;
-  
-          &:hover {
-            background-color: #c58246;
-            color: white;
-          }
-        }
-  
-        &.unavailable {
-          background-color: #e0e0e0;
-          color: #999;
-          cursor: not-allowed;
-        }
-  
-        &.selected {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #dcdcdc;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+
+      &.available {
+        background-color: #f0f0f0;
+        color: #333;
+
+        &:hover {
           background-color: #c58246;
           color: white;
         }
       }
-    }
-  
-    .submit-button {
-      width: 100%;
-      background-color: #c58246;
-      border-color: #c58246;
-      font-size: 18px;
-      margin-top: 20px;
-      border-radius: 8px;
-  
-      &:hover {
-        background-color: #a46a36;
-        border-color: #a46a36;
+
+      &.unavailable {
+        background-color: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+      }
+
+      &.selected {
+        background-color: #c58246;
+        color: white;
       }
     }
   }
-  
+
+  .submit-button {
+    width: 100%;
+    background-color: #c58246;
+    border-color: #c58246;
+    font-size: 18px;
+    margin-top: 20px;
+    border-radius: 8px;
+
+    &:hover {
+      background-color: #a46a36;
+      border-color: #a46a36;
+    }
+  }
+}
