@@ -80,15 +80,21 @@ const Collection: React.FC = () => {
   }, [categoryName]); // Theo dõi sự thay đổi của categoryName để cuộn
 
   // Chuyển hướng đến trang category tương ứng và cuộn lên collection-title
-  // Cập nhật hàm handleCategoryClick để dùng setTimeout trước khi scroll để đảm bảo cập nhật URL xong mới cuộn tới tiêu đề
   const handleCategoryClick = (category: string) => {
     setCurrentPage(1); // Reset trang về 1 khi chọn category mới
     navigate(`/collection/${category}`); // Thay đổi URL mà không cần xử lý cuộn ngay tại đây
   };
 
-  // Xử lý phân trang
+  // Xử lý phân trang và cuộn lên collection-title
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Cập nhật trang hiện tại
+
+    if (titleRef.current) {
+      window.scrollTo({
+        top: titleRef.current.offsetTop - 100, // Cuộn tới tiêu đề với khoảng cách 100px
+        behavior: "smooth",
+      });
+    }
   };
 
   // Lọc dữ liệu theo category trước khi phân trang
@@ -100,7 +106,47 @@ const Collection: React.FC = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentImages = filteredImages.slice(startIndex, endIndex);
-  // Chỉ phân trang sau khi lọc
+
+  const useIntersectionObserver = () => {
+    const [isVisible, setIsVisible] = useState(false);
+    const elementRef = useRef<any>(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          setIsVisible(entry.isIntersecting);
+        },
+        { threshold: 0.1 } // Hình ảnh sẽ bắt đầu tải khi ít nhất 10% của nó xuất hiện trong viewport
+      );
+
+      if (elementRef.current) {
+        observer.observe(elementRef.current);
+      }
+
+      return () => {
+        if (elementRef.current) {
+          observer.unobserve(elementRef.current);
+        }
+      };
+    }, []);
+
+    return { isVisible, elementRef };
+  };
+
+  const LazyImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
+    const { isVisible, elementRef } = useIntersectionObserver();
+
+    return (
+      <div ref={elementRef} className="grid-item">
+        {isVisible ? (
+          <Image src={src} alt={alt} />
+        ) : (
+          <div style={{ height: "200px", backgroundColor: "#f0f0f0" }} /> // Placeholder cho đến khi hình ảnh tải xong
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -149,9 +195,11 @@ const Collection: React.FC = () => {
 
           <div className="gallery-grid">
             {currentImages.map((image) => (
-              <div className="grid-item" key={image.id}>
-                <Image src={image.collectionImage} alt={image.category} />
-              </div>
+              <LazyImage
+                key={image.id}
+                src={image.collectionImage}
+                alt={image.category}
+              />
             ))}
           </div>
 

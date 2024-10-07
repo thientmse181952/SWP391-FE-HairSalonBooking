@@ -15,7 +15,6 @@ import AdminServiceManagement from "./pages/admin/service-management";
 import AdminSelection from "./pages/admin/collection-management";
 
 import AdminCategory from "./components/admin-category";
-
 import StylistCategory from "./components/stylist-template"; // Thêm dấu phẩy ở đây
 
 import Collection from "./pages/collection";
@@ -31,7 +30,8 @@ import StylistSchedule from "./pages/stylist-page/stylist-work-schedule";
 import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
 import CollectionManagement from "./pages/admin/collection-management";
 import ChangePassword from "./pages/change-password";
-import Test from "./pages/test";
+import ProtectedRoute from "./components/routes/ProtectedRoute"; // Import ProtectedRoute
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -43,10 +43,6 @@ function App() {
       path: "about-us",
       element: <Layout />,
       children: [{ path: "", element: <AboutUs /> }],
-    },
-    {
-      path: "test",
-      children: [{ path: "", element: <Test /> }],
     },
     {
       path: "login",
@@ -75,7 +71,11 @@ function App() {
     },
     {
       path: "adminpage",
-      element: <AdminCategory />,
+      element: (
+        <ProtectedRoute roleRequired="MANAGER">
+          <AdminCategory />
+        </ProtectedRoute>
+      ),
       children: [
         { path: "adminInfo", element: <AdminInfo /> }, // Đường dẫn cho admin thông tin
         {
@@ -93,28 +93,10 @@ function App() {
         }, // Đường dẫn cho Xếp lịch Stylist
         { path: "adminSelection", element: <AdminSelection /> },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> }, // Đường dẫn cho Quản lý dịch vụ
-
         { path: "CollectionManagement", element: <CollectionManagement /> }, // Đường dẫn cho Quản lý dịch vụ
-
-        { path: "adminInfo", element: <AdminInfo /> },
-        {
-          path: "adminPersonnelManagement",
-          element: <AdminPersonnelManagement />,
-        },
-        {
-          path: "adminEmployeeRegistration",
-          element: <AdminEmployeeRegistration />,
-        },
-        { path: "adminDashboard", element: <AdminDashboard /> },
-        {
-          path: "adminCalendarManagement",
-          element: <AdminCalendarManagement />,
-        },
-        { path: "adminServiceManagement", element: <AdminServiceManagement /> },
         { path: "category-management", element: <CategoryManagement /> },
       ],
     },
-
     {
       path: "stylistpage",
       element: <StylistCategory />,
@@ -135,7 +117,6 @@ function App() {
         },
       ],
     },
-
     {
       path: "collection",
       element: <Layout />,

@@ -4,38 +4,42 @@ import { GoogleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./index.scss";
 import { googleProvider } from "../../config/firebase.ts";
-
 import { useNavigate } from "react-router-dom";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để lưu trạng thái
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { setUser } = useUser(); // Dùng setUser để lưu thông tin người dùng vào UserContext
 
   const handleLogin = async (values: {
     username: string;
     password: string;
   }) => {
     try {
+      console.log("Đang đăng nhập với:", values); // Log thông tin đăng nhập
+
       const response = await axios.post("http://localhost:8080/api/login", {
         username: values.username,
         password: values.password,
       });
 
+      console.log("Kết quả đăng nhập:", response.data); // Log kết quả từ API đăng nhập
+
       if (response.status === 200) {
         message.success("Đăng nhập thành công!");
 
-        // Lấy token và fullName từ response
+        // Lấy token, fullName và số điện thoại từ response
         const token = response.data.token;
         const fullName = response.data.fullName;
-        const email = response.data.email; // Giả sử email của người dùng hiện tại cũng được trả về
+        const phone = values.username; // Sử dụng số điện thoại (username) để tìm tài khoản
+
+        console.log("Token và số điện thoại:", { token, phone }); // Log token và số điện thoại
 
         // Lưu token và fullName vào localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("fullName", fullName);
-
-        // Lưu thông tin tài khoản vào localStorage
-        localStorage.setItem("userData", JSON.stringify(response.data));
 
         // Gọi API /api/account để lấy tất cả thông tin tài khoản
         try {
@@ -43,21 +47,34 @@ const Login: React.FC = () => {
             "http://localhost:8080/api/account",
             {
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Sử dụng token để lấy thông tin tài khoản
               },
             }
           );
 
-          // Duyệt qua tất cả các tài khoản để tìm tài khoản hiện tại dựa trên email
+          console.log("Tất cả tài khoản từ API:", accountResponse.data); // Log tất cả tài khoản
+
+          // Duyệt qua tất cả các tài khoản để tìm tài khoản hiện tại dựa trên số điện thoại
           const currentUser = accountResponse.data.find(
-            (user) => user.email === email // So sánh email từ response với danh sách tài khoản
+            (user) => user.phone === phone // So sánh số điện thoại từ response với danh sách tài khoản
           );
 
+          console.log("Tài khoản hiện tại:", currentUser); // Log tài khoản hiện tại
+
           if (currentUser) {
+            // Cập nhật thông tin người dùng vào UserContext
+            setUser({
+              role: currentUser.role, // Cập nhật role từ danh sách tài khoản
+              name: currentUser.fullName,
+              token: token,
+            });
+
             // Kiểm tra vai trò của tài khoản hiện tại
             if (currentUser.role === "MANAGER") {
+              console.log("Điều hướng đến trang admin");
               navigate("/adminpage");
             } else {
+              console.log("Điều hướng đến trang chủ");
               navigate("/");
             }
           } else {
