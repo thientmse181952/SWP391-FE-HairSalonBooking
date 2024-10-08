@@ -37,6 +37,11 @@ const Login: React.FC = () => {
 
         console.log("Token và số điện thoại:", { token, phone }); // Log token và số điện thoại
 
+        // Kiểm tra xem token có được trả về hay không
+        if (!token) {
+          throw new Error("Không có token từ API!");
+        }
+
         // Lưu token và fullName vào localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("fullName", fullName);

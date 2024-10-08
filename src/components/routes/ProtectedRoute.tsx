@@ -5,34 +5,36 @@ import { useUser } from "../../context/UserContext";
 
 interface ProtectedRouteProps {
   roleRequired: string;
-  children: React.ReactNode; // Thêm prop children
+  children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   roleRequired,
   children,
 }) => {
-  const { user } = useUser(); // Lấy thông tin người dùng từ context
+  const { user, isLoading } = useUser();
   const [redirect, setRedirect] = useState<string | null>(null);
+  const [hasShownMessage, setHasShownMessage] = useState(false); // Một cờ duy nhất kiểm soát hiển thị thông báo
 
   useEffect(() => {
-    console.log("User hiện tại:", user); // Kiểm tra thông tin user
+    if (isLoading) return; // Chờ cho đến khi quá trình tải kết thúc
 
-    // Kiểm tra xem user đã đăng nhập và có quyền hay không
-    if (!user || !user.token) {
-      message.error("Bạn cần đăng nhập để truy cập vào trang này!");
-      setRedirect("/login"); // Nếu chưa đăng nhập thì chuyển đến trang đăng nhập
-    } else if (user && user.role && user.role !== roleRequired) {
-      message.error("Bạn không có quyền truy cập vào trang này!");
-      setRedirect("/"); // Chuyển hướng về trang chủ nếu không có quyền
+    console.log("User hiện tại:", user);
+
+    if (!user || !user.token || user.role !== "MANAGER") {
+      if (!hasShownMessage) {
+        message.error("Bạn không có quyền truy cập vào trang này!");
+        setHasShownMessage(true); // Đặt cờ để không hiển thị lặp lại
+      }
+      setRedirect("/"); // Chuyển hướng về trang chủ nếu không phải "MANAGER"
     }
-  }, [user, roleRequired]);
+  }, [user, isLoading, hasShownMessage]);
 
   if (redirect) {
-    return <Navigate to={redirect} />; // Nếu cần chuyển hướng thì thực hiện
+    return <Navigate to={redirect} />;
   }
 
-  return <>{children}</>; // Render children nếu người dùng có vai trò đúng
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

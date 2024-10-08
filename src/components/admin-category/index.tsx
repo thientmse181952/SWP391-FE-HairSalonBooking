@@ -7,56 +7,69 @@ import {
   UserOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
-import { Link, Outlet } from "react-router-dom";
-
+import { Breadcrumb, Layout, Menu, message, theme } from "antd";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 
 const { Header, Content, Footer, Sider } = Layout;
 
-function getItem(
-  label: React.ReactNode,
-  key: string,
-  icon?: React.ReactNode,
-  children?: any
-) {
-  return {
-    key,
-    icon,
-    children,
-    label: <Link to={`/adminpage/${key}`}>{label}</Link>, // Cập nhật đường dẫn
-  };
-}
-
-const items = [
-  getItem("Admin Information", "adminInfo", <PieChartOutlined />),
-  getItem(
-    "Personnel Management",
-    "adminPersonnelManagement",
-    <DesktopOutlined />
-  ), // Đường dẫn cho Tất cả nhân sự
-  getItem(
-    "Employee Registration",
-    "adminEmployeeRegistration",
-    <UserOutlined />
-  ), // Đường dẫn cho Đăng ký nhân viên
-  getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
-  getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
-  getItem("Service Management", "adminServiceManagement", <UserOutlined />),
-  getItem("Category Management", "category-management", <UserOutlined />),
-  getItem("Add Collection", "CollectionManagement", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
- getItem("Logout", "logout", <UploadOutlined />), // Thêm mục đăng xuất
-];
-
 const AdminCategory: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { setUser } = useUser(); // Lấy hàm setUser từ UserContext để cập nhật trạng thái người dùng
+  const navigate = useNavigate(); // Sử dụng hook navigate để điều hướng
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // Tương tự như hàm handleLogout trong Header
   const handleLogout = () => {
-    // Xử lý đăng xuất ở đây
-    window.location.href = "/"; // Chuyển hướng về trang chính
+    localStorage.removeItem("fullName");
+    localStorage.removeItem("token"); // Xóa token khi đăng xuất
+    setUser(null); // Reset lại trạng thái người dùng
+
+    // Thêm thông báo đăng xuất thành công
+    message.success("Đăng xuất thành công!");
+
+    navigate("/login"); // Điều hướng về trang đăng nhập
   };
+
+  function getItem(
+    label: React.ReactNode,
+    key: string,
+    icon?: React.ReactNode,
+    children?: any
+  ) {
+    return {
+      key,
+      icon,
+      children,
+      label: <Link to={`/adminpage/${key}`}>{label}</Link>, // Cập nhật đường dẫn
+    };
+  }
+
+  const items = [
+    getItem("Admin Information", "adminInfo", <PieChartOutlined />),
+    getItem(
+      "Personnel Management",
+      "adminPersonnelManagement",
+      <DesktopOutlined />
+    ), // Đường dẫn cho Tất cả nhân sự
+    getItem(
+      "Employee Registration",
+      "adminEmployeeRegistration",
+      <UserOutlined />
+    ), // Đường dẫn cho Đăng ký nhân viên
+    getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
+    getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
+    getItem("Service Management", "adminServiceManagement", <UserOutlined />),
+    getItem("Category Management", "category-management", <UserOutlined />),
+    getItem("Add Collection", "CollectionManagement", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
+    {
+      key: "logout",
+      icon: <UploadOutlined />,
+      label: <span onClick={handleLogout}>Logout</span>, // Gọi trực tiếp handleLogout khi click vào Logout
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -99,9 +112,9 @@ const AdminCategory: React.FC = () => {
             <Outlet />
           </div>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
+        {/* <Footer style={{ textAlign: "center" }}>
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+        </Footer> */}
       </Layout>
     </Layout>
   );
