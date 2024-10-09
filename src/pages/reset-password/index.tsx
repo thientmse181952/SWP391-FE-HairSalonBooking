@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Button, Form, Input, message } from "antd";
 import AuthenTemplate from "../../components/authen-template";
 import { useForm } from "antd/lib/form/Form";
-import {
-  getAuth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-} from "firebase/auth";
+import { auth, setupRecaptcha } from "../../config/firebase"; // Đảm bảo import auth và setupRecaptcha từ file firebase config
+import { signInWithPhoneNumber } from "firebase/auth"; // Import signInWithPhoneNumber từ firebase/auth
 import "./index.scss";
 
 const ResetPassword: React.FC = () => {
@@ -14,24 +11,6 @@ const ResetPassword: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false); // State để theo dõi tình trạng gửi OTP
   const [sendingOtp, setSendingOtp] = useState(false); // Để theo dõi trạng thái gửi mã
   const [verificationId, setVerificationId] = useState<string | null>(null); // Để lưu verificationId
-
-  const auth = getAuth();
-
-  // Hàm thiết lập Recaptcha
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        "recaptcha-container",
-        {
-          size: "invisible", // Hiển thị Recaptcha vô hình
-          callback: (response: any) => {
-            console.log("Recaptcha resolved");
-          },
-        },
-        auth
-      );
-    }
-  };
 
   // Hàm gửi mã OTP qua Firebase
   const sendOTP = async (phone: string) => {
@@ -56,7 +35,7 @@ const ResetPassword: React.FC = () => {
     }
   };
 
-  const onFinish = (values: any): void => {
+  const onFinish = async (values: any): void => {
     console.log("Success:", values);
     // Thêm logic để xử lý khi người dùng xác nhận OTP và đặt lại mật khẩu
   };

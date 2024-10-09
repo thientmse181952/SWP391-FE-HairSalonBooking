@@ -10,6 +10,7 @@ import {
 import { Breadcrumb, Layout, Menu, message, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
+import "./index.scss";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -63,7 +64,7 @@ const AdminCategory: React.FC = () => {
     getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
     getItem("Service Management", "adminServiceManagement", <UserOutlined />),
     getItem("Category Management", "category-management", <UserOutlined />),
-    getItem("Add Collection", "CollectionManagement", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
+    getItem("Collection Management", "collection-management", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
     {
       key: "logout",
       icon: <UploadOutlined />,

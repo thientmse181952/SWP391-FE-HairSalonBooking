@@ -1,0 +1,65 @@
+.sidebar {
+  background-color: #f8f8f8;
+  padding: 20px;
+  width: 250px;
+  min-height: 100vh; /* Chiều cao đủ dài cho sidebar */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dcdcdc; /* Viền màu xám xung quanh */
+
+  .logo {
+    text-align: center;
+    margin-bottom: 40px;
+
+    img {
+      width: 120px;
+      height: auto;
+      border-radius: 50%;
+      border: 2px solid #c58246;
+    }
+  }
+
+  ul.options {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+
+      &.selected {
+        background-color: #c58246;
+        color: white;
+
+        a {
+          color: white;
+        }
+
+        &:hover {
+          background-color: #a8703b;
+        }
+      }
+
+      &:hover {
+        background-color: #f4f4f4;
+        color: #c58246;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 8px;
+
+        span {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+}

@@ -1,39 +1,31 @@
-.authen-template {
-  .submit-button,
-  .login-link {
-    display: flex;
-    justify-content: center; /* Căn giữa */
-  }
+.customer-content {
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  text-align: center;
+}
+
+.customer-form {
+  max-width: 600px;
+  margin: 0 auto;
 
   .submit-button {
-    margin-bottom: 20px; /* Khoảng cách dưới nút */
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 
     button {
-      background-color: #c58246 !important; /* Bắt buộc sử dụng màu này */
-      border: none !important;
-      color: white !important;
-      padding: 10px 20px !important;
-      font-size: 16px !important;
-      border-radius: 5px !important;
-      cursor: pointer !important;
-      transition: background-color 0.3s ease !important;
+      background-color: #c58246;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
 
       &:hover {
-        background-color: #a8703b !important; /* Màu khi hover */
-      }
-    }
-  }
-
-  .login-link {
-    margin-top: 10px; /* Khoảng cách trên liên kết đăng nhập */
-
-    a {
-      color: #1890ff !important;
-      font-weight: bold !important;
-      text-decoration: none !important; /* Không gạch chân mặc định */
-
-      &:hover {
-        text-decoration: underline !important; /* Hiệu ứng gạch chân khi hover */
+        background-color: #a8703b;
       }
     }
   }

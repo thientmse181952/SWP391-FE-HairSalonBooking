@@ -70,7 +70,9 @@
               background-color: #f4f4f4;
             }
           }
-          &::after {
+
+          // Thêm đường kẻ sau mỗi 4 items
+          li:nth-child(4n)::after {
             content: "";
             display: block;
             width: 100%;

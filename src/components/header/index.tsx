@@ -91,7 +91,7 @@ function Header() {
               <div className="account-actions">
                 <button
                   className="account-info"
-                  onClick={() => navigate("/customer-information")}
+                  onClick={() => navigate("/customer/information")}
                 >
                   Thông tin tài khoản
                 </button>

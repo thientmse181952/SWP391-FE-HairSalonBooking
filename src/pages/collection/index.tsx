@@ -14,33 +14,22 @@ interface ImageData {
 
 const categories = [
   {
-    title: "Tóc Nhuộm",
     items: [
       { name: "Màu Balayage, Ombre" },
       { name: "Màu nhuộm công sở" },
       { name: "Màu nhuộm thời trang" },
-    ],
-  },
-  {
-    title: "Cắt & Tạo Kiểu",
-    items: [
       { name: "Tóc bob" },
       { name: "Tóc dài" },
       { name: "Tóc ngắn" },
       { name: "Kiểu tóc xu hướng" },
       { name: "Tóc lỡ" },
-    ],
-  },
-  {
-    title: "Tóc Uốn - Duỗi",
-    items: [
       { name: "Tóc duỗi" },
       { name: "Tóc uốn xoăn" },
       { name: "Tóc uốn xoăn ngọn, dợn sóng lơi" },
+      { name: "Tóc Nam" },
+      { name: "BST & Hairshow" },
     ],
   },
-  { title: "Tóc Nam", items: [{ name: "Tóc Nam" }] },
-  { title: "BST & Hairshow", items: [{ name: "BST & Hairshow" }] },
 ];
 
 const Collection: React.FC = () => {
@@ -58,7 +47,7 @@ const Collection: React.FC = () => {
     const fetchData = async () => {
       setLoading(true); // Bắt đầu loading
       try {
-        const response = await api.get("/collection"); // Gọi đúng endpoint API
+        const response = await api.get("/collection/getCollection"); // Gọi đúng endpoint API
         setImageData(response.data); // Lưu dữ liệu vào state
         setLoading(false); // Kết thúc loading
       } catch (error) {
@@ -170,9 +159,8 @@ const Collection: React.FC = () => {
           <h3>Bộ Sưu Tập</h3>
 
           {/* Lặp qua các category */}
-          {categories.map((categoryGroup) => (
-            <div className="sidebar-section" key={categoryGroup.title}>
-              <h4>{categoryGroup.title}</h4>
+          {categories.map((categoryGroup, index) => (
+            <div className="sidebar-section" key={index}>
               <ul>
                 {categoryGroup.items.map((category) => (
                   <li

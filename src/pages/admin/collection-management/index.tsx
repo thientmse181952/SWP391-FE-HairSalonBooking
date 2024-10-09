@@ -41,7 +41,7 @@ const CollectionManagement: React.FC = () => {
     const fetchCollectionsAndCategories = async () => {
       try {
         const [collectionResponse, categoryResponse] = await Promise.all([
-          api.get("/collection"),
+          api.get("/collection/getCollection"),
           api.get("/category/getCategory"),
         ]);
 
@@ -115,7 +115,7 @@ const CollectionManagement: React.FC = () => {
       form.resetFields();
 
       // Lấy lại dữ liệu mới nhất sau khi thêm hoặc cập nhật
-      const response = await api.get("/collection");
+      const response = await api.get("/collection/getCollection");
       const sortedCollections = response.data.sort(
         (a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -143,7 +143,7 @@ const CollectionManagement: React.FC = () => {
     try {
       await api.delete(`/collection/${id}`);
       message.success("Xóa bộ sưu tập thành công!");
-      const response = await api.get("/collection");
+      const response = await api.get("/collection/getCollection");
       const sortedCollections = response.data.sort(
         (a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()

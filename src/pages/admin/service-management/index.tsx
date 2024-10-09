@@ -48,7 +48,7 @@ const AdminServiceManagement: React.FC = () => {
     const fetchServicesAndCategories = async () => {
       try {
         const [serviceResponse, categoryResponse] = await Promise.all([
-          api.get("/service"),
+          api.get("/service/getService"),
           api.get("/category/getCategory"),
         ]);
 
@@ -152,7 +152,7 @@ const AdminServiceManagement: React.FC = () => {
 
       setOpenModal(false);
       form.resetFields();
-      const response = await api.get("/service");
+      const response = await api.get("/service/getService");
       const sortedServices = response.data.sort(
         (a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -181,7 +181,7 @@ const AdminServiceManagement: React.FC = () => {
     try {
       await api.delete(`/service/${id}`);
       message.success("Xóa dịch vụ thành công!");
-      const response = await api.get("/service");
+      const response = await api.get("/service/getService");
       const sortedServices = response.data.sort(
         (a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
