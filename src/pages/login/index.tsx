@@ -45,6 +45,7 @@ const Login: React.FC = () => {
         // Lưu token và fullName vào localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("fullName", fullName);
+        localStorage.setItem("phone", phone);
 
         // Gọi API /api/account để lấy tất cả thông tin tài khoản
         try {

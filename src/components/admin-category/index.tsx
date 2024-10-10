@@ -49,22 +49,18 @@ const AdminCategory: React.FC = () => {
   }
 
   const items = [
-    getItem("Admin Information", "adminInfo", <PieChartOutlined />),
+    getItem("Thông Tin Admin", "adminInfo", <PieChartOutlined />),
     getItem(
       "Personnel Management",
       "adminPersonnelManagement",
       <DesktopOutlined />
     ), // Đường dẫn cho Tất cả nhân sự
-    getItem(
-      "Employee Registration",
-      "adminEmployeeRegistration",
-      <UserOutlined />
-    ), // Đường dẫn cho Đăng ký nhân viên
+    getItem("Quản Lý Nhân Viên", "adminEmployeeRegistration", <UserOutlined />), // Đường dẫn cho Đăng ký nhân viên
     getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
     getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
-    getItem("Service Management", "adminServiceManagement", <UserOutlined />),
-    getItem("Category Management", "category-management", <UserOutlined />),
-    getItem("Collection Management", "collection-management", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
+    getItem("Quản Lý Dịch Vụ", "adminServiceManagement", <UserOutlined />),
+    getItem("Quản Lý Danh Mục", "category-management", <UserOutlined />),
+    getItem("Quản Lý BST", "collection-management", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
     {
       key: "logout",
       icon: <UploadOutlined />,

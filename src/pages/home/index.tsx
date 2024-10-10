@@ -1,5 +1,5 @@
 import React from "react";
-import { Carousel } from "antd";
+import { Carousel, message } from "antd";
 import { useNavigate } from "react-router-dom"; // Thêm hook useNavigate
 import "./index.scss";
 import HairStylistSlider from "../../components/stylists";
@@ -10,6 +10,16 @@ const Home: React.FC = () => {
 
   const handleServiceClick = () => {
     navigate("/services");
+  };
+
+  const handleBookingClick = () => {
+    const token = localStorage.getItem("token"); // Lấy token từ localStorage
+    if (token) {
+      navigate("/booking"); // Nếu đã đăng nhập, điều hướng đến trang booking
+    } else {
+      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!"); // Hiển thị thông báo yêu cầu đăng nhập
+      navigate("/login"); // Điều hướng đến trang login nếu chưa đăng nhập
+    }
   };
 
   return (
@@ -172,7 +182,7 @@ const Home: React.FC = () => {
             alt="Kim Hair Salon"
           />
         </div>
-        <button className="booking-button" onClick={() => navigate("/booking")}>
+        <button className="booking-button" onClick={handleBookingClick}>
           ĐẶT LỊCH NGAY
         </button>
       </div>
