@@ -1,128 +1,124 @@
-import React, { useState } from "react";
-import { Table, Select, Modal, Button, Popconfirm } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { Calendar, Badge, Modal } from "antd";
+import './index.scss';
 
-const { Option } = Select;
+interface Appointment {
+  date: string;
+  customerName: string;
+  service: string;
+  time: string; // Thêm thuộc tính thời gian
+}
 
-const timeSlots = Array.from({ length: 6 }, (_, index) => ({
-  key: index,
-  time: `${8 + Math.floor(index / 3) * 2}:00 - ${10 + Math.floor(index / 3) * 2}:00`
-}));
+const generateRandomAppointments = (num: number): Appointment[] => {
+  const customers = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Nguyễn Văn E", "Lê Văn Hiếu"];
+  const services = ["Gội đầu", "Cắt tóc", "Nhuộm tóc", "Tạo kiểu", "Massage đầu"];
+  
+  const appointments: Appointment[] = [];
+  const timeSlots = ["08:00-09:00", "09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", 
+                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00", 
+                     "18:00-19:00", "19:00-20:00"];
 
-const generateRandomBooking = () => {
-  const names = ["Đức Cống", "Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D"];
-  const services = ["Cắt tóc nam", "Nhuộm tóc", "Gội đầu", "Uốn tóc", "Duỗi tóc"];
-  const randomName = names[Math.floor(Math.random() * names.length)];
-  const randomService = services[Math.floor(Math.random() * services.length)];
-  return { name: randomName, service: randomService };
+  for (let i = 0; i < num; i++) {
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30)); // Tạo ngày trong tháng tới
+    const formattedDate = randomDate.toISOString().split('T')[0]; // Định dạng ngày
+
+    const appointment: Appointment = {
+      date: formattedDate,
+      customerName: customers[Math.floor(Math.random() * customers.length)],
+      service: services[Math.floor(Math.random() * services.length)],
+      time: timeSlots[Math.floor(Math.random() * timeSlots.length)], // Thêm thời gian ngẫu nhiên
+    };
+
+    appointments.push(appointment);
+  }
+
+  // Thêm 5 ngày có nhiều hơn 2 người book
+  for (let i = 0; i < 5; i++) {
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30)); // Tạo ngày trong tháng tới
+    const formattedDate = randomDate.toISOString().split('T')[0]; // Định dạng ngày
+
+    const extraAppointments = [
+      {
+        date: formattedDate,
+        customerName: "Nguyễn Văn A",
+        service: "Cắt tóc",
+        time: "10:00-12:00",
+      },
+      {
+        date: formattedDate,
+        customerName: "Trần Thị B",
+        service: "Gội đầu",
+        time: "12:00-14:00",
+      },
+      {
+        date: formattedDate,
+        customerName: "Lê Văn C",
+        service: "Tạo kiểu",
+        time: "14:00-16:00",
+      },
+    ];
+
+    appointments.push(...extraAppointments);
+  }
+
+  return appointments;
 };
 
 const StylistSchedule: React.FC = () => {
-  const [selectedWeek, setSelectedWeek] = useState(moment().week());
-  const [dayOff, setDayOff] = useState<number>(5); // Thứ 6
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<{ name: string; service: string } | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
 
-  const startOfWeek = moment().week(selectedWeek).startOf('isoWeek');
-  const days = [startOfWeek.clone().add(1, 'days'), startOfWeek.clone().add(6, 'days')]; // Thứ 2 và Chủ nhật
+  useEffect(() => {
+    const generatedAppointments = generateRandomAppointments(15);
+    setAppointments(generatedAppointments);
+  }, []);
 
-  // Dữ liệu booking
-  const bookings = {
-    "2-0": generateRandomBooking(), // Thứ 2, Slot 1
-    "2-1": generateRandomBooking(), // Thứ 2, Slot 2
-    "2-5": generateRandomBooking(), // Thứ 2, Slot 6
-    "3-2": generateRandomBooking(), // Thứ 3, Slot 3
-    "5-3": generateRandomBooking(), // Thứ 5, Slot 4
-    "7-4": generateRandomBooking(), // Chủ nhật, Slot 5
-    "7-0": generateRandomBooking(), // Chủ nhật, Slot 1
-    "7-1": generateRandomBooking(), // Chủ nhật, Slot 2
+  const dateCellRender = (value: any) => {
+    const dateString = value.format('YYYY-MM-DD');
+    const currentAppointments = appointments.filter(appointment => appointment.date === dateString);
+    
+    const hasAppointments = currentAppointments.length > 0;
+
+    return (
+      <div 
+        className={`appointment-cell ${hasAppointments ? 'has-appointments' : ''}`}
+        onClick={() => {
+          if (hasAppointments) {
+            setSelectedDate(dateString);
+            setVisible(true);
+          }
+        }}
+      >
+        {currentAppointments.map((appointment, index) => (
+          <Badge key={index} status="success" text={`${appointment.customerName} - ${appointment.service}`} />
+        ))}
+      </div>
+    );
   };
 
-  const handleSelectWeek = (week: number) => {
-    setSelectedWeek(week);
+  const handleCancel = () => {
+    setVisible(false);
+    setSelectedDate(null);
   };
-
-  const handleBookingClick = (day: number, slot: number) => {
-    const booking = bookings[`${day}-${slot}`];
-    if (booking) {
-      setSelectedBooking(booking);
-      setModalVisible(true);
-    }
-  };
-
-  const handleOffClick = () => {
-    Popconfirm({
-      title: "Yêu cầu của bạn sẽ được gửi tới quản lý. Vui lòng đợi phản hồi từ quản lý!",
-      onConfirm: () => {
-        console.log(`Ngày nghỉ đã được đăng ký cho ngày: ${dayOff}`);
-      },
-    });
-  };
-
-  const columns: ColumnsType<any> = [
-    {
-      title: "Slot",
-      dataIndex: "slot",
-      render: (_, __, index) => (
-        <div>{timeSlots[index].time}</div>
-      ),
-    },
-    ...days.map((day, dayIndex) => ({
-      title: day.format("dddd") + ` (${day.format("DD/MM/YYYY")})`,
-      dataIndex: dayIndex,
-      render: (_, __, slotIndex) => {
-        const booking = bookings[`${dayIndex + 1}-${slotIndex}`];
-        const isOff = dayIndex + 1 === dayOff;
-
-        return (
-          <div
-            style={{
-              backgroundColor: isOff ? "yellow" : booking ? "orange" : "lightblue",
-              color: "black",
-              padding: "10px",
-              textAlign: "center",
-              cursor: "pointer"
-            }}
-            onClick={() => booking && handleBookingClick(dayIndex + 1, slotIndex)}
-          >
-            {isOff ? "OFF" : booking ? `${booking.name}: ${booking.service}` : "Đi làm"}
-          </div>
-        );
-      },
-    })),
-  ];
 
   return (
-    <div>
-      <h1>SẮP XẾP LỊCH LÀM</h1>
-      <Select defaultValue={selectedWeek} onChange={handleSelectWeek} style={{ width: 200 }}>
-        {Array.from({ length: 52 }, (_, index) => (
-          <Option key={index} value={index + 1}>
-            Tuần {index + 1}
-          </Option>
-        ))}
-      </Select>
-      <Table columns={columns} dataSource={timeSlots.map((_, index) => ({ slot: index }))} pagination={false} />
-      <Button 
-        style={{ marginTop: 10 }} 
-        onClick={handleOffClick}
-      >
-        CHỌN NGÀY NGHỈ
-      </Button>
-
+    <div className="stylist-schedule">
+      <h1>LỊCH LÀM</h1>
+      <Calendar dateCellRender={dateCellRender} />
       <Modal
-        title="Thông tin booking"
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        title={`Thông tin cuộc hẹn cho ngày ${selectedDate}`}
+        visible={visible}
+        onCancel={handleCancel}
         footer={null}
       >
-        {selectedBooking && (
-          <div>
-            <p>Tên: {selectedBooking.name}</p>
-            <p>Dịch vụ: {selectedBooking.service}</p>
+        {appointments.filter(appointment => appointment.date === selectedDate).map((appointment, index) => (
+          <div key={index}>
+            <p>{`${appointment.time} - ${appointment.customerName} - ${appointment.service}`}</p>
           </div>
-        )}
+        ))}
       </Modal>
     </div>
   );

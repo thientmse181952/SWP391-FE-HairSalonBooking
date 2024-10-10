@@ -1,0 +1,19 @@
+.stylist-schedule {
+  padding: 20px;
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  .appointment-cell {
+    background-color: transparent;
+    border-radius: 4px;
+    padding: 5px;
+    transition: all 0.3s;
+    cursor: pointer;
+
+    &.has-appointments {
+      background-color: rgba(255, 192, 203, 0.5);
+    }
+  }
+}

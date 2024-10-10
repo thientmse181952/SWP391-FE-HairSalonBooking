@@ -1,175 +1,101 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  Table,
-  Modal,
   Form,
   Input,
-  Popconfirm,
   message,
   Col,
   Row,
 } from "antd";
 import api from "../../../config/axios";
 
+interface Stylist {
+  id: number;
+  name: string;
+  rating: string;
+  image: string;
+  gender: string;
+  email?: string;
+  phone?: string;
+}
+
 const StylistInfo: React.FC = () => {
-  const [stylists, setStylists] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [openModal, setOpenModal] = useState(false); 
-  const [editingStylist, setEditingStylist] = useState<any>(null); 
-  const [form] = Form.useForm(); 
+  const [stylist, setStylist] = useState<Stylist | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    const fetchStylists = async () => {
+    const fetchStylist = async () => {
       try {
-        const response = await api.get("/stylists");
-        setStylists(response.data);
+        const response = await api.get("/stylists/1"); // Giả sử lấy stylist với ID = 1
+        setStylist(response.data);
+        form.setFieldsValue(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin stylist:", error);
       }
     };
-    fetchStylists();
+    fetchStylist();
   }, []);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: Stylist) => {
     try {
-      if (editingStylist) {
-        await api.put(`/stylists/${editingStylist.id}`, values);
+      if (stylist) {
+        await api.put(`/stylists/${stylist.id}`, values);
         message.success("Cập nhật thông tin stylist thành công!");
+        setStylist(values); // Cập nhật stylist trong state
       }
-      setOpenModal(false);
-      form.resetFields();
-      const response = await api.get("/stylists");
-      setStylists(response.data);
-      setEditingStylist(null);
     } catch (error) {
       console.error("Lỗi khi cập nhật thông tin stylist:", error);
     }
   };
 
-  const handleEdit = (stylist: any) => {
-    setEditingStylist(stylist);
-    form.setFieldsValue({
-      ...stylist,
-    });
-    setOpenModal(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await api.delete(`/stylists/${id}`);
-      message.success("Xóa stylist thành công!");
-      const response = await api.get("/stylists");
-      setStylists(response.data);
-    } catch (error) {
-      message.error("Lỗi khi xóa stylist!");
-    }
-  };
-
-  const columns = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "Tên",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      key: "phone",
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (stylist: any) => (
-        <>
-          <Button
-            type="link"
-            onClick={() => handleEdit(stylist)}
-            style={{ marginRight: 8 }}
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa stylist này không?"
-            onConfirm={() => handleDelete(stylist.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button type="link" danger>
-              Xóa
-            </Button>
-          </Popconfirm>
-        </>
-      ),
-    },
-  ];
+  if (loading) {
+    return <div>Loading...</div>; // Hiển thị loading khi đang tải dữ liệu
+  }
 
   return (
     <Row gutter={16}>
       <Col span={24}>
-        <h1>Thông Tin Stylist</h1>
-        <Button type="primary" onClick={() => setOpenModal(true)} style={{ marginBottom: 16 }}>
-          Thêm Stylist
-        </Button>
-        <Table
-          columns={columns}
-          dataSource={stylists}
-          rowKey="id"
-          loading={loading}
-          style={{ marginTop: 20 }}
-        />
+        <h1>Chỉnh Sửa Thông Tin Stylist</h1>
+        {stylist && (
+          <Form form={form} onFinish={onFinish}>
+            <Form.Item
+              label="Tên"
+              name="name"
+              rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Đánh giá"
+              name="rating"
+              rules={[{ required: true, message: "Vui lòng nhập đánh giá!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Hình ảnh"
+              name="image"
+              rules={[{ required: true, message: "Vui lòng nhập hình ảnh!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Giới tính"
+              name="gender"
+              rules={[{ required: true, message: "Vui lòng nhập giới tính!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Cập nhật
+              </Button>
+            </Form.Item>
+          </Form>
+        )}
       </Col>
-      <Modal
-        title={editingStylist ? "Chỉnh sửa thông tin stylist" : "Thêm stylist mới"}
-        visible={openModal}
-        onCancel={() => {
-          setOpenModal(false);
-          setEditingStylist(null);
-        }}
-        footer={null}
-      >
-        <Form form={form} onFinish={onFinish}>
-          <Form.Item
-            label="Tên"
-            name="name"
-            rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: "Vui lòng nhập email!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Số điện thoại"
-            name="phone"
-            rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editingStylist ? "Cập nhật" : "Thêm stylist"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
     </Row>
   );
 };
