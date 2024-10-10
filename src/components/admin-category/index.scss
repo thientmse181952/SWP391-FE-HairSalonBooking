@@ -1,0 +1,33 @@
+$primary-color: #f3f0eb;
+$secondary-color: #343a40;
+$text-color: #000000;
+
+.admin-layout {
+  height: 100vh;
+
+  .sider {
+    background-color: $primary-color;
+    .ant-menu-dark {
+      background-color: $primary-color;
+    }
+  }
+
+  .header {
+    background-color: $primary-color;
+    padding: 0;
+    color: $text-color;
+  }
+
+  .content {
+    margin: 0 16px;
+    background-color: $primary-color;
+    padding: 24px;
+    border-radius: 8px;
+  }
+
+  .breadcrumb {
+    margin: 16px 0;
+    font-size: 16px;
+    color: $text-color;
+  }
+}

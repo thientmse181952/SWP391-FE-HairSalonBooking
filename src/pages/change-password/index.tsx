@@ -1,17 +1,34 @@
 import React from "react";
 import { Button, Form, Input, message } from "antd";
-import AuthenTemplate from "../../components/authen-template";
 import { useForm } from "antd/lib/form/Form";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./index.scss";
+import api from "../../config/axios";
 
 const ChangePassword: React.FC = () => {
   const [form] = useForm();
+  const navigate = useNavigate(); // Khởi tạo useNavigate
 
   // Hàm xử lý khi hoàn thành form
-  const onFinish = (values: any): void => {
-    console.log("Success:", values);
-    // Thêm logic để xử lý khi người dùng thay đổi mật khẩu
-    message.success("Đổi mật khẩu thành công!");
+  const onFinish = async (values: any): Promise<void> => {
+    const { oldPassword, newPassword } = values; // Lấy giá trị từ form
+    try {
+      const response = await api.put("/password", {
+        currentPassword: oldPassword, // Mật khẩu cũ
+        newPassword: newPassword, // Mật khẩu mới
+        confirmPassword: newPassword, // Xác nhận mật khẩu mới
+      });
+
+      if (response.status === 200) {
+        message.success("Đổi mật khẩu thành công!");
+        navigate("/customer/information"); // Điều hướng đến trang thông tin khách hàng
+      } else {
+        message.error("Đổi mật khẩu thất bại, vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Đã xảy ra lỗi:", error);
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    }
   };
 
   // Hàm xử lý khi form bị lỗi
@@ -21,13 +38,14 @@ const ChangePassword: React.FC = () => {
   };
 
   return (
-    <AuthenTemplate>
+    <div className="customer-content">
       <h1>Đổi Mật Khẩu</h1>
       <Form
         form={form}
         labelCol={{ span: 24 }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
+        className="customer-form" // Thêm class cho form
       >
         <Form.Item
           label="Mật khẩu cũ"
@@ -81,7 +99,7 @@ const ChangePassword: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
-    </AuthenTemplate>
+    </div>
   );
 };
 

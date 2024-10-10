@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"; // Import hooks
 import { FaFacebookF, FaGoogle, FaUserCircle } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import "./index.scss";
+import { message } from "antd";
 
 function Header() {
   const navigate = useNavigate(); // Khởi tạo useNavigate
@@ -59,6 +60,7 @@ function Header() {
     localStorage.removeItem("token"); // Xóa token khi đăng xuất
     setUserFullName(null); // Reset lại trạng thái userFullName
     setToken(null); // Reset lại trạng thái token
+    message.success("Đăng xuất thành công!");
     navigate("/login"); // Điều hướng về trang đăng nhập
   };
 
@@ -89,7 +91,7 @@ function Header() {
               <div className="account-actions">
                 <button
                   className="account-info"
-                  onClick={() => navigate("/customer-information")}
+                  onClick={() => navigate("/customer/information")}
                 >
                   Thông tin tài khoản
                 </button>

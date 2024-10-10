@@ -43,7 +43,7 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get("/service"); // Lấy toàn bộ dịch vụ
+        const response = await api.get("/service/getService"); // Lấy toàn bộ dịch vụ
         console.log("Dịch vụ trả về từ API:", response.data); // Kiểm tra dữ liệu trả về từ API
         setServices(response.data); // Lưu toàn bộ dịch vụ vào state
       } catch (error) {

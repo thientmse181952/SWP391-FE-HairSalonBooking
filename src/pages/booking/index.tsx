@@ -37,7 +37,7 @@ const Booking: React.FC = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get("/service");
+        const response = await api.get("/service/getService");
         setServices(response.data); // Lưu danh sách dịch vụ vào state
       } catch (error) {
         console.error("Lỗi khi lấy danh sách dịch vụ:", error);

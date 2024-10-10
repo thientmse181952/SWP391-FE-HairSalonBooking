@@ -106,7 +106,13 @@ const AddStylist: React.FC = () => {
     {
       title: "Ảnh đại diện",
       dataIndex: "avatar",
-      render: (text: string) => <img src={text} alt="avatar" style={{ borderRadius: "50%", width: 50, height: 50 }} />,
+      render: (text: string) => (
+        <img
+          src={text}
+          alt="avatar"
+          style={{ borderRadius: "50%", width: 50, height: 50 }}
+        />
+      ),
     },
     {
       title: "Tên",
@@ -123,20 +129,25 @@ const AddStylist: React.FC = () => {
     {
       title: "Dịch vụ đảm nhiệm",
       dataIndex: "services",
-      render: (services: any) => services.map((service: any) => service.name).join(", "),
+      render: (services: any) =>
+        services.map((service: any) => service.name).join(", "),
     },
     {
       title: "Hành động",
       render: (stylist: any) => (
         <>
-          <Button type="link" onClick={() => handleEdit(stylist)}>Sửa</Button>
+          <Button type="link" onClick={() => handleEdit(stylist)}>
+            Sửa
+          </Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xóa stylist này không?"
             onConfirm={() => handleDelete(stylist.id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="link" danger>Xóa</Button>
+            <Button type="link" danger>
+              Xóa
+            </Button>
           </Popconfirm>
         </>
       ),
@@ -157,7 +168,6 @@ const AddStylist: React.FC = () => {
       />
       <Modal
         title={editingStylist ? "Chỉnh sửa Stylist" : "Thêm Stylist"}
-       
         visible={openModal}
         onCancel={() => {
           setOpenModal(false);
@@ -165,29 +175,49 @@ const AddStylist: React.FC = () => {
         }}
         footer={null}
       >
-        <Form 
-        form={form} onFinish={onFinish}
-        labelCol={{span:24}}
-        >
-          <Form.Item label="Ảnh đại diện" valuePropName="fileList" getValueFromEvent={(e: any) => e.fileList}>
+        <Form form={form} onFinish={onFinish} labelCol={{ span: 24 }}>
+          <Form.Item
+            label="Ảnh đại diện"
+            valuePropName="fileList"
+            getValueFromEvent={(e: any) => e.fileList}
+          >
             <Upload
               listType="picture-card"
               fileList={fileList}
               onChange={handleChange}
             >
-              {fileList.length >= 1 ? null : <div><PlusOutlined /><div>Upload</div></div>}
+              {fileList.length >= 1 ? null : (
+                <div>
+                  <PlusOutlined />
+                  <div>Upload</div>
+                </div>
+              )}
             </Upload>
           </Form.Item>
-          <Form.Item label="Tên" name="name" rules={[{ required: true, message: "Vui lòng nhập tên!" }]}>
+          <Form.Item
+            label="Tên"
+            name="name"
+            rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Giới tính" name="gender" rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}>
+          <Form.Item
+            label="Giới tính"
+            name="gender"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
+          >
             <Select placeholder="Chọn giới tính">
               <Select.Option value="male">Nam</Select.Option>
               <Select.Option value="female">Nữ</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Số điện thoại" name="phone" rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}>
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại!" },
+            ]}
+          >
             <Input />
           </Form.Item>
           <Form.Item label="Mật khẩu mới" name="password">
@@ -198,8 +228,10 @@ const AddStylist: React.FC = () => {
           </Form.Item>
           <Form.Item label="Dịch vụ đảm nhiệm" name="services">
             <Checkbox.Group>
-              {servicesList.map(service => (
-                <Checkbox key={service.id} value={service.id}>{service.name}</Checkbox>
+              {servicesList.map((service) => (
+                <Checkbox key={service.id} value={service.id}>
+                  {service.name}
+                </Checkbox>
               ))}
             </Checkbox.Group>
           </Form.Item>

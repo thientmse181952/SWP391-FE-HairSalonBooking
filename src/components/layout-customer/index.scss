@@ -1,0 +1,19 @@
+.layout-customer {
+  background-color: #f0f0f0; /* Nền màu xám cho toàn bộ layout */
+  min-height: 100vh; /* Đảm bảo chiều cao của layout đủ để chứa header, body và footer */
+
+  .layout-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 8dvh; /* Thêm padding cho khoảng cách lề trái và phải */
+  }
+
+  .customer-content-container {
+    flex: 1;
+    padding: 20px 60px; /* Tăng khoảng cách giữa phần sidebar và content */
+    background-color: #fff; /* Nền trắng cho phần nội dung */
+    border: 1px solid #dcdcdc; /* Viền màu xám xung quanh */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng cho phần nội dung */
+  }
+}

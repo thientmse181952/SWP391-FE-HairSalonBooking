@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./index.scss";
-import { Image, Card } from "antd";
+import { Image, Card, message } from "antd";
 import { useParams, useNavigate } from "react-router-dom"; // Để lấy id từ URL và điều hướng
 import api from "../../../config/axios"; // Sử dụng api để gọi dữ liệu
 
@@ -22,7 +22,7 @@ const ServicesDetail = () => {
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
-        const response = await api.get("/service"); // Lấy toàn bộ danh sách dịch vụ
+        const response = await api.get("/service/getService"); // Lấy toàn bộ danh sách dịch vụ
         const selectedService = response.data.find(
           (service) => service.id === parseInt(id)
         ); // Tìm dịch vụ có id khớp với id từ URL
@@ -39,7 +39,7 @@ const ServicesDetail = () => {
   useEffect(() => {
     const fetchSimilarServices = async () => {
       try {
-        const response = await api.get("/service"); // Lấy toàn bộ dịch vụ
+        const response = await api.get("/service/getService"); // Lấy toàn bộ dịch vụ
         setSimilarServices(
           response.data.filter(
             (service) =>
@@ -56,6 +56,17 @@ const ServicesDetail = () => {
       fetchSimilarServices(); // Chỉ gọi khi đã có chi tiết dịch vụ
     }
   }, [serviceDetail, id]);
+
+  // Hàm xử lý khi nhấn nút "Đặt Lịch Ngay"
+  const handleBookingClick = () => {
+    const token = localStorage.getItem("token"); // Lấy token từ localStorage
+    if (token) {
+      navigate("/booking"); // Nếu đã đăng nhập, điều hướng đến trang booking
+    } else {
+      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!"); // Hiển thị thông báo yêu cầu đăng nhập
+      navigate("/login"); // Điều hướng đến trang login nếu chưa đăng nhập
+    }
+  };
 
   // Hiển thị loading nếu chưa có dữ liệu
   if (!serviceDetail) {
@@ -82,8 +93,10 @@ const ServicesDetail = () => {
             className="description"
             dangerouslySetInnerHTML={{ __html: serviceDetail.description }}
           />
-          {/* Thêm chi tiết dịch vụ nếu cần */}
-          <button className="book-now">Đặt Lịch Ngay</button>
+          {/* Nút Đặt Lịch Ngay */}
+          <button className="book-now" onClick={handleBookingClick}>
+            Đặt Lịch Ngay
+          </button>
         </div>
       </div>
 

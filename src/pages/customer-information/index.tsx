@@ -1,69 +1,119 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form, Input, message } from "antd";
-import AuthenTemplate from "../../components/authen-template";
-import { useForm } from "antd/lib/form/Form"; // Thêm hook này để tạo form instance
-import { RuleObject } from "rc-field-form/lib/interface"; // Kiểu cho custom validator
-import { Store } from "antd/lib/form/interface"; // Kiểu cho giá trị form
-import { ValidateErrorEntity } from "rc-field-form/lib/interface";
-import axios from "axios"; // Import axios
+import api from "../../config/axios"; // Sử dụng api đã cấu hình
 import "./index.scss";
 
+interface Customer {
+  fullName: string;
+  phone: string;
+  email: string;
+}
+
 const CustomerInformation: React.FC = () => {
-  const [form] = useForm(); // Khởi tạo form
+  const [form] = Form.useForm();
+  const [customer, setCustomer] = useState<Customer>({
+    fullName: "",
+    phone: "",
+    email: "",
+  });
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  // Hàm gửi yêu cầu đăng ký
-  const customerInformation = async (values: Store) => {
+  useEffect(() => {
+    const fetchCustomerInformation = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        const loggedInPhone = localStorage.getItem("phone"); // Lấy số điện thoại đã lưu khi đăng nhập
+
+        const response = await api.get("account", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Gửi token để lấy thông tin tài khoản
+          },
+        });
+
+        // Tìm tài khoản hiện tại dựa trên số điện thoại đã lưu khi đăng nhập
+        const currentUser = response.data.find(
+          (account) => account.phone === loggedInPhone
+        );
+
+        if (currentUser) {
+          setCustomer({
+            fullName: currentUser.fullName,
+            phone: currentUser.phone,
+            email: currentUser.email,
+          });
+
+          // Set giá trị form với dữ liệu người dùng hiện tại
+          form.setFieldsValue({
+            fullName: currentUser.fullName,
+            phone: currentUser.phone,
+            email: currentUser.email,
+          });
+        } else {
+          message.error("Không tìm thấy thông tin tài khoản hiện tại!");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin khách hàng:", error);
+        message.error("Không thể tải thông tin khách hàng!");
+      }
+    };
+
+    fetchCustomerInformation(); // Gọi hàm khi component được mount
+  }, [form]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSubmit = async (values: Customer) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/register", {
-        // fullname: values.fullname,
-        email: values.email,
-        phone: values.phone,
+      const token = localStorage.getItem("token"); // Lấy token từ localStorage
+      const response = await api.put(
+        "account",
+        {
+          email: values.email,
+          phone: values.phone,
+          fullName: values.fullName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Gửi token để cập nhật thông tin
+          },
+        }
+      );
 
-        password: values.password,
-        gender: values.gender,
-      });
-
-      // Kiểm tra phản hồi API
-      if (response.status === 201 || response.status === 200) {
-        message.success("Đăng ký thành công!");
-        // Chuyển hướng đến trang đăng nhập hoặc trang chính
-        window.location.href = "/login";
+      if (response.status === 200) {
+        message.success("Cập nhật thông tin thành công!");
+        setIsEditing(false); // Quay lại trạng thái không chỉnh sửa sau khi lưu
       } else {
-        message.error("Đăng ký thất bại, vui lòng thử lại!");
+        message.error("Cập nhật thất bại, vui lòng thử lại!");
       }
     } catch (error) {
-      console.error("Đã xảy ra lỗi khi đăng ký:", error);
+      console.error("Lỗi khi cập nhật thông tin khách hàng:", error);
       message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
     }
   };
 
-  const onFinish = (values: Store): void => {
-    console.log("Success:", values);
-    customerInformation(values); // Gọi hàm đăng ký sau khi form hợp lệ
-  };
-
-  const onFinishFailed = (errorInfo: ValidateErrorEntity): void => {
+  const onFinishFailed = (errorInfo: any): void => {
     console.log("Failed:", errorInfo);
   };
 
   return (
-    <AuthenTemplate>
+    <div className="customer-content">
       <h1>Thông tin khách hàng</h1>
       <Form
         form={form}
         labelCol={{ span: 24 }}
-        onFinish={onFinish}
+        onFinish={handleSubmit}
         onFinishFailed={onFinishFailed}
+        className="customer-form"
       >
-        {
-          <Form.Item
-            label="Tên của bạn"
-            name="fullname"
-            rules={[{ required: false, message: "Vui lòng nhập tên của bạn!" }]}
-          >
-            <Input />
-          </Form.Item>
-        }
+        <Form.Item
+          label="Tên của bạn"
+          name="fullName"
+          rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
+        >
+          {isEditing ? <Input /> : <span>{customer.fullName}</span>}
+        </Form.Item>
 
         <Form.Item
           label="Số điện thoại"
@@ -74,43 +124,33 @@ const CustomerInformation: React.FC = () => {
             { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
           ]}
         >
-          <Input />
+          {isEditing ? <Input /> : <span>{customer.phone}</span>}
         </Form.Item>
 
         <Form.Item
           label="Email của bạn"
           name="email"
           rules={[
-            { required: false, message: "Vui lòng nhập email của bạn!" },
+            { required: true, message: "Vui lòng nhập email của bạn!" },
             { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
           ]}
         >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Mật Khẩu"
-          name="password"
-          rules={[
-            { required: true, message: "Vui lòng nhập mật khẩu của bạn!" },
-            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-          ]}
-          hasFeedback
-        >
-          <Input.Password />
+          {isEditing ? <Input /> : <span>{customer.email}</span>}
         </Form.Item>
 
         <Form.Item className="submit-button">
-          <Button type="primary" htmlType="submit">
-            Cập Nhật Thông Tin
-          </Button>
-        </Form.Item>
-
-        <Form.Item className="login-link">
-          <a href="/change-password">Bạn muốn đổi mật khẩu?</a>
+          {isEditing ? (
+            <Button type="primary" htmlType="submit">
+              Cập Nhật Thông Tin
+            </Button>
+          ) : (
+            <Button type="default" onClick={handleEdit}>
+              Sửa thông tin
+            </Button>
+          )}
         </Form.Item>
       </Form>
-    </AuthenTemplate>
+    </div>
   );
 };
 

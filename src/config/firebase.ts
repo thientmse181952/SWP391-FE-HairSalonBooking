@@ -21,4 +21,14 @@ const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 const auth = getAuth(app);  // Initialize Firebase Auth
 
-export { storage, googleProvider, auth, RecaptchaVerifier };  // Export necessary authentication features
+// Function to setup Recaptcha
+export const setupRecaptcha = (containerId: string) => {
+  return new RecaptchaVerifier(containerId, {
+    size: "invisible", // Hiển thị Recaptcha vô hình
+    callback: (response) => {
+      console.log("Recaptcha resolved");
+    },
+  }, auth);
+};
+
+export { storage, googleProvider, auth };  // Export necessary authentication features
