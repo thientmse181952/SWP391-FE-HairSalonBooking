@@ -1,12 +1,12 @@
 import React from "react";
 import { Button, Input, Form, message } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
-import axios from "axios";
 import "./index.scss";
 import { googleProvider } from "../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để lưu trạng thái
+import api from "../../config/axios.ts";
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
@@ -20,7 +20,7 @@ const Login: React.FC = () => {
     try {
       console.log("Đang đăng nhập với:", values); // Log thông tin đăng nhập
 
-      const response = await axios.post("http://localhost:8080/api/login", {
+      const response = await api.post("login", {
         username: values.username,
         password: values.password,
       });
@@ -49,14 +49,11 @@ const Login: React.FC = () => {
 
         // Gọi API /api/account để lấy tất cả thông tin tài khoản
         try {
-          const accountResponse = await axios.get(
-            "http://localhost:8080/api/account",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`, // Sử dụng token để lấy thông tin tài khoản
-              },
-            }
-          );
+          const accountResponse = await api.get("account", {
+            headers: {
+              Authorization: `Bearer ${token}`, // Sử dụng token để lấy thông tin tài khoản
+            },
+          });
 
           console.log("Tất cả tài khoản từ API:", accountResponse.data); // Log tất cả tài khoản
 
@@ -78,7 +75,10 @@ const Login: React.FC = () => {
             // Kiểm tra vai trò của tài khoản hiện tại
             if (currentUser.role === "MANAGER") {
               console.log("Điều hướng đến trang admin");
-              navigate("/adminpage");
+              navigate("/adminpage/adminInfo");
+            } else if (currentUser.role === "STYLIST") {
+              console.log("Điều hướng đến trang stylist");
+              navigate("/stylistpage/stylistInfo");
             } else {
               console.log("Điều hướng đến trang chủ");
               navigate("/");

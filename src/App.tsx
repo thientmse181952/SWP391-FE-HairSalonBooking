@@ -31,6 +31,7 @@ import StylistSchedule from "./pages/stylist-page/stylist-work-schedule";
 import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
 import CollectionManagement from "./pages/admin/collection-management";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
+import StylistAccountManagement from "./pages/admin/stylist-account";
 
 function App() {
   const router = createBrowserRouter([
@@ -94,6 +95,10 @@ function App() {
         { path: "adminSelection", element: <AdminSelection /> },
         { path: "category-management", element: <CategoryManagement /> },
         { path: "collection-management", element: <CollectionManagement /> },
+        {
+          path: "create-stylist-account",
+          element: <StylistAccountManagement />,
+        },
       ],
     },
     {

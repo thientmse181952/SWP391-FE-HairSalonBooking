@@ -31,7 +31,7 @@ const AdminCategory: React.FC = () => {
     // Thêm thông báo đăng xuất thành công
     message.success("Đăng xuất thành công!");
 
-    navigate("/login"); // Điều hướng về trang đăng nhập
+    navigate("/"); // Điều hướng về trang đăng nhập
   };
 
   function getItem(
@@ -55,6 +55,11 @@ const AdminCategory: React.FC = () => {
       "adminPersonnelManagement",
       <DesktopOutlined />
     ), // Đường dẫn cho Tất cả nhân sự
+    getItem(
+      "Tạo Tài Khoản Stylist",
+      "create-stylist-account",
+      <UserOutlined />
+    ), // Đường dẫn cho Tạo Tài Khoản Stylist
     getItem("Quản Lý Nhân Viên", "adminEmployeeRegistration", <UserOutlined />), // Đường dẫn cho Đăng ký nhân viên
     getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
     getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
@@ -74,6 +79,7 @@ const AdminCategory: React.FC = () => {
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
+        width={230}
       >
         <div className="demo-logo-vertical" />
         <Menu
@@ -109,9 +115,6 @@ const AdminCategory: React.FC = () => {
             <Outlet />
           </div>
         </Content>
-        {/* <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer> */}
       </Layout>
     </Layout>
   );

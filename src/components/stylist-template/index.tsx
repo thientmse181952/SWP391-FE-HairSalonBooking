@@ -8,10 +8,11 @@ import {
   UploadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
-import { Link, Outlet } from "react-router-dom";
+import { Breadcrumb, Layout, Menu, message, theme } from "antd";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 function getItem(
   label: React.ReactNode,
@@ -27,29 +28,46 @@ function getItem(
   };
 }
 
-const items = [
-  getItem("Stylist Information", "stylistInfo", <PieChartOutlined />),
-  getItem("Stylist Feedback", "stylistFeedback", <DesktopOutlined />),
-  getItem("Stylist Performance", "stylistPerformance", <UserOutlined />),
-  getItem("Stylist Schedule", "stylistSchedule", <TeamOutlined />),
-  getItem("Stylist Day Off", "stylistDayoff", <FileOutlined />),
-  getItem("Logout", "logout", <UploadOutlined />)
-];
-
 const StylistPage: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { setUser } = useUser(); // Lấy hàm setUser từ UserContext để cập nhật trạng thái người dùng
+  const navigate = useNavigate(); // Sử dụng hook navigate để điều hướng
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // Hàm handleLogout tương tự admin
   const handleLogout = () => {
-    // Xử lý đăng xuất ở đây
-    window.location.href = "/"; // Chuyển hướng về trang chính
+    localStorage.removeItem("fullName");
+    localStorage.removeItem("token"); // Xóa token khi stylist đăng xuất
+    setUser(null); // Reset lại trạng thái người dùng
+
+    // Thêm thông báo đăng xuất thành công
+    message.success("Đăng xuất thành công!");
+
+    navigate("/"); // Điều hướng về trang đăng nhập
   };
+
+  const items = [
+    getItem("Stylist Information", "stylistInfo", <PieChartOutlined />),
+    getItem("Stylist Feedback", "stylistFeedback", <DesktopOutlined />),
+    getItem("Stylist Performance", "stylistPerformance", <UserOutlined />),
+    getItem("Stylist Schedule", "stylistSchedule", <TeamOutlined />),
+    getItem("Stylist Day Off", "stylistDayoff", <FileOutlined />),
+    {
+      key: "logout",
+      icon: <UploadOutlined />,
+      label: <span onClick={handleLogout}>Logout</span>, // Gọi trực tiếp handleLogout khi click vào Logout
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+      >
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
@@ -84,9 +102,6 @@ const StylistPage: React.FC = () => {
             <Outlet />
           </div>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
       </Layout>
     </Layout>
   );

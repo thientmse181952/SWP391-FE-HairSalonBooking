@@ -1,154 +1,185 @@
-import React, { useState, useEffect } from "react"; // Thêm useEffect
-import { Form, Input, Button } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Form, Input, message, Select } from "antd";
+import "./index.scss";
 import api from "../../../config/axios";
 
-interface Stylist {
-  name: string;
-  age: number;
+interface Admin {
+  fullName: string;
   phone: string;
-  avatarUrl: string;
-  role: string;
-  password: string;
-  confirmPassword: string;
-  email: string; // Thêm email vào kiểu dữ liệu
+  email: string;
+  gender?: string;
 }
 
-const AdminInfo: React.FC = () => {
-  const [stylist, setStylist] = useState<Stylist>({
-    name: "",
-    age: 0, // Đổi thành 0 cho kiểu number
+const AdminInformation: React.FC = () => {
+  const [form] = Form.useForm();
+  const [admin, setAdmin] = useState<Admin>({
+    fullName: "",
     phone: "",
-    avatarUrl: "",
-    role: "",
-    password: "",
-    confirmPassword: "",
-    email: "", // Khởi tạo email
+    email: "",
+    gender: "",
   });
-
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [accountId, setAccountId] = useState<number | null>(null); // Lưu ID của tài khoản
 
   useEffect(() => {
-    const fetchAdminInfo = async () => {
+    const fetchAdminInformation = async () => {
       try {
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        const loggedInPhone = localStorage.getItem("phone"); // Lấy số điện thoại đã lưu khi đăng nhập
+
         const response = await api.get("account", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`, // Gửi token để lấy thông tin tài khoản
           },
         });
-        const adminData = response.data.find(
-          (account) => account.role === "MANAGER"
-        ); // Lọc account với role "MANAGER"
 
-        if (adminData) {
-          setStylist({
-            name: adminData.fullName,
-            age: adminData.age, // Cập nhật tuổi
-            phone: adminData.phone,
-            avatarUrl: adminData.avatarUrl || "", // Nếu có
-            role: adminData.role || "", // Nếu có
-            password: "",
-            confirmPassword: "",
-            email: adminData.email, // Cập nhật email
+        // Tìm tài khoản hiện tại dựa trên số điện thoại đã lưu khi đăng nhập
+        const currentUser = response.data.find(
+          (account) => account.phone === loggedInPhone
+        );
+
+        if (currentUser) {
+          setAdmin({
+            fullName: currentUser.fullName,
+            phone: currentUser.phone,
+            email: currentUser.email,
+            gender: currentUser.gender,
           });
+          setAccountId(currentUser.id); // Lưu ID của người dùng hiện tại
+
+          // Set giá trị form với dữ liệu người dùng hiện tại
+          form.setFieldsValue({
+            fullName: currentUser.fullName,
+            phone: currentUser.phone,
+            email: currentUser.email,
+            gender: currentUser.gender,
+          });
+        } else {
+          message.error("Không tìm thấy thông tin tài khoản hiện tại!");
         }
       } catch (error) {
-        console.error("Error fetching admin info:", error);
+        console.error("Lỗi khi lấy thông tin admin:", error);
+        message.error("Không thể tải thông tin admin!");
       }
     };
 
-    fetchAdminInfo(); // Gọi hàm khi component được mount
-  }, []);
+    fetchAdminInformation(); // Gọi hàm khi component được mount
+  }, [form]);
 
-  const handleChange = (changedValues: any) => {
-    setStylist((prev) => ({ ...prev, ...changedValues }));
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleSubmit = (values: Stylist) => {
-    if (values.password !== values.confirmPassword) {
-      alert("Mật khẩu không khớp!");
+  const handleSubmit = async (values: Admin) => {
+    if (!accountId) {
+      message.error("Không thể xác định ID tài khoản!");
       return;
     }
-    console.log("Cập nhật stylist:", values);
+
+    // Kiểm tra xem có thay đổi gì so với dữ liệu ban đầu không
+    if (
+      values.fullName === admin.fullName &&
+      values.email === admin.email &&
+      values.gender === admin.gender
+    ) {
+      message.warning("Không có sự thay đổi nào được thực hiện.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token"); // Lấy token từ localStorage
+      const response = await api.put(
+        `/${accountId}`, // Sử dụng accountID cho URL PUT request
+        {
+          fullName: values.fullName,
+          email: values.email,
+          gender: values.gender,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Gửi token để xác thực
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        message.success("Cập nhật thông tin thành công!");
+        // Cập nhật lại thông tin người dùng sau khi lưu
+        setAdmin({
+          fullName: values.fullName,
+          phone: admin.phone, // Giữ nguyên số điện thoại
+          email: values.email,
+          gender: values.gender,
+        });
+      } else {
+        message.error("Cập nhật thất bại, vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật thông tin tài khoản:", error);
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    }
   };
 
-  const onFinishFailed = (errorInfo: ValidateErrorEntity): void => {
+  const onFinishFailed = (errorInfo: any): void => {
     console.log("Failed:", errorInfo);
   };
 
   return (
-    <div>
+    <div className="admin-content">
       <h1>Thông tin Admin</h1>
-      <br />
       <Form
-        layout="vertical"
-        initialValues={stylist}
-        onValuesChange={handleChange}
-        onFinish={handleSubmit}
+        form={form}
+        labelCol={{ span: 24 }}
+        onFinish={handleSubmit} // Chỉ thực hiện API khi bấm "Cập Nhật Thông Tin"
+        onFinishFailed={onFinishFailed}
+        className="admin-form"
       >
         <Form.Item
-          label="Tên"
-          name="name"
-          rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+          label="Tên của bạn"
+          name="fullName"
+          rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
         >
-          {isEditing ? <Input /> : <span>{stylist.name}</span>}
-        </Form.Item>
-
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
-        >
-          {isEditing ? <Input /> : <span>{stylist.email}</span>}
+          <Input />
         </Form.Item>
 
         <Form.Item
           label="Số điện thoại"
           name="phone"
-          rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập số điện thoại của bạn!" },
+            { pattern: /^[0-9]+$/, message: "Số điện thoại phải là chữ số!" },
+            { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
+          ]}
         >
-          {isEditing ? <Input /> : <span>{stylist.phone}</span>}
+          <Input value={admin.phone} disabled />{" "}
+          {/* Trường này bị khóa, nhưng giá trị được hiển thị */}
         </Form.Item>
 
-        {isEditing && (
-          <>
-            <Form.Item
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-            >
-              <Input.Password />
-            </Form.Item>
+        <Form.Item
+          label="Email của bạn"
+          name="email"
+          rules={[
+            { required: true, message: "Vui lòng nhập email của bạn!" },
+            { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-            <Form.Item
-              label="Xác nhận mật khẩu"
-              name="confirmPassword"
-              rules={[
-                { required: true, message: "Vui lòng xác nhận mật khẩu!" },
-              ]}
-            >
-              <Input.Password />
-            </Form.Item>
-          </>
-        )}
+        <Form.Item
+          label="Giới tính của bạn"
+          name="gender"
+          rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
+        >
+          <Select>
+            <Select.Option value="Male">Nam</Select.Option>
+            <Select.Option value="Female">Nữ</Select.Option>
+          </Select>
+        </Form.Item>
 
-        <Form.Item>
-          {isEditing ? (
-            <Button type="primary" htmlType="submit">
-              Lưu thông tin
-            </Button>
-          ) : (
-            <Button type="default" onClick={handleEdit}>
-              Sửa thông tin
-            </Button>
-          )}
+        <Form.Item className="submit-button">
+          <Button type="primary" htmlType="submit">
+            Cập Nhật Thông Tin
+          </Button>
         </Form.Item>
       </Form>
     </div>
   );
 };
 
-export default AdminInfo;
+export default AdminInformation;
