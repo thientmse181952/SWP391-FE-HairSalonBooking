@@ -6,8 +6,6 @@ import "./index.scss";
 // Component hiển thị từng mục dịch vụ
 const ServiceItem = ({ id, imageSrc, title, price, onClick }) => (
   <div className="service-item" onClick={() => onClick(id)}>
-    {" "}
-    {/* Gọi hàm onClick */}
     <img src={imageSrc} alt={title} />
     <div className="service-info">
       <h3>{title}</h3>
@@ -29,8 +27,7 @@ const Services = () => {
       try {
         const response = await api.get("/category/getCategory");
         setCategories(response.data);
-        setActiveCategory(response.data[0]?.id);
-        // Đặt category mặc định là category đầu tiên
+        setActiveCategory(response.data[0]?.id); // Đặt category mặc định là category đầu tiên
       } catch (error) {
         console.error("Lỗi khi lấy danh sách category: ", error);
       }
@@ -58,7 +55,7 @@ const Services = () => {
   useEffect(() => {
     if (activeCategory && services.length > 0) {
       const filtered = services.filter(
-        (service) => service.category == activeCategory // Kiểm tra category có khớp với activeCategory không
+        (service) => service.category?.id === activeCategory // Kiểm tra category id có khớp với activeCategory không
       );
       console.log("Dịch vụ được lọc:", filtered); // Kiểm tra danh sách dịch vụ sau khi lọc
       setFilteredServices(filtered); // Cập nhật danh sách dịch vụ đã lọc

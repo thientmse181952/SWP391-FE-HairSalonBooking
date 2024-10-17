@@ -19,6 +19,7 @@ const AdminInformation: React.FC = () => {
     gender: "",
   });
   const [accountId, setAccountId] = useState<number | null>(null); // Lưu ID của tài khoản
+  const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
 
   useEffect(() => {
     const fetchAdminInformation = async () => {
@@ -65,19 +66,13 @@ const AdminInformation: React.FC = () => {
     fetchAdminInformation(); // Gọi hàm khi component được mount
   }, [form]);
 
+  const handleEditClick = () => {
+    setEditable(true); // Chỉ kích hoạt chỉnh sửa, không gửi API
+  };
+
   const handleSubmit = async (values: Admin) => {
     if (!accountId) {
       message.error("Không thể xác định ID tài khoản!");
-      return;
-    }
-
-    // Kiểm tra xem có thay đổi gì so với dữ liệu ban đầu không
-    if (
-      values.fullName === admin.fullName &&
-      values.email === admin.email &&
-      values.gender === admin.gender
-    ) {
-      message.warning("Không có sự thay đổi nào được thực hiện.");
       return;
     }
 
@@ -106,6 +101,7 @@ const AdminInformation: React.FC = () => {
           email: values.email,
           gender: values.gender,
         });
+        setEditable(false); // Sau khi cập nhật thành công, quay lại trạng thái không chỉnh sửa
       } else {
         message.error("Cập nhật thất bại, vui lòng thử lại!");
       }
@@ -134,7 +130,7 @@ const AdminInformation: React.FC = () => {
           name="fullName"
           rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
         >
-          <Input />
+          <Input disabled={!editable} />
         </Form.Item>
 
         <Form.Item
@@ -146,7 +142,7 @@ const AdminInformation: React.FC = () => {
             { len: 10, message: "Số điện thoại phải đúng 10 chữ số!" },
           ]}
         >
-          <Input value={admin.phone} disabled />{" "}
+          <Input value={admin.phone} disabled />
           {/* Trường này bị khóa, nhưng giá trị được hiển thị */}
         </Form.Item>
 
@@ -158,7 +154,7 @@ const AdminInformation: React.FC = () => {
             { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
           ]}
         >
-          <Input />
+          <Input disabled={!editable} />
         </Form.Item>
 
         <Form.Item
@@ -166,17 +162,27 @@ const AdminInformation: React.FC = () => {
           name="gender"
           rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
         >
-          <Select>
+          <Select disabled={!editable}>
             <Select.Option value="Male">Nam</Select.Option>
             <Select.Option value="Female">Nữ</Select.Option>
           </Select>
         </Form.Item>
 
-        <Form.Item className="submit-button">
-          <Button type="primary" htmlType="submit">
-            Cập Nhật Thông Tin
+        {/* Nút để kích hoạt chế độ chỉnh sửa */}
+        {!editable && (
+          <Button type="primary" onClick={handleEditClick}>
+            Sửa thông tin
           </Button>
-        </Form.Item>
+        )}
+
+        {/* Nút cập nhật chỉ hiển thị khi chế độ chỉnh sửa được bật */}
+        {editable && (
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Cập Nhật Thông Tin
+            </Button>
+          </Form.Item>
+        )}
       </Form>
     </div>
   );

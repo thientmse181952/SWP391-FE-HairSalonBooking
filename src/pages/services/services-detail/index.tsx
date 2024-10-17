@@ -18,7 +18,7 @@ const ServicesDetail = () => {
     });
   }, [id]);
 
-  // Gọi API để lấy danh sách dịch vụ và lọc theo id
+  // Gọi API để lấy chi tiết dịch vụ theo id
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
@@ -43,7 +43,7 @@ const ServicesDetail = () => {
         setSimilarServices(
           response.data.filter(
             (service) =>
-              service.category === serviceDetail.category && // Lọc dịch vụ có cùng category
+              service.category.id === serviceDetail.category.id && // Lọc dịch vụ có cùng category id
               service.id !== parseInt(id) // Loại bỏ dịch vụ hiện tại
           )
         );
@@ -104,22 +104,26 @@ const ServicesDetail = () => {
       <div className="similar-services-container">
         <h2 className="similar-services-title">Dịch Vụ Cùng Loại</h2>
         <div className="similar-services-list">
-          {similarServices.map((service) => (
-            <Card
-              key={service.id}
-              hoverable
-              cover={<img alt={service.name} src={service.serviceImage} />}
-              className="similar-service-card"
-              onClick={() => navigate(`/services/detail/${service.id}`)} // Điều hướng khi click vào dịch vụ
-            >
-              <Card.Meta
-                title={service.name}
-                description={`Giá từ ${service.price.toLocaleString(
-                  "vi-VN"
-                )} VND`}
-              />
-            </Card>
-          ))}
+          {similarServices.length > 0 ? (
+            similarServices.map((service) => (
+              <Card
+                key={service.id}
+                hoverable
+                cover={<img alt={service.name} src={service.serviceImage} />}
+                className="similar-service-card"
+                onClick={() => navigate(`/services/detail/${service.id}`)} // Điều hướng khi click vào dịch vụ
+              >
+                <Card.Meta
+                  title={service.name}
+                  description={`Giá từ ${service.price.toLocaleString(
+                    "vi-VN"
+                  )} VND`}
+                />
+              </Card>
+            ))
+          ) : (
+            <p>Không có dịch vụ nào cho danh mục này.</p>
+          )}
         </div>
       </div>
     </div>

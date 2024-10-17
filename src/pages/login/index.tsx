@@ -77,15 +77,24 @@ const Login: React.FC = () => {
             // Lưu accountId vào localStorage
             localStorage.setItem("accountId", currentUser.id); // Lưu accountId vào localStorage
 
-            // Nếu role là CUSTOMER thì gọi API /customer để tạo thông tin khách hàng
+            // Nếu role là CUSTOMER thì kiểm tra và gọi API tạo thông tin khách hàng nếu cần
             if (currentUser.role === "CUSTOMER") {
-              try {
+              // Gọi API /api/{accountId} để kiểm tra thông tin khách hàng
+              const accountDetails = await api.get(`/${currentUser.id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+
+              // Kiểm tra xem "customers" có trống hay không
+              if (accountDetails.data.customers.length === 0) {
+                // Gọi API POST /customer nếu "customers" trống
                 const customerResponse = await api.post(
                   "/customer",
-                  { id: 0 }, // Gửi "id": 0
+                  { id: 0 },
                   {
                     headers: {
-                      Authorization: `Bearer ${token}`, // Sử dụng token để xác thực
+                      Authorization: `Bearer ${token}`,
                     },
                   }
                 );
@@ -98,19 +107,40 @@ const Login: React.FC = () => {
                 } else {
                   message.error("Tạo thông tin khách hàng thất bại!");
                 }
-              } catch (error) {
-                console.error("Lỗi khi tạo thông tin khách hàng:", error);
-                message.error("Đã xảy ra lỗi khi tạo thông tin khách hàng!");
               }
+              console.log("Điều hướng đến trang chủ");
+              navigate("/");
             }
 
-            // Kiểm tra vai trò của tài khoản hiện tại và điều hướng
-            if (currentUser.role === "MANAGER") {
-              console.log("Điều hướng đến trang admin");
-              navigate("/adminpage/adminInfo");
-            } else if (currentUser.role === "STYLIST") {
+            // Nếu role là STYLIST, kiểm tra thông tin stylist
+            if (currentUser.role === "STYLIST") {
+              // Nếu stylists trống, gọi POST API để tạo stylist
+              if (currentUser.stylists.length === 0) {
+                try {
+                  const createStylistResponse = await api.post(
+                    `/stylist`,
+                    {
+                      rating: "",
+                      image: "",
+                      service_id: [],
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  message.success("Tạo stylist thành công!");
+                } catch (error) {
+                  console.error("Lỗi khi tạo stylist:", error);
+                  message.error("Đã xảy ra lỗi khi tạo stylist!");
+                }
+              }
               console.log("Điều hướng đến trang stylist");
               navigate("/stylistpage/stylistInfo");
+            } else if (currentUser.role === "MANAGER") {
+              console.log("Điều hướng đến trang admin");
+              navigate("/adminpage/adminInfo");
             } else {
               console.log("Điều hướng đến trang chủ");
               navigate("/");

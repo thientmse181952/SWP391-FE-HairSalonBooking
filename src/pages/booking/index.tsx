@@ -22,13 +22,13 @@ const timeSlots = [
 
 const Booking: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [selectedServices, setSelectedServices] = useState<number[]>([]); // Chọn nhiều service
   const [selectedStylist, setSelectedStylist] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [services, setServices] = useState<any[]>([]);
   const [stylists, setStylists] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState<number | null>(null);
-  const [serviceDuration, setServiceDuration] = useState<number | null>(null); // Thêm state để lưu duration
+  const [serviceDurations, setServiceDurations] = useState<number[]>([]); // Lưu trữ duration của nhiều service
 
   // Gọi API để lấy customer_id từ API /api/customer
   useEffect(() => {
@@ -79,15 +79,79 @@ const Booking: React.FC = () => {
     setSelectedDate(date);
   };
 
-  const handleServiceChange = async (value: number) => {
-    setSelectedService(value);
+  const handleServiceChange = async (values: number[]) => {
+    setSelectedServices(values);
 
-    // Gọi API để lấy duration của dịch vụ đã chọn
+    // Tính tổng duration từ các dịch vụ đã chọn
+    const selectedDurations = values.map((id) => {
+      const selectedService = services.find((service) => service.id === id);
+      return selectedService ? selectedService.duration : 0;
+    });
+    setServiceDurations(selectedDurations);
+
+    let commonStylistIds: number[] = [];
+
+    console.log("Selected Service IDs:", values); // Log các service được chọn
+
     try {
-      const selectedService = services.find((service) => service.id === value);
-      setServiceDuration(selectedService?.duration || null); // Lưu duration vào state
+      // Duyệt qua từng dịch vụ được chọn và gọi API để lấy stylist có thể làm dịch vụ
+      for (const serviceId of values) {
+        const response = await api.get(`/service/${serviceId}`);
+        const serviceData = response.data;
+
+        console.log(`Service Data for Service ID ${serviceId}:`, serviceData); // Log dữ liệu dịch vụ trả về từ API
+
+        // Lấy danh sách stylist account_id từ mỗi dịch vụ trả về
+        const stylistIdsForService = serviceData.stylists.map(
+          (stylist: any) => stylist.id // Lấy stylist ID
+        );
+        console.log(
+          `Stylist IDs for Service ID ${serviceId}:`,
+          stylistIdsForService
+        ); // Log danh sách stylist ID cho mỗi service
+
+        if (commonStylistIds.length === 0) {
+          // Gán danh sách stylist của dịch vụ đầu tiên vào commonStylistIds
+          commonStylistIds = stylistIdsForService;
+        } else {
+          // Lọc những stylist xuất hiện trong tất cả các dịch vụ đã chọn
+          commonStylistIds = commonStylistIds.filter((id) =>
+            stylistIdsForService.includes(id)
+          );
+        }
+      }
+
+      console.log("Common Stylist IDs after filtering:", commonStylistIds); // Log danh sách stylist sau khi lọc
+
+      // Gọi API /api/account để lấy danh sách tất cả account
+      const accountResponse = await api.get(`/account`);
+      const allAccounts = accountResponse.data;
+
+      console.log("All Accounts:", allAccounts);
+
+      // Tìm fullName từ danh sách account dựa trên commonStylistIds và account_id
+      const availableStylists = commonStylistIds
+        .map((stylistId) => {
+          const account = allAccounts.find((acc: any) =>
+            acc.stylists.some((stylist: any) => stylist.id === stylistId)
+          );
+          console.log(
+            `Checking account with stylist ID ${stylistId}:`,
+            account
+          ); // Log từng account đang được kiểm tra
+          return account
+            ? { id: account.id, fullName: account.fullName }
+            : null;
+        })
+        .filter(Boolean); // Loại bỏ stylist null nếu không tìm thấy
+
+      console.log("Render based on Common Stylist IDs:", availableStylists);
+
+      // Cập nhật danh sách stylist để render ra
+      setStylists(availableStylists);
     } catch (error) {
-      console.error("Lỗi khi lấy thông tin duration:", error);
+      console.error("Lỗi khi lọc stylist:", error);
+      message.error("Không thể lọc stylist.");
     }
   };
 
@@ -102,7 +166,7 @@ const Booking: React.FC = () => {
   const handleSubmit = async () => {
     if (
       !selectedTimeSlot ||
-      selectedService === null ||
+      selectedServices.length === 0 ||
       selectedStylist === null ||
       customerId === null
     ) {
@@ -116,27 +180,35 @@ const Booking: React.FC = () => {
       "h:mm A",
     ]).format("HH:mm:ss")}`;
 
-    // Tính toán endTime dựa trên duration và thêm cả ngày
+    // Tính tổng thời gian endTime dựa trên tổng duration của tất cả các service
+    const totalDuration = serviceDurations.reduce(
+      (acc, duration) => acc + duration,
+      0
+    );
     const endTime = dayjs(startTime)
-      .add(serviceDuration || 0, "minute") // Cộng thêm duration vào startTime
+      .add(totalDuration, "minute") // Cộng thêm tổng thời lượng vào startTime
       .format("YYYY-MM-DD HH:mm:ss"); // Thêm định dạng ngày vào endTime
 
+    // Chuẩn bị dữ liệu để gửi lên API
+    const bookingData = {
+      service_id: selectedServices, // Truyền trực tiếp các service IDs
+      stylist: {
+        id: selectedStylist, // Truyền stylist ID
+      },
+      customer: {
+        id: customerId, // Truyền customer ID
+      },
+      appointmentDate: appointmentDate, // Ngày đặt lịch
+      startTime: startTime, // Thời gian bắt đầu
+      endTime: endTime, // Thời gian kết thúc
+      status: "Pending", // Trạng thái ban đầu
+    };
+
+    // Console log dữ liệu để kiểm tra trước khi gửi
+    console.log("Booking data to be sent:", bookingData);
+
     try {
-      const response = await api.post("/bookings/createBooking", {
-        stylist: {
-          id: selectedStylist,
-        },
-        serviceofHair: {
-          id: selectedService,
-        },
-        customer: {
-          id: customerId,
-        },
-        appointmentDate: appointmentDate,
-        startTime: startTime,
-        endTime: endTime, // Truyền endTime có ngày và giờ
-        status: "Pending",
-      });
+      const response = await api.post("/bookings/createBooking", bookingData);
 
       if (response.status === 200) {
         message.success("Đặt lịch thành công!");
@@ -174,9 +246,10 @@ const Booking: React.FC = () => {
       <div className="form-group">
         <label>Chọn dịch vụ</label>
         <Select
+          mode="multiple" // Thêm chế độ multiple
           style={{ width: "100%" }}
           placeholder="Chọn dịch vụ"
-          value={selectedService}
+          value={selectedServices}
           onChange={handleServiceChange}
         >
           {services.map((service) => (
