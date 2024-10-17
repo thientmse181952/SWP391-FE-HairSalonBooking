@@ -1,127 +1,215 @@
-import React, { useEffect, useState } from "react";
-import { Calendar, Badge, Modal } from "antd";
-import './index.scss';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from 'react';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-interface Appointment {
-  date: string;
-  customerName: string;
-  service: string;
-  time: string; // Thêm thuộc tính thời gian
-}
+const localizer = momentLocalizer(moment);
 
-const generateRandomAppointments = (num: number): Appointment[] => {
-  const customers = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Nguyễn Văn E", "Lê Văn Hiếu"];
-  const services = ["Gội đầu", "Cắt tóc", "Nhuộm tóc", "Tạo kiểu", "Massage đầu"];
-  
-  const appointments: Appointment[] = [];
-  const timeSlots = ["08:00-09:00", "09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", 
-                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00", 
-                     "18:00-19:00", "19:00-20:00"];
-
-  for (let i = 0; i < num; i++) {
-    const randomDate = new Date();
-    randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30)); // Tạo ngày trong tháng tới
-    const formattedDate = randomDate.toISOString().split('T')[0]; // Định dạng ngày
-
-    const appointment: Appointment = {
-      date: formattedDate,
-      customerName: customers[Math.floor(Math.random() * customers.length)],
-      service: services[Math.floor(Math.random() * services.length)],
-      time: timeSlots[Math.floor(Math.random() * timeSlots.length)], // Thêm thời gian ngẫu nhiên
-    };
-
-    appointments.push(appointment);
-  }
-
-  // Thêm 5 ngày có nhiều hơn 2 người book
-  for (let i = 0; i < 5; i++) {
-    const randomDate = new Date();
-    randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30)); // Tạo ngày trong tháng tới
-    const formattedDate = randomDate.toISOString().split('T')[0]; // Định dạng ngày
-
-    const extraAppointments = [
-      {
-        date: formattedDate,
-        customerName: "Nguyễn Văn A",
-        service: "Cắt tóc",
-        time: "10:00-12:00",
-      },
-      {
-        date: formattedDate,
-        customerName: "Trần Thị B",
-        service: "Gội đầu",
-        time: "12:00-14:00",
-      },
-      {
-        date: formattedDate,
-        customerName: "Lê Văn C",
-        service: "Tạo kiểu",
-        time: "14:00-16:00",
-      },
-    ];
-
-    appointments.push(...extraAppointments);
-  }
-
-  return appointments;
-};
+// Giả lập dữ liệu lịch từ API
+const events = [
+    {
+        title: 'Nguyễn Thị An: Cắt tóc, uốn tóc, duỗi',
+        start: new Date(2024, 9, 17, 14, 30),
+        end: new Date(2024, 9, 17, 15, 30),
+    },
+    {
+        title: 'Trần Văn B: Nhuộm tóc',
+        start: new Date(2024, 9, 17, 10, 0),
+        end: new Date(2024, 9, 17, 11, 0),
+    },
+    {
+        title: 'Lê Thị C: Gội đầu',
+        start: new Date(2024, 9, 18, 9, 0),
+        end: new Date(2024, 9, 18, 10, 0),
+    },
+    {
+        title: 'Nguyễn Văn D: Cắt tóc',
+        start: new Date(2024, 9, 18, 11, 0),
+        end: new Date(2024, 9, 18, 12, 0),
+    },
+    {
+        title: 'Phạm Thị E: Uốn tóc',
+        start: new Date(2024, 9, 18, 13, 30),
+        end: new Date(2024, 9, 18, 14, 30),
+    },
+    // Thêm 30 sự kiện khác nhau
+    {
+        title: 'Nguyễn Văn F: Duỗi tóc',
+        start: new Date(2024, 9, 19, 15, 0),
+        end: new Date(2024, 9, 19, 16, 0),
+    },
+    {
+        title: 'Lê Văn G: Cắt tóc',
+        start: new Date(2024, 9, 20, 10, 0),
+        end: new Date(2024, 9, 20, 11, 0),
+    },
+    {
+        title: 'Trần Thị H: Nhuộm tóc',
+        start: new Date(2024, 9, 20, 12, 0),
+        end: new Date(2024, 9, 20, 13, 0),
+    },
+    {
+        title: 'Nguyễn Thị I: Gội đầu',
+        start: new Date(2024, 9, 21, 9, 0),
+        end: new Date(2024, 9, 21, 10, 0),
+    },
+    {
+        title: 'Lê Văn K: Uốn tóc',
+        start: new Date(2024, 9, 22, 14, 0),
+        end: new Date(2024, 9, 22, 15, 0),
+    },
+    {
+        title: 'Trần Văn M: Cắt tóc',
+        start: new Date(2024, 9, 23, 11, 0),
+        end: new Date(2024, 9, 23, 12, 0),
+    },
+    {
+        title: 'Nguyễn Thị N: Duỗi tóc',
+        start: new Date(2024, 9, 24, 13, 0),
+        end: new Date(2024, 9, 24, 14, 0),
+    },
+    {
+        title: 'Lê Thị O: Nhuộm tóc',
+        start: new Date(2024, 9, 25, 15, 0),
+        end: new Date(2024, 9, 25, 16, 0),
+    },
+    {
+        title: 'Nguyễn Văn P: Gội đầu',
+        start: new Date(2024, 9, 26, 10, 0),
+        end: new Date(2024, 9, 26, 11, 0),
+    },
+    {
+        title: 'Trần Thị Q: Cắt tóc',
+        start: new Date(2024, 9, 27, 12, 0),
+        end: new Date(2024, 9, 27, 13, 0),
+    },
+    {
+        title: 'Nguyễn Văn R: Uốn tóc',
+        start: new Date(2024, 9, 28, 14, 0),
+        end: new Date(2024, 9, 28, 15, 0),
+    },
+    {
+        title: 'Lê Thị S: Duỗi tóc',
+        start: new Date(2024, 9, 29, 9, 0),
+        end: new Date(2024, 9, 29, 10, 0),
+    },
+    {
+        title: 'Trần Văn T: Nhuộm tóc',
+        start: new Date(2024, 9, 30, 11, 0),
+        end: new Date(2024, 9, 30, 12, 0),
+    },
+    {
+        title: 'Nguyễn Thị U: Gội đầu',
+        start: new Date(2024, 9, 31, 13, 0),
+        end: new Date(2024, 9, 31, 14, 0),
+    },
+    {
+        title: 'Lê Văn V: Cắt tóc',
+        start: new Date(2024, 9, 17, 16, 0),
+        end: new Date(2024, 9, 17, 17, 0),
+    },
+    {
+        title: 'Trần Thị W: Uốn tóc',
+        start: new Date(2024, 9, 18, 15, 0),
+        end: new Date(2024, 9, 18, 16, 0),
+    },
+    {
+        title: 'Nguyễn Văn X: Duỗi tóc',
+        start: new Date(2024, 9, 19, 10, 0),
+        end: new Date(2024, 9, 19, 11, 0),
+    },
+    {
+        title: 'Lê Thị Y: Nhuộm tóc',
+        start: new Date(2024, 9, 20, 12, 0),
+        end: new Date(2024, 9, 20, 13, 0),
+    },
+    {
+        title: 'Nguyễn Thị Z: Gội đầu',
+        start: new Date(2024, 9, 21, 14, 0),
+        end: new Date(2024, 9, 21, 15, 0),
+    },
+    {
+        title: 'Trần Văn AA: Cắt tóc',
+        start: new Date(2024, 9, 22, 9, 0),
+        end: new Date(2024, 9, 22, 10, 0),
+    },
+    {
+        title: 'Nguyễn Thị AB: Uốn tóc',
+        start: new Date(2024, 9, 23, 11, 0),
+        end: new Date(2024, 9, 23, 12, 0),
+    },
+    {
+        title: 'Lê Văn AC: Duỗi tóc',
+        start: new Date(2024, 9, 24, 13, 0),
+        end: new Date(2024, 9, 24, 14, 0),
+    },
+    {
+        title: 'Trần Thị AD: Nhuộm tóc',
+        start: new Date(2024, 9, 25, 15, 0),
+        end: new Date(2024, 9, 25, 16, 0),
+    },
+    {
+        title: 'Nguyễn Văn AE: Gội đầu',
+        start: new Date(2024, 9, 26, 10, 0),
+        end: new Date(2024, 9, 26, 11, 0),
+    },
+    {
+        title: 'Lê Thị AF: Cắt tóc',
+        start: new Date(2024, 9, 27, 12, 0),
+        end: new Date(2024, 9, 27, 13, 0),
+    },
+    {
+        title: 'Nguyễn Văn AG: Uốn tóc',
+        start: new Date(2024, 9, 28, 14, 0),
+        end: new Date(2024, 9, 28, 15, 0),
+    },
+    {
+        title: 'Trần Thị AH: Duỗi tóc',
+        start: new Date(2024, 9, 29, 9, 0),
+        end: new Date(2024, 9, 29, 10, 0),
+    },
+    {
+        title: 'Nguyễn Thị AI: Nhuộm tóc',
+        start: new Date(2024, 9, 30, 11, 0),
+        end: new Date(2024, 9, 30, 12, 0),
+    },
+    {
+        title: 'Lê Văn AJ: Gội đầu',
+        start: new Date(2024, 9, 31, 13, 0),
+        end: new Date(2024, 9, 31, 14, 0),
+    },
+];
 
 const StylistSchedule: React.FC = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [visible, setVisible] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 
-  useEffect(() => {
-    const generatedAppointments = generateRandomAppointments(15);
-    setAppointments(generatedAppointments);
-  }, []);
-
-  const dateCellRender = (value: any) => {
-    const dateString = value.format('YYYY-MM-DD');
-    const currentAppointments = appointments.filter(appointment => appointment.date === dateString);
-    
-    const hasAppointments = currentAppointments.length > 0;
+    const handleSelectEvent = (event: any) => {
+        setSelectedEvent(event);
+    };
 
     return (
-      <div 
-        className={`appointment-cell ${hasAppointments ? 'has-appointments' : ''}`}
-        onClick={() => {
-          if (hasAppointments) {
-            setSelectedDate(dateString);
-            setVisible(true);
-          }
-        }}
-      >
-        {currentAppointments.map((appointment, index) => (
-          <Badge key={index} status="success" text={`${appointment.customerName} - ${appointment.service}`} />
-        ))}
-      </div>
+        <div>
+            <h2>Stylist Schedule</h2>
+            <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: 500, margin: '50px' }}
+                selectable
+                onSelectEvent={handleSelectEvent}
+            />
+
+            {selectedEvent && (
+                <div>
+                    <h3>Chi tiết đặt lịch</h3>
+                    <p><strong>Dịch vụ:</strong> {selectedEvent.title}</p>
+                    <p><strong>Thời gian:</strong> {moment(selectedEvent.start).format('HH:mm')}</p>
+                </div>
+            )}
+        </div>
     );
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-    setSelectedDate(null);
-  };
-
-  return (
-    <div className="stylist-schedule">
-      <h1>LỊCH LÀM</h1>
-      <Calendar dateCellRender={dateCellRender} />
-      <Modal
-        title={`Thông tin cuộc hẹn cho ngày ${selectedDate}`}
-        visible={visible}
-        onCancel={handleCancel}
-        footer={null}
-      >
-        {appointments.filter(appointment => appointment.date === selectedDate).map((appointment, index) => (
-          <div key={index}>
-            <p>{`${appointment.time} - ${appointment.customerName} - ${appointment.service}`}</p>
-          </div>
-        ))}
-      </Modal>
-    </div>
-  );
 };
 
 export default StylistSchedule;
