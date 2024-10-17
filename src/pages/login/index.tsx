@@ -18,14 +18,15 @@ const Login: React.FC = () => {
     password: string;
   }) => {
     try {
-      console.log("Đang đăng nhập với:", values); // Log thông tin đăng nhập
+      console.log("Đang đăng nhập với:", values);
 
+      // Gọi API đăng nhập
       const response = await api.post("login", {
         username: values.username,
         password: values.password,
       });
 
-      console.log("Kết quả đăng nhập:", response.data); // Log kết quả từ API đăng nhập
+      console.log("Kết quả đăng nhập:", response.data);
 
       if (response.status === 200) {
         message.success("Đăng nhập thành công!");
@@ -35,14 +36,14 @@ const Login: React.FC = () => {
         const fullName = response.data.fullName;
         const phone = values.username; // Sử dụng số điện thoại (username) để tìm tài khoản
 
-        console.log("Token và số điện thoại:", { token, phone }); // Log token và số điện thoại
+        console.log("Token và số điện thoại:", { token, phone });
 
         // Kiểm tra xem token có được trả về hay không
         if (!token) {
           throw new Error("Không có token từ API!");
         }
 
-        // Lưu token và fullName vào localStorage
+        // Lưu token và thông tin vào localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("fullName", fullName);
         localStorage.setItem("phone", phone);
@@ -51,28 +52,59 @@ const Login: React.FC = () => {
         try {
           const accountResponse = await api.get("account", {
             headers: {
-              Authorization: `Bearer ${token}`, // Sử dụng token để lấy thông tin tài khoản
+              Authorization: `Bearer ${token}`,
             },
           });
 
-          console.log("Tất cả tài khoản từ API:", accountResponse.data); // Log tất cả tài khoản
+          console.log("Tất cả tài khoản từ API:", accountResponse.data);
 
           // Duyệt qua tất cả các tài khoản để tìm tài khoản hiện tại dựa trên số điện thoại
           const currentUser = accountResponse.data.find(
-            (user) => user.phone === phone // So sánh số điện thoại từ response với danh sách tài khoản
+            (user) => user.phone === phone
           );
 
-          console.log("Tài khoản hiện tại:", currentUser); // Log tài khoản hiện tại
+          console.log("Tài khoản hiện tại:", currentUser);
 
           if (currentUser) {
-            // Cập nhật thông tin người dùng vào UserContext
+            // Cập nhật thông tin người dùng vào UserContext và lưu accountId
             setUser({
-              role: currentUser.role, // Cập nhật role từ danh sách tài khoản
+              id: currentUser.id, // Lưu accountId
+              role: currentUser.role,
               name: currentUser.fullName,
               token: token,
             });
 
-            // Kiểm tra vai trò của tài khoản hiện tại
+            // Lưu accountId vào localStorage
+            localStorage.setItem("accountId", currentUser.id); // Lưu accountId vào localStorage
+
+            // Nếu role là CUSTOMER thì gọi API /customer để tạo thông tin khách hàng
+            if (currentUser.role === "CUSTOMER") {
+              try {
+                const customerResponse = await api.post(
+                  "/customer",
+                  { id: 0 }, // Gửi "id": 0
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`, // Sử dụng token để xác thực
+                    },
+                  }
+                );
+
+                if (
+                  customerResponse.status === 201 ||
+                  customerResponse.status === 200
+                ) {
+                  message.success("Tạo thông tin khách hàng thành công!");
+                } else {
+                  message.error("Tạo thông tin khách hàng thất bại!");
+                }
+              } catch (error) {
+                console.error("Lỗi khi tạo thông tin khách hàng:", error);
+                message.error("Đã xảy ra lỗi khi tạo thông tin khách hàng!");
+              }
+            }
+
+            // Kiểm tra vai trò của tài khoản hiện tại và điều hướng
             if (currentUser.role === "MANAGER") {
               console.log("Điều hướng đến trang admin");
               navigate("/adminpage/adminInfo");

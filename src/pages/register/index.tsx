@@ -1,21 +1,22 @@
 import React from "react";
 import { Button, Form, Input, Checkbox, Radio, message } from "antd";
 import AuthenTemplate from "../../components/authen-template";
-import { useForm } from "antd/lib/form/Form"; // Thêm hook này để tạo form instance
-import { RuleObject } from "rc-field-form/lib/interface"; // Kiểu cho custom validator
-import { Store } from "antd/lib/form/interface"; // Kiểu cho giá trị form
+import { useForm } from "antd/lib/form/Form";
+import { RuleObject } from "rc-field-form/lib/interface";
+import { Store } from "antd/lib/form/interface";
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import api from "../../config/axios";
 import "./index.scss";
 import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-  const [form] = useForm(); // Khởi tạo form\
+  const [form] = useForm(); // Khởi tạo form
   const navigate = useNavigate();
 
   // Hàm gửi yêu cầu đăng ký
   const registerUser = async (values: Store) => {
     try {
+      // Gọi API POST duy nhất để đăng ký
       const registerResponse = await api.post("/register", {
         fullName: values.fullname,
         email: values.email,
@@ -28,26 +29,8 @@ const Register: React.FC = () => {
       // Kiểm tra phản hồi API đăng ký
       if (registerResponse.status === 201 || registerResponse.status === 200) {
         message.success("Đăng ký thành công!");
-
-        // Gọi thêm API POST customer
-        const customerResponse = await api.post("/customer", {
-          name: values.fullname,
-          email: values.email,
-          phone: values.phone,
-          gender: values.gender,
-        });
-
-        // Kiểm tra phản hồi API customer
-        if (
-          customerResponse.status === 201 ||
-          customerResponse.status === 200
-        ) {
-          message.success("Tạo thông tin khách hàng thành công!");
-          // Chuyển hướng đến trang đăng nhập hoặc trang chính
-          navigate("/login");
-        } else {
-          message.error("Tạo thông tin khách hàng thất bại, vui lòng thử lại!");
-        }
+        // Chuyển hướng đến trang đăng nhập hoặc trang chính
+        navigate("/login");
       } else {
         message.error("Đăng ký thất bại, vui lòng thử lại!");
       }
