@@ -113,30 +113,31 @@ const Login: React.FC = () => {
             }
 
             // Nếu role là STYLIST, kiểm tra thông tin stylist
+            // After checking the role of the current user is "STYLIST"
             if (currentUser.role === "STYLIST") {
-              // Nếu stylists trống, gọi POST API để tạo stylist
-              if (currentUser.stylists.length === 0) {
-                try {
-                  const createStylistResponse = await api.post(
-                    `/stylist`,
-                    {
-                      rating: "",
-                      image: "",
-                      service_id: [],
-                    },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
+              // Check if stylists array exists
+              if (currentUser.stylists.length > 0) {
+                // Save the stylistId from the first element of the stylists array
+                const stylistId = currentUser.stylists[0].id;
+                localStorage.setItem("stylistId", stylistId); // Save stylistId to localStorage
+                console.log("Stylist ID saved to localStorage:", stylistId);
+              } else {
+                // If no stylist exists, fetch details using the accountId API
+                const accountDetails = await api.get(`/${currentUser.id}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                const stylistIdFromDetails =
+                  accountDetails.data.stylists[0]?.id;
+                if (stylistIdFromDetails) {
+                  localStorage.setItem("stylistId", stylistIdFromDetails);
+                  console.log(
+                    "Stylist ID retrieved from account details and saved:",
+                    stylistIdFromDetails
                   );
-                  message.success("Tạo stylist thành công!");
-                } catch (error) {
-                  console.error("Lỗi khi tạo stylist:", error);
-                  message.error("Đã xảy ra lỗi khi tạo stylist!");
                 }
               }
-              console.log("Điều hướng đến trang stylist");
               navigate("/stylistpage/stylistInfo");
             } else if (currentUser.role === "MANAGER") {
               console.log("Điều hướng đến trang admin");

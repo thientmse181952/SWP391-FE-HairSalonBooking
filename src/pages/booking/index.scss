@@ -108,8 +108,38 @@ body {
     border-radius: 8px;
 
     &:hover {
-      background-color: #a46a36;
-      border-color: #a46a36;
+      background-color: #a46a36 !important;
+      border-color: #a46a36 !important;
+    }
+  }
+
+  .estimated-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+
+    p {
+      margin: 5px 0;
+      font-size: 16px;
+      color: #666;
+
+      &:first-child {
+        font-weight: 600;
+        color: #333;
+      }
+
+      &:last-child {
+        font-weight: bold;
+        color: #c58246;
+        font-size: 18px;
+      }
     }
   }
 }

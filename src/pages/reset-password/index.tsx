@@ -2,31 +2,35 @@ import React, { useState } from "react";
 import { Button, Form, Input, message } from "antd";
 import AuthenTemplate from "../../components/authen-template";
 import { useForm } from "antd/lib/form/Form";
-import { auth, setupRecaptcha } from "../../config/firebase"; // Đảm bảo import auth và setupRecaptcha từ file firebase config
-import { signInWithPhoneNumber } from "firebase/auth"; // Import signInWithPhoneNumber từ firebase/auth
 import "./index.scss";
+import { useNavigate } from "react-router-dom";
+import api from "../../config/axios";
 
 const ResetPassword: React.FC = () => {
   const [form] = useForm();
   const [otpSent, setOtpSent] = useState(false); // State để theo dõi tình trạng gửi OTP
   const [sendingOtp, setSendingOtp] = useState(false); // Để theo dõi trạng thái gửi mã
-  const [verificationId, setVerificationId] = useState<string | null>(null); // Để lưu verificationId
+  const navigate = useNavigate();
 
   // Hàm gửi mã OTP qua Firebase
   const sendOTP = async (phone: string) => {
-    setupRecaptcha(); // Thiết lập recaptcha trước khi gửi OTP
-    const appVerifier = window.recaptchaVerifier;
     try {
       setSendingOtp(true); // Bắt đầu trạng thái đang gửi mã OTP
-      const formattedPhone = `+84${phone.slice(1)}`; // Định dạng lại số điện thoại cho Firebase (thêm mã quốc gia)
-      const confirmationResult = await signInWithPhoneNumber(
-        auth,
-        formattedPhone,
-        appVerifier
-      );
-      setVerificationId(confirmationResult.verificationId); // Lưu verificationId để sử dụng cho việc xác minh OTP
-      setOtpSent(true);
-      message.success("Mã OTP đã được gửi!");
+
+      // Gọi API mới để gửi OTP
+      const response = await api.post("/request-reset-password", {
+        phoneNumber: phone,
+      });
+
+      // Kiểm tra phản hồi từ API và log mã OTP
+      if (response.status === 200) {
+        const otp = response.data; // Lấy OTP từ phản hồi
+        console.log("OTP sent is:", otp); // In ra mã OTP
+        message.success("Mã OTP đã được gửi!");
+        setOtpSent(true); // Đánh dấu đã gửi OTP
+      } else {
+        message.error("Đã xảy ra lỗi khi gửi mã OTP!");
+      }
     } catch (error) {
       console.error("Lỗi khi gửi mã OTP:", error);
       message.error("Đã xảy ra lỗi khi gửi mã OTP!");
@@ -36,8 +40,26 @@ const ResetPassword: React.FC = () => {
   };
 
   const onFinish = async (values: any): void => {
-    console.log("Success:", values);
-    // Thêm logic để xử lý khi người dùng xác nhận OTP và đặt lại mật khẩu
+    try {
+      // Gọi API reset mật khẩu
+      const response = await api.post("/reset-password", {
+        phoneNumber: values.phone,
+        otp: values.OTP,
+        newPassword: values.password,
+        confirmPassword: values.rePassword,
+      });
+
+      // Kiểm tra phản hồi từ API
+      if (response.status === 200) {
+        message.success("Đặt lại mật khẩu thành công!");
+        navigate("/login"); // Điều hướng về trang đăng nhập sau khi thành công
+      } else {
+        message.error("Đặt lại mật khẩu không thành công, vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đặt lại mật khẩu:", error);
+      message.error("Đã xảy ra lỗi khi đặt lại mật khẩu!");
+    }
   };
 
   return (
@@ -122,6 +144,12 @@ const ResetPassword: React.FC = () => {
         <Form.Item className="submit-button">
           <Button type="primary" htmlType="submit">
             Xác nhận
+          </Button>
+        </Form.Item>
+
+        <Form.Item className="back-to-login">
+          <Button type="default" onClick={() => navigate("/login")}>
+            Quay về trang đăng nhập
           </Button>
         </Form.Item>
 

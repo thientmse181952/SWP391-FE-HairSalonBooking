@@ -42,7 +42,7 @@ const StylistInfo: React.FC = () => {
         const currentUser = responseAccount.data;
 
         if (currentUser && currentUser.role === "STYLIST") {
-          const stylistID = currentUser.stylists[0].id;
+          const stylistID = currentUser.stylists[0].id; // Lấy stylistID từ danh sách stylists
 
           // Gọi API để lấy toàn bộ dịch vụ
           const responseAllServices = await api.get("/service/getService");
@@ -72,7 +72,7 @@ const StylistInfo: React.FC = () => {
           });
 
           setStylist({
-            id: currentUser.id,
+            id: stylistID, // Đặt stylistID đúng chỗ này
             fullName: currentUser.fullName,
             gender: currentUser.gender || "",
             email: currentUser.email || "",
@@ -104,8 +104,9 @@ const StylistInfo: React.FC = () => {
 
   const onFinish = async (values: Stylist) => {
     try {
-      const accountId = stylist?.id;
+      const accountId = localStorage.getItem("accountId");
       const stylistID = stylist?.id;
+      console.log(accountId + "    " + stylistID);
 
       // PUT request cho fullName, email, gender
       await api.put(`/${accountId}`, {

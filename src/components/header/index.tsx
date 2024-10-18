@@ -58,6 +58,7 @@ function Header() {
     // Xóa thông tin người dùng khỏi localStorage và chuyển hướng đến trang đăng nhập
     localStorage.removeItem("fullName");
     localStorage.removeItem("token"); // Xóa token khi đăng xuất
+    localStorage.removeItem("accountId");
     setUserFullName(null); // Reset lại trạng thái userFullName
     setToken(null); // Reset lại trạng thái token
     message.success("Đăng xuất thành công!");
