@@ -2,23 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./index.scss";
 import { DatePicker, Button, Select, message } from "antd";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 import api from "../../config/axios"; // Thêm axios để gọi API
-
+dayjs.extend(isBetween);
 const { Option } = Select;
-
-const timeSlots = [
-  { time: "9:00 AM", status: "available" },
-  { time: "10:00 AM", status: "available" },
-  { time: "11:00 AM", status: "available" },
-  { time: "12:00 PM", status: "available" },
-  { time: "13:00 PM", status: "available" },
-  { time: "14:00 PM", status: "available" },
-  { time: "15:00 PM", status: "available" },
-  { time: "16:00 PM", status: "available" },
-  { time: "17:00 PM", status: "available" },
-  { time: "18:00 PM", status: "available" },
-  { time: "19:00 PM", status: "available" },
-];
 
 const Booking: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -77,6 +64,20 @@ const Booking: React.FC = () => {
     };
     fetchStylists();
   }, []); // Chạy một lần khi vào trang
+
+  const [timeSlots, setTimeSlots] = useState([
+    { time: "9:00 AM", status: "available" },
+    { time: "10:00 AM", status: "available" },
+    { time: "11:00 AM", status: "available" },
+    { time: "12:00 PM", status: "available" },
+    { time: "13:00 PM", status: "available" },
+    { time: "14:00 PM", status: "available" },
+    { time: "15:00 PM", status: "available" },
+    { time: "16:00 PM", status: "available" },
+    { time: "17:00 PM", status: "available" },
+    { time: "18:00 PM", status: "available" },
+    { time: "19:00 PM", status: "available" },
+  ]);
 
   const handleDateChange = (date: any) => {
     setSelectedDate(date);
@@ -180,8 +181,77 @@ const Booking: React.FC = () => {
     }
   };
 
-  const handleStylistChange = (value: number) => {
-    setSelectedStylist(value);
+  const handleStylistChange = async (value: number) => {
+    setSelectedStylist(value); // `value` là `accountID`
+    console.log("Account được chọn:", value);
+
+    try {
+      // Gọi API để lấy tất cả các stylist và lọc stylistId theo accountId
+      const response = await api.get(`/${value}`);
+      const selectedStylistData = response.data;
+
+      // Lấy stylistId từ account đã chọn
+      const stylistID = selectedStylistData.stylists[0].id;
+      console.log("StylistID tương ứng với account đã chọn:", stylistID);
+
+      // Gọi API để lấy tất cả các booking của stylist này
+      const bookingsResponse = await api.get("/bookings/getBooking");
+      const allBookings = bookingsResponse.data;
+
+      // Lọc các booking có stylistID khớp với stylist được chọn
+      const stylistBookings = allBookings.filter(
+        (booking: any) => booking.stylist.id === stylistID
+      );
+
+      console.log("Booking của stylist đã chọn:", stylistBookings);
+
+      // Duyệt qua từng slot thời gian và kiểm tra nếu nó đã được đặt
+      const updatedTimeSlots = timeSlots.map((slot) => {
+        const slotStart = dayjs(
+          `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
+          ["YYYY-MM-DD h:mm A"]
+        );
+
+        // Kiểm tra xem slotStart có phải là đối tượng dayjs hợp lệ không
+        if (!dayjs.isDayjs(slotStart)) {
+          console.error(
+            "slotStart không phải là đối tượng dayjs hợp lệ:",
+            slotStart
+          );
+          return slot; // Bỏ qua nếu slotStart không hợp lệ
+        }
+
+        // Kiểm tra xem slot có trùng với thời gian của bất kỳ booking nào không
+        const isBooked = stylistBookings.some((booking: any) => {
+          const bookingStart = dayjs(
+            `${booking.appointmentDate} ${booking.startTime}`,
+            "YYYY-MM-DD HH:mm:ss"
+          );
+          const bookingEnd = dayjs(
+            `${booking.appointmentDate} ${booking.endTime}`,
+            "YYYY-MM-DD HH:mm:ss"
+          );
+          // Kiểm tra nếu slotStart nằm giữa bookingStart và bookingEnd hoặc trùng với bookingStart
+          return (
+            slotStart.isSame(bookingStart) ||
+            slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
+          );
+        });
+
+        return {
+          ...slot,
+          status: isBooked ? "unavailable" : "available", // Đánh dấu slot là unavailable nếu nó đã được đặt
+        };
+      });
+
+      // Cập nhật lại state của timeSlots để giao diện cập nhật
+      setTimeSlots(updatedTimeSlots);
+
+      console.log("Updated time slots with booking status:", updatedTimeSlots);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách booking:", error);
+      message.error("Không thể tải danh sách booking.");
+    }
   };
 
   const handleTimeSlotChange = (time: string) => {
@@ -300,7 +370,7 @@ const Booking: React.FC = () => {
         appointmentDate: appointmentDate, // Ngày đặt lịch
         startTime: startTime.format("HH:mm:ss"), // Chỉ giờ, phút, giây cho thời gian bắt đầu
         endTime: endTime, // Chỉ giờ, phút, giây cho thời gian kết thúc
-        status: "Pending", // Trạng thái ban đầu
+        status: "confirmed", // Trạng thái ban đầu
       };
 
       // Console log dữ liệu để kiểm tra trước khi gửi
@@ -361,7 +431,14 @@ const Booking: React.FC = () => {
 
       {/* Hiển thị thời gian dự kiến và giá dự kiến */}
       <div className="estimated-info">
-        <p>Thời gian dự kiến: {estimatedDuration} phút</p>
+        <p>
+          Thời gian dự kiến:{" "}
+          {estimatedDuration >= 60
+            ? `${Math.floor(estimatedDuration / 60)} giờ ${
+                estimatedDuration % 60
+              } phút`
+            : `${estimatedDuration} phút`}
+        </p>
         <p>Giá dự kiến: {estimatedPrice.toLocaleString()} VND</p>
       </div>
 

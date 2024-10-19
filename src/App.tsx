@@ -32,6 +32,7 @@ import StylistDayoff from "./pages/stylist-page/stylist-dayoff";
 import CollectionManagement from "./pages/admin/collection-management";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import StylistAccountManagement from "./pages/admin/stylist-account";
+import CustomerBookingList from "./pages/customer-booking";
 
 function App() {
   const router = createBrowserRouter([
@@ -67,6 +68,7 @@ function App() {
       children: [
         { path: "information", element: <CustomerInformation /> }, // Thông tin khách hàng
         { path: "change-password", element: <ChangePassword /> }, // Đổi mật khẩu
+        { path: "bookings", element: <CustomerBookingList /> }, // Đổi mật khẩu
       ],
     },
     {

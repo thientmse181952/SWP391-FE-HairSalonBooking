@@ -3,6 +3,7 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import api from "../../../config/axios";
+import { Modal, Button, message } from "antd";
 
 const localizer = momentLocalizer(moment);
 
@@ -15,6 +16,39 @@ const StylistSchedule: React.FC = () => {
 
   // Get stylistId from localStorage
   const stylistId = localStorage.getItem("stylistId");
+  const [services, setServices] = useState<any[]>([]);
+  const [serviceNames, setServiceNames] = useState<string[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const getStatusInVietnamese = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "Đã xác nhận";
+      case "completed":
+        return "Đã hoàn thành dịch vụ";
+      case "paid":
+        return "Thanh toán thành công";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return "Không rõ";
+    }
+  };
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return { backgroundColor: "#ffe58f", color: "#d48806" };
+      case "completed":
+        return { backgroundColor: "#d9f7be", color: "#389e0d" };
+      case "paid":
+        return { backgroundColor: "#b7eb8f", color: "#52c41a" };
+      case "cancelled":
+        return { backgroundColor: "#ffa39e", color: "#cf1322" };
+      default:
+        return { backgroundColor: "#f0f0f0", color: "#8c8c8c" };
+    }
+  };
 
   useEffect(() => {
     // Fetch bookings for the stylist
@@ -66,6 +100,8 @@ const StylistSchedule: React.FC = () => {
             title: `Khách hàng: ${customerNamesMap[booking.customer.id]}`,
             start,
             end,
+            bookingId: booking.bookingId,
+            status: booking.status,
           };
         });
 
@@ -75,11 +111,62 @@ const StylistSchedule: React.FC = () => {
       }
     };
 
+    const fetchServices = async () => {
+      try {
+        const response = await api.get("/service/getService"); // Gọi API để lấy tất cả dịch vụ
+        setServices(response.data); // Lưu tất cả dịch vụ vào state
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách dịch vụ:", error);
+        message.error("Không thể tải danh sách dịch vụ.");
+      }
+    };
+
+    fetchServices();
+
     fetchBookings();
   }, [stylistId]);
 
+  useEffect(() => {
+    if (selectedEvent) {
+      console.log("Nội dung selectedEvent:", selectedEvent); // Kiểm tra nội dung của selectedEvent
+      const bookingId = selectedEvent.bookingId;
+      if (!bookingId) {
+        console.error("Không tìm thấy bookingId trong selectedEvent!");
+        return;
+      }
+
+      // Lọc dịch vụ dựa trên bookingId
+      const relatedServices = services.filter((service) =>
+        service.bookings.some((booking) => booking.bookingId === bookingId)
+      );
+
+      if (relatedServices.length > 0) {
+        const serviceNamesList = relatedServices.map(
+          (service: any) => service.name
+        );
+        setServiceNames(serviceNamesList); // Gán danh sách tên dịch vụ để hiển thị
+        console.log("Dịch vụ tương ứng với bookingId:", serviceNamesList);
+      } else {
+        console.log("Không tìm thấy dịch vụ với bookingId:", bookingId);
+      }
+    }
+  }, [selectedEvent, services]);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   const handleSelectEvent = (event: any) => {
     setSelectedEvent(event);
+    showModal();
   };
 
   return (
@@ -93,20 +180,119 @@ const StylistSchedule: React.FC = () => {
         style={{ height: 500, margin: "50px" }}
         selectable
         onSelectEvent={handleSelectEvent}
+        eventPropGetter={(event) => {
+          const backgroundColor = getStatusStyle(event.status).backgroundColor;
+          const color = getStatusStyle(event.status).color;
+
+          return {
+            style: {
+              backgroundColor,
+              color,
+              borderRadius: "8px",
+              padding: "5px",
+            },
+          };
+        }}
       />
 
-      {selectedEvent && (
-        <div>
-          <h3>Chi tiết đặt lịch</h3>
-          <p>
-            <strong>Khách hàng:</strong> {selectedEvent.title}
-          </p>
-          <p>
-            <strong>Thời gian:</strong>{" "}
-            {moment(selectedEvent.start).format("HH:mm")}
-          </p>
-        </div>
-      )}
+      <Modal
+        title="Chi tiết dịch vụ"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        {selectedEvent && (
+          <div>
+            <p>
+              <strong>Khách hàng:</strong>{" "}
+              {selectedEvent.title.replace("Khách hàng: ", "")}
+            </p>
+            <p>
+              <strong>Thời gian:</strong>{" "}
+              {moment(selectedEvent.start).format("HH:mm")} -{" "}
+              {moment(selectedEvent.end).format("HH:mm")}
+            </p>
+            <p>
+              <strong>Dịch vụ:</strong>{" "}
+              {serviceNames.length > 0
+                ? serviceNames.join(", ")
+                : "Không tìm thấy dịch vụ"}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong>{" "}
+              {getStatusInVietnamese(selectedEvent.status)}
+            </p>
+
+            {selectedEvent.status === "confirmed" && (
+              <Button
+                type="primary"
+                onClick={async () => {
+                  try {
+                    console.log("Booking ID:", selectedEvent.bookingId);
+                    console.log("Status being sent:", "completed");
+
+                    await api.put(
+                      `/bookings/${selectedEvent.bookingId}/status`,
+                      "completed",
+                      {
+                        headers: {
+                          "Content-Type": "text/plain",
+                        },
+                      }
+                    );
+
+                    message.success("Dịch vụ đã được hoàn thành!");
+
+                    setSelectedEvent((prevEvent: any) => ({
+                      ...prevEvent,
+                      status: "completed",
+                    }));
+                  } catch (error) {
+                    message.error("Lỗi khi hoàn thành dịch vụ.");
+                    console.error("Lỗi:", error);
+                  }
+                }}
+              >
+                Hoàn thành dịch vụ
+              </Button>
+            )}
+
+            {selectedEvent.status === "completed" && (
+              <Button
+                type="primary"
+                onClick={async () => {
+                  try {
+                    console.log("Booking ID:", selectedEvent.bookingId);
+                    console.log("Status being sent:", "paid");
+
+                    await api.put(
+                      `/bookings/${selectedEvent.bookingId}/status`,
+                      "paid",
+                      {
+                        headers: {
+                          "Content-Type": "text/plain",
+                        },
+                      }
+                    );
+
+                    message.success("Thanh toán thành công!");
+
+                    setSelectedEvent((prevEvent: any) => ({
+                      ...prevEvent,
+                      status: "paid",
+                    }));
+                  } catch (error) {
+                    message.error("Lỗi khi thực hiện thanh toán.");
+                    console.error("Lỗi:", error);
+                  }
+                }}
+              >
+                Thanh toán
+              </Button>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
