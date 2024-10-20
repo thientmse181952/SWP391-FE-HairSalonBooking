@@ -13,11 +13,15 @@ const ChangePassword: React.FC = () => {
   const onFinish = async (values: any): Promise<void> => {
     const { oldPassword, newPassword } = values; // Lấy giá trị từ form
     try {
-      const response = await api.put("/password", {
-        currentPassword: oldPassword, // Mật khẩu cũ
-        newPassword: newPassword, // Mật khẩu mới
-        confirmPassword: newPassword, // Xác nhận mật khẩu mới
-      });
+      const requestData = {
+        currentPassword: String(oldPassword),
+        newPassword: String(newPassword),
+        confirmPassword: String(newPassword),
+      };
+
+      console.log("Dữ liệu gửi đi:", requestData);
+
+      const response = await api.put("/password", requestData);
 
       if (response.status === 200) {
         message.success("Đổi mật khẩu thành công!");

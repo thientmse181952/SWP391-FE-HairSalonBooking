@@ -104,6 +104,7 @@ const Login: React.FC = () => {
                   customerResponse.status === 200
                 ) {
                   message.success("Tạo thông tin khách hàng thành công!");
+                  localStorage.setItem("customerId", customerResponse.data.id);
                 } else {
                   message.error("Tạo thông tin khách hàng thất bại!");
                 }

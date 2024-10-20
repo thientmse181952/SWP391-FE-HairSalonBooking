@@ -7,6 +7,8 @@ const CustomerBookingList: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const customerId = localStorage.getItem("customerId");
 
+  console.log("Customer ID từ localStorage:", customerId);
+
   const columns = [
     {
       title: "Ngày đặt lịch",
