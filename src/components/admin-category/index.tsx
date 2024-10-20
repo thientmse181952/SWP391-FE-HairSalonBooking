@@ -12,7 +12,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 import "./index.scss";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 const AdminCategory: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,15 +22,14 @@ const AdminCategory: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Tương tự như hàm handleLogout trong Header
+  // Cập nhật chức năng logout để xóa toàn bộ dữ liệu trong localStorage
   const handleLogout = () => {
-    localStorage.removeItem("fullName");
-    localStorage.removeItem("token"); // Xóa token khi đăng xuất
+    console.log("Before clearing localStorage:", localStorage); // Kiểm tra dữ liệu trước khi xóa
+    localStorage.clear(); // Xóa toàn bộ dữ liệu trong localStorage
+    console.log("After clearing localStorage:", localStorage); // Kiểm tra dữ liệu sau khi xóa
+
     setUser(null); // Reset lại trạng thái người dùng
-
-    // Thêm thông báo đăng xuất thành công
-    message.success("Đăng xuất thành công!");
-
+    message.success("Đăng xuất thành công!"); // Thêm thông báo đăng xuất thành công
     navigate("/"); // Điều hướng về trang đăng nhập
   };
 

@@ -1,0 +1,40 @@
+.booking-status-confirmed {
+  background-color: #d1ecf1; /* Màu xanh nhạt cho đã xác nhận */
+  color: #0c5460;
+}
+.booking-status-completed {
+  background-color: #c3e6cb; /* Màu xanh lá nhạt cho đã hoàn thành */
+  color: #155724;
+}
+.booking-status-paid {
+  background-color: #fff3cd; /* Màu vàng nhạt cho thanh toán */
+  color: #856404;
+}
+.booking-status-cancelled {
+  background-color: #f8d7da; /* Màu đỏ nhạt cho đã hủy */
+  color: #721c24;
+}
+.booking-status-default {
+  background-color: #e2e3e5; /* Màu xám nhạt cho trạng thái mặc định */
+  color: #6c757d;
+}
+
+.ant-table-thead th:first-child {
+  min-width: 130px;
+  white-space: nowrap;
+}
+
+.feedback-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.feedback-container .ant-rate {
+  display: inline-flex;
+}
+
+.comment-text {
+  margin-top: 5px;
+  font-size: 14px;
+}

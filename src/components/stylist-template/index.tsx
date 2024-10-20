@@ -38,8 +38,7 @@ const StylistPage: React.FC = () => {
 
   // Hàm handleLogout tương tự admin
   const handleLogout = () => {
-    localStorage.removeItem("fullName");
-    localStorage.removeItem("token"); // Xóa token khi stylist đăng xuất
+    localStorage.clear();
     setUser(null); // Reset lại trạng thái người dùng
 
     // Thêm thông báo đăng xuất thành công

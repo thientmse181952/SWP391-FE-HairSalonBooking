@@ -18,6 +18,7 @@ const Booking: React.FC = () => {
   const [serviceDurations, setServiceDurations] = useState<number[]>([]); // Lưu trữ duration của nhiều service
   const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
+  const [showAllSlots, setShowAllSlots] = useState(false);
 
   useEffect(() => {
     const accountId = localStorage.getItem("accountId"); // Lấy accountId từ localStorage
@@ -78,6 +79,10 @@ const Booking: React.FC = () => {
     { time: "18:00 PM", status: "available" },
     { time: "19:00 PM", status: "available" },
   ]);
+
+  const toggleSlotVisibility = () => {
+    setShowAllSlots(!showAllSlots); // Đảo ngược trạng thái hiển thị
+  };
 
   const handleDateChange = (date: any) => {
     setSelectedDate(date);
@@ -267,14 +272,20 @@ const Booking: React.FC = () => {
     if (
       !selectedTimeSlot ||
       selectedServices.length === 0 ||
-      selectedStylist === null || // Chắc chắn rằng bạn lấy đúng selectedStylist
-      customerId === null
+      selectedStylist === null ||
+      !localStorage.getItem("customerId") // Kiểm tra xem có customerId trong localStorage không
     ) {
       message.error("Vui lòng chọn đầy đủ các thông tin!");
       return;
     }
 
     try {
+      const customerIdFromLocalStorage = localStorage.getItem("customerId"); // Lấy customerId từ localStorage
+
+      console.log(
+        "Customer ID đang được truyền vào API:",
+        customerIdFromLocalStorage
+      );
       let commonStylistIds: number[] = [];
 
       // Duyệt qua từng dịch vụ được chọn và lấy stylist ID từ mỗi dịch vụ
@@ -336,7 +347,7 @@ const Booking: React.FC = () => {
 
       console.log("Start time:", startTime.format("HH:mm:ss"));
       console.log("End time:", endTime);
-      console.log("Customer ID:", customerId);
+      console.log("Customer ID:", customerIdFromLocalStorage);
       console.log("Stylist ID:", stylistID);
       console.log("Selected Services:", selectedServices);
 
@@ -390,7 +401,7 @@ const Booking: React.FC = () => {
           id: stylistID, // Truyền đúng stylistID từ danh sách stylist có thể thực hiện dịch vụ
         },
         customer: {
-          id: customerId, // Truyền customer ID
+          id: customerIdFromLocalStorage, // Truyền customer ID từ localStorage
         },
         appointmentDate: appointmentDate, // Ngày đặt lịch
         startTime: startTime.format("HH:mm:ss"), // Chỉ giờ, phút, giây cho thời gian bắt đầu
@@ -405,6 +416,15 @@ const Booking: React.FC = () => {
 
       if (response.status === 200) {
         message.success("Đặt lịch thành công!");
+
+        // **THÊM LOGIC RESET FORM SAU KHI ĐẶT LỊCH THÀNH CÔNG**
+        setSelectedDate(dayjs()); // Reset lại ngày
+        setSelectedServices([]); // Reset lại dịch vụ đã chọn
+        setSelectedStylist(null); // Reset stylist đã chọn
+        setSelectedTimeSlot(null); // Reset slot thời gian
+        setEstimatedDuration(0); // Reset thời gian dự kiến
+        setEstimatedPrice(0); // Reset giá dự kiến
+        setShowAllSlots(false); // Ẩn các khung giờ nếu đang hiển thị
       }
     } catch (error) {
       console.error("Lỗi khi tạo đặt lịch:", error);
@@ -483,24 +503,65 @@ const Booking: React.FC = () => {
       </div>
 
       <div className="form-group">
-        <label>Chọn khung giờ phục vụ</label>
-        <div className="time-slot-wrapper">
-          {timeSlots.map((slot) => (
-            <div
-              key={slot.time}
-              className={`time-slot ${slot.status} ${
-                selectedTimeSlot === slot.time ? "selected" : ""
-              }`}
-              onClick={() =>
-                slot.status === "available" && handleTimeSlotChange(slot.time)
-              }
-            >
-              <span>{slot.time}</span>
-              <span>{slot.status === "available" ? "Còn chỗ" : "Hết chỗ"}</span>
-            </div>
-          ))}
-        </div>
+        <Button
+          onClick={toggleSlotVisibility}
+          type="primary"
+          className="submit-button view-slots-button"
+          size="large"
+        >
+          {showAllSlots ? "Ẩn khung giờ" : "Xem khung giờ phục vụ"}
+        </Button>
+
+        {/* Hiển thị tất cả các slot nếu showAllSlots là true */}
+        {showAllSlots && (
+          <div className="time-slot-wrapper">
+            {timeSlots.map((slot) => (
+              <div
+                key={slot.time}
+                className={`time-slot ${slot.status} ${
+                  selectedTimeSlot === slot.time ? "selected" : ""
+                }`}
+                onClick={() =>
+                  slot.status === "available" && handleTimeSlotChange(slot.time)
+                }
+              >
+                <span>{slot.time}</span>
+                <span>
+                  {slot.status === "available" ? " Còn chỗ" : " Hết chỗ"}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Hiển thị slot chỉ sau khi đã chọn stylist */}
+      {selectedStylist && (
+        <div className="form-group">
+          <label>Chọn khung giờ phục vụ</label>
+          <div className="time-slot-wrapper">
+            {timeSlots
+              .filter((slot) => slot.status === "available") // Chỉ hiển thị slot còn chỗ
+              .map((slot) => (
+                <div
+                  key={slot.time}
+                  className={`time-slot ${slot.status} ${
+                    selectedTimeSlot === slot.time ? "selected" : ""
+                  }`}
+                  onClick={() =>
+                    slot.status === "available" &&
+                    handleTimeSlotChange(slot.time)
+                  }
+                >
+                  <span>{slot.time}</span>
+                  <span>
+                    {slot.status === "available" ? " Còn chỗ" : " Hết chỗ"}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       <Button
         type="primary"

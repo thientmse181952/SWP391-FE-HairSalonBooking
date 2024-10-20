@@ -31,12 +31,6 @@ const SidebarCustomer: React.FC = () => {
       path: "/customer/bookings",
     },
     {
-      id: "feedback",
-      label: "Danh sách feedback",
-      icon: <CommentOutlined />,
-      path: "/customer/feedback",
-    },
-    {
       id: "change-password", // Thêm ID cho mục Đổi mật khẩu
       label: "Đổi mật khẩu", // Nhãn hiển thị
       icon: <SettingOutlined />, // Bạn có thể thay đổi biểu tượng nếu cần

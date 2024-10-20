@@ -104,11 +104,30 @@ const Login: React.FC = () => {
                   customerResponse.status === 200
                 ) {
                   message.success("Tạo thông tin khách hàng thành công!");
+
+                  // Lưu customerId vào localStorage
                   localStorage.setItem("customerId", customerResponse.data.id);
+                  console.log(
+                    "Customer ID đã được tạo và lưu:",
+                    customerResponse.data.id
+                  );
                 } else {
                   message.error("Tạo thông tin khách hàng thất bại!");
                 }
+              } else {
+                // Nếu đã có customerId thì lưu vào localStorage
+                const customerId = accountDetails.data.customers[0]?.id;
+                if (customerId) {
+                  localStorage.setItem("customerId", customerId);
+                  console.log(
+                    "Customer ID đã tồn tại và được lưu:",
+                    customerId
+                  );
+                } else {
+                  console.error("Không tìm thấy customerId.");
+                }
               }
+
               console.log("Điều hướng đến trang chủ");
               navigate("/");
             }

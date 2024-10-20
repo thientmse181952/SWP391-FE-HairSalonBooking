@@ -38,15 +38,15 @@ const StylistSchedule: React.FC = () => {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "confirmed":
-        return { backgroundColor: "#ffe58f", color: "#d48806" };
+        return { backgroundColor: "#9fd3c7", color: "#084c61" }; // Màu xanh biển nhạt cho đã xác nhận
       case "completed":
-        return { backgroundColor: "#d9f7be", color: "#389e0d" };
+        return { backgroundColor: "#ffe7b8", color: "#a24e1e" }; // Màu cam nhạt cho đã hoàn thành
       case "paid":
-        return { backgroundColor: "#b7eb8f", color: "#52c41a" };
+        return { backgroundColor: "#d4edda", color: "#155724" }; // Màu xanh lá nhạt cho thanh toán
       case "cancelled":
-        return { backgroundColor: "#ffa39e", color: "#cf1322" };
+        return { backgroundColor: "#f8d7da", color: "#721c24" }; // Màu đỏ nhạt cho đã hủy
       default:
-        return { backgroundColor: "#f0f0f0", color: "#8c8c8c" };
+        return { backgroundColor: "#f5f5f5", color: "#6c757d" }; // Màu xám nhạt cho trạng thái mặc định
     }
   };
 
