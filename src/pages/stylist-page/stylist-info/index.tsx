@@ -118,7 +118,6 @@ const StylistInfo: React.FC = () => {
       // PUT request cho hình ảnh và rating
       await api.put(`/stylist/${stylistID}`, {
         id: stylistID,
-        rating: values.rating,
         image: values.image,
         service_id: values.service_id, // Truyền dưới dạng mảng số nguyên
       });
@@ -165,7 +164,7 @@ const StylistInfo: React.FC = () => {
             </Form.Item>
 
             <Form.Item label="Rating" name="rating">
-              <Input disabled={!editable} />
+              <Input disabled />
             </Form.Item>
 
             {/* Dịch vụ - Hiển thị tất cả và chọn các dịch vụ stylist đã làm */}

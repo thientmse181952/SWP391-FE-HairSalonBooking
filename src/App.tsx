@@ -33,6 +33,8 @@ import CollectionManagement from "./pages/admin/collection-management";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import StylistAccountManagement from "./pages/admin/stylist-account";
 import CustomerBookingList from "./pages/customer-booking";
+import SuccessPage from "./pages/success";
+import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 
 function App() {
   const router = createBrowserRouter([
@@ -55,6 +57,10 @@ function App() {
       path: "register",
       element: <Layout />,
       children: [{ path: "", element: <Register /> }],
+    },
+    {
+      path: "success",
+      children: [{ path: "", element: <SuccessPage /> }],
     },
     {
       path: "reset-password",
@@ -101,6 +107,7 @@ function App() {
           path: "create-stylist-account",
           element: <StylistAccountManagement />,
         },
+        { path: "stylist-schedule", element: <StylistScheduleAdmin /> },
       ],
     },
     {

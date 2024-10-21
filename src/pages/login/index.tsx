@@ -135,27 +135,47 @@ const Login: React.FC = () => {
             // Nếu role là STYLIST, kiểm tra thông tin stylist
             // After checking the role of the current user is "STYLIST"
             if (currentUser.role === "STYLIST") {
-              // Check if stylists array exists
+              // Kiểm tra nếu stylists array tồn tại và stylist đã có ID
               if (currentUser.stylists.length > 0) {
-                // Save the stylistId from the first element of the stylists array
                 const stylistId = currentUser.stylists[0].id;
-                localStorage.setItem("stylistId", stylistId); // Save stylistId to localStorage
+                localStorage.setItem("stylistId", stylistId); // Lưu stylistId vào localStorage
                 console.log("Stylist ID saved to localStorage:", stylistId);
               } else {
-                // If no stylist exists, fetch details using the accountId API
-                const accountDetails = await api.get(`/${currentUser.id}`, {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                });
-                const stylistIdFromDetails =
-                  accountDetails.data.stylists[0]?.id;
-                if (stylistIdFromDetails) {
-                  localStorage.setItem("stylistId", stylistIdFromDetails);
-                  console.log(
-                    "Stylist ID retrieved from account details and saved:",
-                    stylistIdFromDetails
+                // Nếu không có stylist nào tồn tại, gọi API tạo stylist mới
+                const newStylist = {
+                  rating: "",
+                  image: "",
+                  service_id: [],
+                };
+
+                try {
+                  const stylistResponse = await api.post(
+                    "/stylist",
+                    newStylist,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
                   );
+
+                  if (
+                    stylistResponse.status === 201 ||
+                    stylistResponse.status === 200
+                  ) {
+                    const newStylistId = stylistResponse.data.id;
+                    localStorage.setItem("stylistId", newStylistId);
+                    console.log(
+                      "New Stylist ID created and saved:",
+                      newStylistId
+                    );
+                  } else {
+                    console.error("Lỗi khi tạo stylist mới:", stylistResponse);
+                    message.error("Không thể tạo stylist mới.");
+                  }
+                } catch (error) {
+                  console.error("Lỗi khi gọi API tạo stylist mới:", error);
+                  message.error("Có lỗi khi tạo stylist.");
                 }
               }
               navigate("/stylistpage/stylistInfo");

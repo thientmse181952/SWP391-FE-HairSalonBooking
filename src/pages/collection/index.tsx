@@ -7,91 +7,93 @@ import ScrollToTop from "../../components/scroll-to-top";
 
 interface ImageData {
   id: number;
-  category: string;
+  categoryCollection: {
+    id: number;
+    nameCategory: string;
+  };
   collectionImage: string;
-  date: string; // Thêm thuộc tính date
+  date: string;
 }
 
-const categories = [
-  {
-    items: [
-      { name: "Màu Balayage, Ombre" },
-      { name: "Màu nhuộm công sở" },
-      { name: "Màu nhuộm thời trang" },
-      { name: "Tóc bob" },
-      { name: "Tóc dài" },
-      { name: "Tóc ngắn" },
-      { name: "Kiểu tóc xu hướng" },
-      { name: "Tóc lỡ" },
-      { name: "Tóc duỗi" },
-      { name: "Tóc uốn xoăn" },
-      { name: "Tóc uốn xoăn ngọn, dợn sóng lơi" },
-      { name: "Tóc Nam" },
-      { name: "BST & Hairshow" },
-    ],
-  },
-];
+interface CategoryData {
+  id: number;
+  nameCategory: string;
+}
 
 const Collection: React.FC = () => {
   const [imageData, setImageData] = useState<ImageData[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]); // State cho danh sách category
   const [loading, setLoading] = useState<boolean>(true);
-  const [currentPage, setCurrentPage] = useState<number>(1); // Trang hiện tại
-  const itemsPerPage = 18; // Số ảnh tối đa mỗi trang
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 18;
   const navigate = useNavigate();
-  const { categoryName } = useParams(); // Lấy category từ URL
+  const { categoryName } = useParams();
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-  const titleRef = useRef<HTMLHeadingElement>(null); // Tạo ref cho collection-title
+  // Gọi API để lấy danh sách category từ server
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get("/category-collection/getCollection");
+        setCategories(response.data); // Cập nhật danh sách category từ API
+      } catch (error) {
+        console.error("Error fetching categories: ", error);
+      }
+    };
+    fetchCategories(); // Lấy danh sách category khi component được mount
+  }, []);
 
   // Gọi API để lấy dữ liệu từ database
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Bắt đầu loading
+      setLoading(true);
       try {
-        const response = await api.get("/collection/getCollection"); // Gọi đúng endpoint API
-        setImageData(response.data); // Lưu dữ liệu vào state
-        setLoading(false); // Kết thúc loading
+        const response = await api.get("/collection/getCollection");
+        setImageData(response.data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data: ", error);
-        setLoading(false); // Kết thúc loading khi gặp lỗi
+        setLoading(false);
       }
     };
-    fetchData(); // Thực hiện lấy dữ liệu
-  }, []); // Chạy chỉ một lần khi component được mount
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (titleRef.current) {
-      // Thêm 100px khi cuộn tới tiêu đề
       window.scrollTo({
-        top: titleRef.current.offsetTop - 100, // Trừ đi 100px để tạo khoảng cách
+        top: titleRef.current.offsetTop - 100,
         behavior: "smooth",
       });
     }
-  }, [categoryName]); // Theo dõi sự thay đổi của categoryName để cuộn
+  }, [categoryName]);
 
-  // Chuyển hướng đến trang category tương ứng và cuộn lên collection-title
   const handleCategoryClick = (category: string) => {
-    setCurrentPage(1); // Reset trang về 1 khi chọn category mới
-    navigate(`/collection/${category}`); // Thay đổi URL mà không cần xử lý cuộn ngay tại đây
+    setCurrentPage(1);
+    navigate(`/collection/${category}`);
   };
 
-  // Xử lý phân trang và cuộn lên collection-title
   const handlePageChange = (page: number) => {
-    setCurrentPage(page); // Cập nhật trang hiện tại
-
+    setCurrentPage(page);
     if (titleRef.current) {
       window.scrollTo({
-        top: titleRef.current.offsetTop - 100, // Cuộn tới tiêu đề với khoảng cách 100px
+        top: titleRef.current.offsetTop - 100,
         behavior: "smooth",
       });
     }
   };
 
-  // Lọc dữ liệu theo category trước khi phân trang
-  const filteredImages = imageData.filter(
-    (image) => !categoryName || image.category === categoryName
+  // Tìm ID của category dựa trên nameCategory
+  const selectedCategory = categories.find(
+    (category) => category.nameCategory === categoryName
   );
 
-  // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
+  // Lọc dữ liệu theo category ID
+  const filteredImages = imageData.filter(
+    (image) =>
+      !categoryName || image.categoryCollection.nameCategory === categoryName
+  );
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentImages = filteredImages.slice(startIndex, endIndex);
@@ -106,7 +108,7 @@ const Collection: React.FC = () => {
           const entry = entries[0];
           setIsVisible(entry.isIntersecting);
         },
-        { threshold: 0.1 } // Hình ảnh sẽ bắt đầu tải khi ít nhất 10% của nó xuất hiện trong viewport
+        { threshold: 0.1 }
       );
 
       if (elementRef.current) {
@@ -131,7 +133,7 @@ const Collection: React.FC = () => {
         {isVisible ? (
           <Image src={src} alt={alt} />
         ) : (
-          <div style={{ height: "200px", backgroundColor: "#f0f0f0" }} /> // Placeholder cho đến khi hình ảnh tải xong
+          <div style={{ height: "200px", backgroundColor: "#f0f0f0" }} />
         )}
       </div>
     );
@@ -158,22 +160,22 @@ const Collection: React.FC = () => {
         <div className="collection-sidebar">
           <h3>Bộ Sưu Tập</h3>
 
-          {/* Lặp qua các category */}
-          {categories.map((categoryGroup, index) => (
-            <div className="sidebar-section" key={index}>
-              <ul>
-                {categoryGroup.items.map((category) => (
-                  <li
-                    key={category.name}
-                    className={categoryName === category.name ? "active" : ""}
-                    onClick={() => handleCategoryClick(category.name)}
-                  >
-                    {category.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Hiển thị danh sách category từ API */}
+          <div className="sidebar-section">
+            <ul>
+              {categories.map((category) => (
+                <li
+                  key={category.id}
+                  className={
+                    categoryName === category.nameCategory ? "active" : ""
+                  }
+                  onClick={() => handleCategoryClick(category.nameCategory)}
+                >
+                  {category.nameCategory}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="collection-gallery">
@@ -186,18 +188,17 @@ const Collection: React.FC = () => {
               <LazyImage
                 key={image.id}
                 src={image.collectionImage}
-                alt={image.category}
+                alt={image.categoryCollection.nameCategory}
               />
             ))}
           </div>
 
-          {/* Phân trang */}
           <Pagination
             current={currentPage}
             pageSize={itemsPerPage}
-            total={filteredImages.length} // Tổng số lượng ảnh sau khi lọc theo category
-            onChange={handlePageChange} // Xử lý khi chuyển trang
-            showSizeChanger={false} // Không cho phép thay đổi số lượng ảnh mỗi trang
+            total={filteredImages.length}
+            onChange={handlePageChange}
+            showSizeChanger={false}
           />
         </div>
       </div>

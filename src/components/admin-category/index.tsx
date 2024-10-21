@@ -62,6 +62,7 @@ const AdminCategory: React.FC = () => {
     getItem("Quản Lý Nhân Viên", "adminEmployeeRegistration", <UserOutlined />), // Đường dẫn cho Đăng ký nhân viên
     getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
     getItem("Calendar Management", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
+    getItem("Quản Lý Lịch Nghỉ", "stylist-schedule", <UserOutlined />),
     getItem("Quản Lý Dịch Vụ", "adminServiceManagement", <UserOutlined />),
     getItem("Quản Lý Danh Mục", "category-management", <UserOutlined />),
     getItem("Quản Lý BST", "collection-management", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ

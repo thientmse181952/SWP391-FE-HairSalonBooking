@@ -397,12 +397,8 @@ const Booking: React.FC = () => {
       // Chuẩn bị dữ liệu để gửi lên API
       const bookingData = {
         service_id: selectedServices, // Truyền trực tiếp các service IDs
-        stylist: {
-          id: stylistID, // Truyền đúng stylistID từ danh sách stylist có thể thực hiện dịch vụ
-        },
-        customer: {
-          id: customerIdFromLocalStorage, // Truyền customer ID từ localStorage
-        },
+        stylist_id: { id: stylistID }, // Chuyển đổi thành đối tượng Stylist
+        customer_id: { id: customerIdFromLocalStorage }, // Chuyển đổi thành đối tượng Customer
         appointmentDate: appointmentDate, // Ngày đặt lịch
         startTime: startTime.format("HH:mm:ss"), // Chỉ giờ, phút, giây cho thời gian bắt đầu
         endTime: endTime, // Chỉ giờ, phút, giây cho thời gian kết thúc
