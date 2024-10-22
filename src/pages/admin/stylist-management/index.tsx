@@ -13,9 +13,9 @@ import {
   Select,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import api from "../../../config/axios";
 import uploadFile from "../../../utils/file";
 import "./index.scss";
+import api from "../../../config/axios";
 
 const { TextArea } = Input;
 

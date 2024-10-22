@@ -1,135 +1,270 @@
-import React from 'react';
-import { Table } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
-import { Flex, Typography } from 'antd';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Table,
+  Modal,
+  Form,
+  Input,
+  Popconfirm,
+  message,
+  Radio,
+} from "antd";
+import api from "../../../config/axios"; // Sử dụng api để gọi API
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  age: number;
-  address: string;
-}
+const AdminPersonnelManagement: React.FC = () => {
+  const [accounts, setAccounts] = useState([]); // Trạng thái lưu danh sách stylist
+  const [loading, setLoading] = useState(true); // Trạng thái loading khi gọi API
+  const [openModal, setOpenModal] = useState(false); // Trạng thái modal thêm/sửa stylist
+  const [editingAccount, setEditingAccount] = useState(null); // Trạng thái chỉnh sửa stylist
+  const [form] = Form.useForm(); // Sử dụng form của Ant Design
 
-const columns: TableColumnsType<DataType> = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    filters: [
-      {
-        text: 'Joe',
-        value: 'Joe',
-      },
-      {
-        text: 'Category 1',
-        value: 'Category 1',
-        children: [
-          {
-            text: 'Yellow',
-            value: 'Yellow',
-          },
-          {
-            text: 'Pink',
-            value: 'Pink',
-          },
-        ],
-      },
-      {
-        text: 'Category 2',
-        value: 'Category 2',
-        children: [
-          {
-            text: 'Green',
-            value: 'Green',
-          },
-          {
-            text: 'Black',
-            value: 'Black',
-          },
-        ],
-      },
-    ],
-    filterMode: 'tree',
-    filterSearch: true,
-    onFilter: (value, record) => record.name.includes(value as string),
-    width: '30%',
-  },
-  {
-    title: 'Age',
-    dataIndex: 'age',
-    sorter: (a, b) => a.age - b.age,
-  },
-  {
-    title: 'Address',
-    dataIndex: 'address',
-    filters: [
-      {
-        text: 'London',
-        value: 'London',
-      },
-      {
-        text: 'New York',
-        value: 'New York',
-      },
-    ],
-    onFilter: (value, record) => record.address.startsWith(value as string),
-    filterSearch: true,
-    width: '40%',
-  },
-];
+  // Gọi API để lấy danh sách stylist từ server
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await api.get("/account"); // Gọi API lấy danh sách tài khoản cus
+        const customers = response.data.filter(
+          (account: any) => account.role === "CUSTOMER"
+        );
+        setAccounts(customers); // Lưu dữ liệu cus vào state
+        setLoading(false); // Tắt loading sau khi lấy dữ liệu xong
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách customer:", error);
+      }
+    };
 
-const data: DataType[] = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-  },
-  {
-    key: '4',
-    name: 'Jim Red',
-    age: 32,
-    address: 'London No. 2 Lake Park',
-  },
-];
+    fetchAccounts();
+  }, []);
 
-const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
-  console.log('params', pagination, filters, sorter, extra);
+  // Xử lý khi form được submit để thêm hoặc sửa stylist
+  const onFinish = async (values: any) => {
+    try {
+      if (editingAccount) {
+        // Nếu đang trong trạng thái chỉnh sửa, gọi API PUT
+        await api.put(`/account/${editingAccount.id}`, {
+          ...editingAccount,
+          ...values,
+        });
+        message.success("Cập nhật customer thành công!");
+      } else {
+        // Nếu là thêm mới, gọi API POST
+        await api.post("/register", {
+          ...values,
+          role: "CUSTOMER",
+          enabled: true,
+        });
+        message.success("Thêm customer thành công!");
+      }
+
+      // Fetch lại danh sách ngay lập tức sau khi thêm hoặc cập nhật thành công
+      const response = await api.get("/account");
+      const customer = response.data.filter(
+        (account: any) => account.role === "CUSTOMER"
+      );
+      setAccounts(customer); // Cập nhật danh sách stylist mới
+
+      setOpenModal(false); // Đóng modal ngay lập tức sau khi API thành công
+      form.resetFields(); // Reset form ngay sau khi API thành công
+      setEditingAccount(null); // Reset trạng thái chỉnh sửa
+    } catch (error) {
+      console.error("Lỗi khi tạo/cập nhật customer:", error);
+      message.error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+    }
+  };
+
+  // Xử lý khi nhấn nút "Sửa", mở modal và điền thông tin stylist vào form
+  const handleEdit = (account: any) => {
+    setEditingAccount(account);
+    form.setFieldsValue(account);
+    setOpenModal(true);
+  };
+
+  // Xử lý khi nhấn nút "Xóa", gọi API DELETE
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/account/${id}`);
+      message.success("Xóa Customer thành công!");
+      // Fetch lại danh sách sau khi xóa thành công
+      const response = await api.get("/account");
+      const customer = response.data.filter(
+        (account: any) => account.role === "CUSTOMER"
+      );
+      setAccounts(customer);
+    } catch (error) {
+      message.error("Lỗi khi xóa customer!");
+    }
+  };
+
+  // Cấu trúc cột của bảng
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Tên khách hàng",
+      dataIndex: "fullName",
+      key: "fullName",
+    },
+    {
+      title: "Giới tính",
+      dataIndex: "gender",
+      key: "gender",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (account: any) => (
+        <>
+          <Button
+            type="link"
+            onClick={() => handleEdit(account)}
+            style={{ marginRight: 8 }}
+          >
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa khánh hàng này không?"
+            onConfirm={() => handleDelete(account.id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button type="link" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <div className="card">
+      <h1>Quản Lý khách hàng</h1>
+      <Button type="primary" onClick={() => setOpenModal(true)}>
+        Thêm Khách hàng
+      </Button>
+      {/* Hiển thị bảng chứa danh sách stylist */}
+      <Table
+        columns={columns}
+        dataSource={accounts}
+        rowKey="id"
+        loading={loading}
+        style={{ marginTop: 20 }}
+      />
+      {/* Modal thêm/sửa stylist */}
+      <Modal
+        title={editingAccount ? "Chỉnh sửa customer" : "Thêm customer mới"}
+        open={openModal}
+        onCancel={() => {
+          setOpenModal(false);
+          setEditingAccount(null); // Đặt lại trạng thái
+        }}
+        footer={null}
+      >
+        <Form form={form} onFinish={onFinish}>
+          {/* Tên stylist */}
+          <Form.Item
+            label="Tên Khách hàng mới"
+            name="fullName"
+            rules={[{ required: true, message: "Vui lòng nhập tên customer!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Email */}
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Vui lòng nhập email hợp lệ!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Số điện thoại */}
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Mật khẩu */}
+          <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          {/* Nhập lại mật khẩu */}
+          <Form.Item
+            label="Nhập lại mật khẩu"
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng xác nhận mật khẩu!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Mật khẩu không khớp!"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          {/* Giới tính */}
+          <Form.Item
+            label="Giới tính"
+            name="gender"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
+          >
+            <Radio.Group>
+              <Radio value="Male">Nam</Radio>
+              <Radio value="Female">Nữ</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          {/* Nút thêm/sửa */}
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              {editingAccount ? "Cập nhật" : "Thêm customer"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
 };
 
-const App: React.FC = () => (
-  <Table<DataType> columns={columns} dataSource={data} onChange={onChange} />
-);
-
-
-
-
-const Desc: React.FC<Readonly<{ text?: string | number }>> = (props) => (
-  <Flex justify="center" align="center" style={{ height: '100%' }}>
-    <Typography.Title type="secondary" level={5} style={{ whiteSpace: 'nowrap' }}>
-      {props.text}
-    </Typography.Title>
-  </Flex>
-);
-
-  // <Splitter style={{ height: 200, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
-  //   <Splitter.Panel defaultSize="40%" min="20%" max="70%">
-  //     <Desc text="First" />
-  //   </Splitter.Panel>
-  //   <Splitter.Panel>
-  //     <Desc text="Second" />
-  //   </Splitter.Panel>
-  // </Splitter>
-
-export default App;
+export default AdminPersonnelManagement;

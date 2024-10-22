@@ -89,6 +89,7 @@ function App() {
         {
           path: "adminPersonnelManagement",
           element: <AdminPersonnelManagement />,
+          
         },
         {
           path: "adminEmployeeRegistration",
