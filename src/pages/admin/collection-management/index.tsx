@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -42,7 +40,7 @@ const CollectionManagement: React.FC = () => {
       try {
         const [collectionResponse, categoryResponse] = await Promise.all([
           api.get("/collection/getCollection"),
-          api.get("/category/getCategory"),
+          api.get("/category-collection/getCollection"),
         ]);
 
         // Sắp xếp các collection theo thứ tự thời gian giảm dần
@@ -63,14 +61,20 @@ const CollectionManagement: React.FC = () => {
   }, []);
 
   // Lọc bộ sưu tập theo danh mục
+  // Lọc bộ sưu tập theo danh mục
   const handleCategoryFilter = (value: string) => {
     setSelectedCategory(value);
     if (value) {
+      // Kiểm tra sự tồn tại của categoryCollection trước khi lọc
       setFilteredCollections(
-        collections.filter((collection) => collection.category === value)
+        collections.filter(
+          (collection: any) =>
+            collection.categoryCollection &&
+            collection.categoryCollection.nameCategory === value
+        )
       );
     } else {
-      setFilteredCollections(collections);
+      setFilteredCollections(collections); // Hiển thị tất cả nếu không chọn danh mục
     }
   };
 
@@ -175,8 +179,8 @@ const CollectionManagement: React.FC = () => {
     },
     {
       title: "Danh mục",
-      dataIndex: "category",
-      key: "category",
+      dataIndex: ["categoryCollection", "nameCategory"], // Sửa lại để lấy đúng nameCategory từ categoryCollection
+      key: "categoryCollection",
     },
     {
       title: "Hình ảnh",
@@ -266,7 +270,10 @@ const CollectionManagement: React.FC = () => {
               style={{ width: "100%", height: "auto", marginBottom: 16 }}
             />
             <p>
-              <strong>Danh mục:</strong> {selectedCollection.category}
+              <strong>Danh mục:</strong>{" "}
+              {selectedCollection.categoryCollection
+                ? selectedCollection.categoryCollection.nameCategory
+                : "Không có danh mục"}
             </p>
             <p>
               <strong>Ngày tạo:</strong> {selectedCollection.date || "Chưa có"}
@@ -288,7 +295,7 @@ const CollectionManagement: React.FC = () => {
         <Form form={form} onFinish={onFinish}>
           <Form.Item
             label="Danh mục"
-            name="category"
+            name="categoryCollection" // Sửa lại tên trường
             rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
           >
             <Select placeholder="Chọn danh mục" allowClear>
@@ -299,6 +306,7 @@ const CollectionManagement: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             label="Upload Ảnh"
             valuePropName="fileList"

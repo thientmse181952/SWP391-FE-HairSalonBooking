@@ -13,6 +13,7 @@ import {
   Col,
   Card,
   Row,
+  UploadFile,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
@@ -20,6 +21,21 @@ import "./index.scss";
 import uploadFile from "../../../utils/file";
 
 const { TextArea } = Input;
+
+interface Category {
+  id: number;
+  nameCategory: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+  price: string;
+  duration: string;
+  category: Category;
+  date: string;
+  serviceImage: string;
+}
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
@@ -29,18 +45,19 @@ const normFile = (e: any) => {
 };
 
 const AdminServiceManagement: React.FC = () => {
-  const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [filteredServices, setFilteredServices] = useState([]);
-  const [fileList, setFileList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
-  const [editingService, setEditingService] = useState<any>(null);
-  const [selectedService, setSelectedService] = useState<any>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     undefined
   );
-  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
   const [form] = Form.useForm();
 
   // Fetch danh sách dịch vụ và danh mục từ API
@@ -53,12 +70,12 @@ const AdminServiceManagement: React.FC = () => {
         ]);
 
         const sortedServices = serviceResponse.data.sort(
-          (a: any, b: any) =>
+          (a: Service, b: Service) =>
             new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
         setServices(sortedServices);
-        setFilteredServices(sortedServices); // Đặt dịch vụ đã được sắp xếp vào state
+        setFilteredServices(sortedServices);
         setCategories(categoryResponse.data);
         setLoading(false);
       } catch (error) {
@@ -69,23 +86,34 @@ const AdminServiceManagement: React.FC = () => {
     fetchServicesAndCategories();
   }, []);
 
-  const categoryMap = categories.reduce((map: any, category: any) => {
-    map[category.id] = category.nameCategory;
-    return map;
-  }, {});
+  const categoryMap: Record<number, string> = categories.reduce(
+    (map, category) => {
+      map[category.id] = category.nameCategory;
+      return map;
+    },
+    {} as Record<number, string>
+  );
 
-  // Hàm lọc dịch vụ theo danh mục
   const handleCategoryFilter = (value: number | undefined) => {
     setSelectedCategory(value);
+    filterServices(searchTerm, value);
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    filterServices(term, selectedCategory);
+  };
+
+  const filterServices = (searchTerm: string, category: number | undefined) => {
     let filtered = services;
 
-    if (value) {
+    if (category) {
       filtered = filtered.filter(
-        (service) => service.category === value.toString()
+        (service) => service.category?.id === category
       );
     }
 
-    // Lọc dịch vụ theo từ khóa tìm kiếm nếu có
     if (searchTerm) {
       filtered = filtered.filter((service) =>
         service.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -95,31 +123,7 @@ const AdminServiceManagement: React.FC = () => {
     setFilteredServices(filtered);
   };
 
-  // Hàm xử lý tìm kiếm theo tên dịch vụ
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value;
-    setSearchTerm(term);
-
-    let filtered = services;
-
-    // Lọc dịch vụ theo từ khóa tìm kiếm
-    if (term) {
-      filtered = filtered.filter((service) =>
-        service.name.toLowerCase().includes(term.toLowerCase())
-      );
-    }
-
-    // Lọc theo danh mục hiện tại nếu có
-    if (selectedCategory) {
-      filtered = filtered.filter(
-        (service) => service.category === selectedCategory.toString()
-      );
-    }
-
-    setFilteredServices(filtered);
-  };
-
-  const handleView = (service: any) => {
+  const handleView = (service: Service) => {
     setSelectedService(service);
   };
 
@@ -135,11 +139,11 @@ const AdminServiceManagement: React.FC = () => {
 
       const serviceData = {
         ...values,
-        price: values.price.toString(), // Chuyển đổi price thành chuỗi
-        duration: values.duration.toString(), // Chuyển đổi duration thành chuỗi
-        category: values.categoryId.toString(), // Chuyển đổi categoryId thành chuỗi
+        price: values.price.toString(),
+        duration: values.duration.toString(),
+        category: values.categoryId.toString(),
         serviceImage: imageUrl || editingService?.serviceImage || "",
-        date: currentDate, // Thêm thời gian hiện tại
+        date: currentDate,
       };
 
       if (editingService) {
@@ -152,11 +156,13 @@ const AdminServiceManagement: React.FC = () => {
 
       setOpenModal(false);
       form.resetFields();
+
       const response = await api.get("/service/getService");
       const sortedServices = response.data.sort(
-        (a: any, b: any) =>
+        (a: Service, b: Service) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
       );
+
       setServices(sortedServices);
       setFilteredServices(sortedServices);
       setEditingService(null);
@@ -168,11 +174,11 @@ const AdminServiceManagement: React.FC = () => {
     }
   };
 
-  const handleEdit = (service: any) => {
+  const handleEdit = (service: Service) => {
     setEditingService(service);
     form.setFieldsValue({
       ...service,
-      categoryId: service.category,
+      categoryId: service.category.id,
     });
     setOpenModal(true);
   };
@@ -183,7 +189,7 @@ const AdminServiceManagement: React.FC = () => {
       message.success("Xóa dịch vụ thành công!");
       const response = await api.get("/service/getService");
       const sortedServices = response.data.sort(
-        (a: any, b: any) =>
+        (a: Service, b: Service) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       setServices(sortedServices);
@@ -193,8 +199,11 @@ const AdminServiceManagement: React.FC = () => {
     }
   };
 
-  const handleChange = ({ fileList: newFileList }: any) =>
-    setFileList(newFileList);
+  const handleChange = ({
+    fileList: newFileList,
+  }: {
+    fileList: UploadFile[];
+  }) => setFileList(newFileList);
 
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
@@ -203,7 +212,6 @@ const AdminServiceManagement: React.FC = () => {
     </button>
   );
 
-  // Hàm định dạng ngày giờ
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -238,20 +246,21 @@ const AdminServiceManagement: React.FC = () => {
     {
       title: "Danh mục",
       dataIndex: "category",
-      key: "categoryId",
-      render: (categoryId: number) => categoryMap[categoryId] || "N/A",
+      key: "category",
+      render: (category: Category) =>
+        category ? category.nameCategory : "N/A",
     },
     {
-      title: "Ngày tạo", // Cột 'date' mới
+      title: "Ngày tạo",
       dataIndex: "date",
       key: "date",
-      render: (date: string) => (date ? date.split("T")[0] : "Chưa có ngày"), // Hiển thị ngày
+      render: (date: string) => (date ? date.split("T")[0] : "Chưa có ngày"),
     },
     {
       title: "Hình ảnh",
       dataIndex: "serviceImage",
       key: "serviceImage",
-      render: (imageUrl: string, service: any) => (
+      render: (imageUrl: string, service: Service) => (
         <img
           src={imageUrl}
           alt="Service"
@@ -263,7 +272,7 @@ const AdminServiceManagement: React.FC = () => {
     {
       title: "Hành động",
       key: "action",
-      render: (service: any) => (
+      render: (service: Service) => (
         <>
           <Button
             type="link"
@@ -305,7 +314,7 @@ const AdminServiceManagement: React.FC = () => {
             onChange={handleCategoryFilter}
             allowClear
           >
-            {categories.map((category: any) => (
+            {categories.map((category) => (
               <Select.Option key={category.id} value={category.id}>
                 {category.nameCategory}
               </Select.Option>
@@ -336,7 +345,8 @@ const AdminServiceManagement: React.FC = () => {
               <strong>Tên dịch vụ:</strong> {selectedService.name}
             </p>
             <p>
-              <strong>Danh mục:</strong> {categoryMap[selectedService.category]}
+              <strong>Danh mục:</strong>{" "}
+              {categoryMap[selectedService.category.id]}
             </p>
             <p>
               <strong>Giá:</strong> {selectedService.price}
@@ -410,7 +420,7 @@ const AdminServiceManagement: React.FC = () => {
             ]}
           >
             <Select placeholder="Chọn danh mục dịch vụ">
-              {categories.map((category: any) => (
+              {categories.map((category) => (
                 <Select.Option key={category.id} value={category.id}>
                   {category.nameCategory}
                 </Select.Option>

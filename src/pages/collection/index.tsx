@@ -163,16 +163,20 @@ const Collection: React.FC = () => {
           {/* Hiển thị danh sách category từ API */}
           <div className="sidebar-section">
             <ul>
-              {categories.map((category) => (
-                <li
-                  key={category.id}
-                  className={
-                    categoryName === category.nameCategory ? "active" : ""
-                  }
-                  onClick={() => handleCategoryClick(category.nameCategory)}
-                >
-                  {category.nameCategory}
-                </li>
+              {categories.map((category, index) => (
+                <>
+                  <li
+                    key={category.id}
+                    className={
+                      categoryName === category.nameCategory ? "active" : ""
+                    }
+                    onClick={() => handleCategoryClick(category.nameCategory)}
+                  >
+                    {category.nameCategory}
+                  </li>
+                  {/* Thêm đường kẻ sau mỗi 4 mục */}
+                  {index % 4 === 3 && <hr className="divider-line" />}
+                </>
               ))}
             </ul>
           </div>
