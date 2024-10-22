@@ -1,36 +1,48 @@
 import React, { useState, useEffect } from "react";
 import "./index.scss";
-import leHieuImg from "../../assets/img/Stylists/le-hieu.jpg";
-import huongImg from "../../assets/img/Stylists/huong.png";
-import phuongImg from "../../assets/img/Stylists/phuong.png";
-import anImg from "../../assets/img/Stylists/an.png";
-import auImg from "../../assets/img/Stylists/au.png";
-import tuanImg from "../../assets/img/Stylists/tuan.png";
-import nhiImg from "../../assets/img/Stylists/nhi.png";
-
-const stylistData = [
-  { name: "STYLIST LÊ HIẾU", img: leHieuImg },
-  { name: "STYLIST HƯƠNG", img: huongImg },
-  { name: "STYLIST PHƯƠNG", img: phuongImg },
-  { name: "STYLIST AN", img: anImg },
-  { name: "STYLIST ÂU", img: auImg },
-  { name: "STYLIST TUẤN", img: tuanImg },
-  { name: "STYLIST NHI", img: nhiImg },
-];
-
-const preloadImages = (urls: string[]) => {
-  urls.forEach((url) => {
-    const img = new Image();
-    img.src = url;
-  });
-};
+import api from "../../config/axios";
 
 const HairStylistSlider: React.FC = () => {
+  const [stylistData, setStylistData] = useState<
+    { id: number; name: string; img: string }[]
+  >([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false); // Trạng thái animation
+  const [isAnimating, setIsAnimating] = useState(false); // Animation state
 
+  // Fetch stylist image and names from API
   useEffect(() => {
-    preloadImages(stylistData.map((stylist) => stylist.img));
+    const fetchStylists = async () => {
+      try {
+        // Fetch stylists and account data
+        const [stylistResponse, accountResponse] = await Promise.all([
+          api.get("/stylist/getAllStylist"),
+          api.get("/account"),
+        ]);
+
+        // Map account data to stylist ID to get the correct name
+        const stylistAccounts = accountResponse.data.filter(
+          (account: any) => account.role === "STYLIST"
+        );
+
+        // Create stylist data including both name and image
+        const stylistsWithNames = stylistResponse.data.map((stylist: any) => {
+          const account = stylistAccounts.find((account: any) =>
+            account.stylists.some((s: any) => s.id === stylist.id)
+          );
+          return {
+            id: stylist.id,
+            name: account ? `Stylist ${account.fullName}` : "Unknown Stylist",
+            img: stylist.image,
+          };
+        });
+
+        setStylistData(stylistsWithNames);
+      } catch (error) {
+        console.error("Error fetching stylists:", error);
+      }
+    };
+
+    fetchStylists();
   }, []);
 
   const handlePrev = () => {
@@ -59,7 +71,7 @@ const HairStylistSlider: React.FC = () => {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []); // Mảng phụ thuộc trống để đảm bảo chỉ chạy một lần khi component được mount
+  }, [stylistData]);
 
   const getIndexes = () => {
     const leftIndex =
@@ -75,12 +87,12 @@ const HairStylistSlider: React.FC = () => {
     setCurrentIndex(index);
   };
 
-  // Xử lý animation khi chuyển slide xong
+  // Handle animation complete
   useEffect(() => {
     if (isAnimating) {
       const timer = setTimeout(() => {
         setIsAnimating(false);
-      }, 300); // Thời gian animation
+      }, 300);
 
       return () => clearTimeout(timer);
     }
@@ -105,19 +117,19 @@ const HairStylistSlider: React.FC = () => {
               onClick={() => handleImageClick(leftIndex)}
             >
               <img
-                src={stylistData[leftIndex].img}
-                alt={stylistData[leftIndex].name}
+                src={stylistData[leftIndex]?.img}
+                alt={stylistData[leftIndex]?.name}
                 loading="lazy"
               />
-              <h3>{stylistData[leftIndex].name}</h3>
+              <h3>{stylistData[leftIndex]?.name}</h3>
             </div>
             <div className={`slider-content active`}>
               <img
-                src={stylistData[currentIndex].img}
-                alt={stylistData[currentIndex].name}
+                src={stylistData[currentIndex]?.img}
+                alt={stylistData[currentIndex]?.name}
                 loading="lazy"
               />
-              <h3>{stylistData[currentIndex].name}</h3>
+              <h3>{stylistData[currentIndex]?.name}</h3>
             </div>
             <div
               className={`slider-content ${
@@ -126,11 +138,11 @@ const HairStylistSlider: React.FC = () => {
               onClick={() => handleImageClick(rightIndex)}
             >
               <img
-                src={stylistData[rightIndex].img}
-                alt={stylistData[rightIndex].name}
+                src={stylistData[rightIndex]?.img}
+                alt={stylistData[rightIndex]?.name}
                 loading="lazy"
               />
-              <h3>{stylistData[rightIndex].name}</h3>
+              <h3>{stylistData[rightIndex]?.name}</h3>
             </div>
           </div>
           <button className="next-arrow" onClick={handleNext}>

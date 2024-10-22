@@ -16,7 +16,10 @@ const CategoryManagement: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const response = await api.get("/category/getCategory");
-        setCategories(response.data); // Lưu dữ liệu danh mục vào state
+        const sortedCategories = response.data.sort(
+          (a: any, b: any) => b.id - a.id
+        );
+        setCategories(sortedCategories); // Lưu dữ liệu danh mục vào state
         setLoading(false); // Tắt loading sau khi lấy dữ liệu xong
       } catch (error) {
         console.error("Lỗi khi lấy danh mục:", error);
@@ -45,7 +48,12 @@ const CategoryManagement: React.FC = () => {
       form.resetFields(); // Reset form
       // Fetch lại danh sách sau khi thêm hoặc cập nhật thành công
       const response = await api.get("/category/getCategory");
-      setCategories(response.data);
+
+      const sortedCategories = response.data.sort(
+        (a: any, b: any) => b.id - a.id
+      );
+
+      setCategories(sortedCategories);
       setEditingCategory(null); // Reset trạng thái chỉnh sửa
     } catch (error) {
       console.error("Lỗi khi tạo/cập nhật danh mục:", error);

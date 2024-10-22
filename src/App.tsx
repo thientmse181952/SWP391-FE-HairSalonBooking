@@ -35,6 +35,7 @@ import StylistAccountManagement from "./pages/admin/stylist-account";
 import CustomerBookingList from "./pages/customer-booking";
 import SuccessPage from "./pages/payment";
 import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
+import CategoryCollectionManagement from "./pages/admin/category-collection-management";
 
 function App() {
   const router = createBrowserRouter([
@@ -89,7 +90,6 @@ function App() {
         {
           path: "adminPersonnelManagement",
           element: <AdminPersonnelManagement />,
-          
         },
         {
           path: "adminEmployeeRegistration",
@@ -102,6 +102,10 @@ function App() {
         },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> },
         { path: "adminSelection", element: <AdminSelection /> },
+        {
+          path: "category-collection-management",
+          element: <CategoryCollectionManagement />,
+        },
         { path: "category-management", element: <CategoryManagement /> },
         { path: "collection-management", element: <CollectionManagement /> },
         {
