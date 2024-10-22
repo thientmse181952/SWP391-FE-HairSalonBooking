@@ -1,5 +1,4 @@
 import { Button, Result, Typography } from "antd";
-import { CloseCircleOutlined } from "@ant-design/icons";
 import api from "../../config/axios";
 import { useEffect } from "react";
 import useGetParams from "../../hooks/useGetParams";
@@ -7,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Paragraph, Text } = Typography;
 
-function SuccessPage() {
+function PaymentPage() {
   const params = useGetParams();
   const navigate = useNavigate();
   const vnp_OrderInfo: string | null = params("vnp_OrderInfo"); // Lấy bookingId từ vnp_OrderInfo
@@ -72,7 +71,7 @@ function SuccessPage() {
       <div>
         <Result
           status="success"
-          title="Payment Successfully!!!"
+          title="Thanh Toán Thành Công!"
           extra={[
             <Button
               type="primary"
@@ -91,8 +90,7 @@ function SuccessPage() {
       <div>
         <Result
           status="error"
-          title="Transaction Failed"
-          subTitle="Please check and modify the following information before resubmitting."
+          title="Thanh Toán Thất Bại"
           extra={[
             <Button
               type="primary"
@@ -110,4 +108,4 @@ function SuccessPage() {
   }
 }
 
-export default SuccessPage;
+export default PaymentPage;

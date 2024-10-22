@@ -303,7 +303,7 @@ const StylistSchedule: React.FC = () => {
 
   return (
     <div>
-      <h2>Stylist Schedule</h2>
+      <h2>Lịch Của Stylist</h2>
       <Calendar
         localizer={localizer}
         events={events}

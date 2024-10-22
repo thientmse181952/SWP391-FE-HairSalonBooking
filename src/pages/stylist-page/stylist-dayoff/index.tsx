@@ -66,7 +66,7 @@ function StylistDayoff() {
 
   return (
     <div>
-      <h2>Lịch Nghỉ của Stylist</h2>
+      <h2>Lịch Nghỉ Của Stylist</h2>
       <Table
         columns={columns}
         dataSource={schedules.map((schedule) => ({

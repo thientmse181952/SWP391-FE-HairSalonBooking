@@ -33,7 +33,7 @@ import CollectionManagement from "./pages/admin/collection-management";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import StylistAccountManagement from "./pages/admin/stylist-account";
 import CustomerBookingList from "./pages/customer-booking";
-import SuccessPage from "./pages/success";
+import SuccessPage from "./pages/payment";
 import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 
 function App() {
