@@ -187,7 +187,17 @@ const StylistSchedule: React.FC = () => {
         };
       });
 
-      setEvents(formattedBookings);
+      // Log dữ liệu booking trước khi truyền vào Calendar
+      console.log("Formatted Booking Events:", formattedBookings);
+
+      setEvents((prevEvents) => {
+        const combinedEvents = [...formattedBookings, ...prevEvents];
+
+        // Log dữ liệu tổng hợp (booking + leave) trước khi truyền vào Calendar
+        console.log("Combined Events (Bookings + Leaves):", combinedEvents);
+
+        return combinedEvents;
+      });
     } catch (error) {
       console.error("Lỗi khi lấy danh sách booking:", error);
     }
@@ -239,25 +249,29 @@ const StylistSchedule: React.FC = () => {
             schedule.status === "approved"
         );
 
-        // Log ra các lịch nghỉ đã lọc
-        console.log("Approved Leaves:", approvedLeaves);
-
-        // Định dạng lại lịch nghỉ để hiển thị lên lịch và tô đen những ngày đó
+        // Định dạng lại lịch nghỉ giống như booking mà không sử dụng allDay
         const formattedLeaves = approvedLeaves.map((leave: any) => {
           return {
-            title: `Nghỉ: ${leave.reason}`, // Tiêu đề cho lịch nghỉ
-            start: new Date(leave.startTime), // Thời gian bắt đầu
-            end: new Date(leave.endTime), // Thời gian kết thúc
+            title: `Nghỉ: ${leave.reason}`,
+            start: new Date(leave.startTime), // Sử dụng startTime
+            end: new Date(leave.endTime), // Sử dụng endTime
             status: leave.status,
-            allDay: true, // Đánh dấu nghỉ cả ngày
+            // Không sử dụng allDay nữa
           };
         });
 
-        // Log ra các lịch nghỉ đã được định dạng
+        // Log ra dữ liệu lịch nghỉ để kiểm tra
         console.log("Formatted Leave Events:", formattedLeaves);
 
         // Kết hợp với các events khác (nếu có) để hiển thị trên lịch
-        setEvents((prevEvents) => [...prevEvents, ...formattedLeaves]);
+        setEvents((prevEvents) => {
+          const combinedEvents = [...prevEvents, ...formattedLeaves];
+
+          // Log ra dữ liệu tổng hợp trước khi truyền vào Calendar
+          console.log("Combined Events (Bookings + Leaves):", combinedEvents);
+
+          return combinedEvents;
+        });
       } catch (error) {
         console.error("Lỗi khi lấy lịch nghỉ của stylist:", error);
         message.error("Không thể tải lịch nghỉ của stylist.");
@@ -355,18 +369,32 @@ const StylistSchedule: React.FC = () => {
         selectable
         onSelectEvent={handleSelectEvent}
         eventPropGetter={(event) => {
-          console.log("Event được truyền vào lịch:", event); // Thêm log kiểm tra dữ liệu
-          const backgroundColor = getStatusStyle(event.status).backgroundColor;
-          const color = getStatusStyle(event.status).color;
+          // Kiểm tra nếu là ngày nghỉ thì hiển thị với màu đen và các thuộc tính riêng
+          if (event.title.includes("Nghỉ")) {
+            return {
+              style: {
+                backgroundColor: "black", // Màu nền đen cho ngày nghỉ
+                color: "white", // Chữ màu trắng
+                borderRadius: "8px",
+                padding: "5px",
+              },
+            };
+          } else {
+            // Định dạng bình thường cho các sự kiện khác (ví dụ: booking)
+            const backgroundColor = getStatusStyle(
+              event.status
+            ).backgroundColor;
+            const color = getStatusStyle(event.status).color;
 
-          return {
-            style: {
-              backgroundColor,
-              color,
-              borderRadius: "8px",
-              padding: "5px",
-            },
-          };
+            return {
+              style: {
+                backgroundColor,
+                color,
+                borderRadius: "8px",
+                padding: "5px",
+              },
+            };
+          }
         }}
       />
 
@@ -427,6 +455,36 @@ const StylistSchedule: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
+        {selectedEvent && (
+          <div>
+            {selectedEvent.title.includes("Nghỉ") ? (
+              <>
+                <p>
+                  <strong>Thông tin:</strong> Ngày nghỉ
+                </p>
+                <p>
+                  <strong>Thời gian nghỉ:</strong>{" "}
+                  {moment(selectedEvent.start).format("HH:mm")} -{" "}
+                  {moment(selectedEvent.end).format("HH:mm")}
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  <strong>Khách hàng:</strong>{" "}
+                  {selectedEvent.title.replace("Khách hàng: ", "")}
+                </p>
+                <p>
+                  <strong>Thời gian:</strong>{" "}
+                  {moment(selectedEvent.start).format("HH:mm")} -{" "}
+                  {moment(selectedEvent.end).format("HH:mm")}
+                </p>
+                {/* Các thông tin khác như trước */}
+              </>
+            )}
+          </div>
+        )}
+
         {selectedEvent && (
           <div>
             <p>

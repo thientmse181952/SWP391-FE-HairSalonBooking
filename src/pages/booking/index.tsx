@@ -213,16 +213,24 @@ const Booking: React.FC = () => {
         (booking: any) => booking.stylist.id === stylistID
       );
 
-      console.log("Booking của stylist đã chọn:", stylistBookings);
+      // **Thêm chức năng kiểm tra ngày nghỉ của stylist**
+      const schedulesResponse = await api.get("/schedules");
+      const approvedLeaves = schedulesResponse.data.filter(
+        (schedule: any) =>
+          schedule.stylist.id === stylistID && schedule.status === "approved"
+      );
 
-      // Duyệt qua từng slot thời gian và kiểm tra nếu nó đã được đặt
+      console.log("Booking của stylist đã chọn:", stylistBookings);
+      console.log("Ngày nghỉ đã duyệt của stylist:", approvedLeaves);
+
+      // Duyệt qua từng slot thời gian và kiểm tra nếu nó đã được đặt hoặc trùng với lịch nghỉ
       const updatedTimeSlots = timeSlots.map((slot) => {
         const slotStart = dayjs(
           `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
           ["YYYY-MM-DD h:mm A"]
         );
 
-        // Kiểm tra xem slotStart có phải là đối tượng dayjs hợp lệ không
+        // Kiểm tra nếu slotStart có phải là đối tượng dayjs hợp lệ không
         if (!dayjs.isDayjs(slotStart)) {
           console.error(
             "slotStart không phải là đối tượng dayjs hợp lệ:",
@@ -230,6 +238,18 @@ const Booking: React.FC = () => {
           );
           return slot; // Bỏ qua nếu slotStart không hợp lệ
         }
+
+        // Kiểm tra nếu slot trùng với lịch nghỉ đã được approved
+        const isOnLeave = approvedLeaves.some((leave: any) => {
+          const leaveStart = dayjs(leave.startTime); // Convert lại leave startTime đúng với format
+          const leaveEnd = dayjs(leave.endTime); // Convert lại leave endTime đúng với format
+
+          // Kiểm tra nếu slot nằm trong khoảng thời gian nghỉ
+          return (
+            slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
+            slotStart.isSame(leaveStart)
+          );
+        });
 
         // Kiểm tra xem slot có trùng với thời gian của bất kỳ booking nào không
         const isBooked = stylistBookings.some((booking: any) => {
@@ -241,6 +261,7 @@ const Booking: React.FC = () => {
             `${booking.appointmentDate} ${booking.endTime}`,
             "YYYY-MM-DD HH:mm:ss"
           );
+
           // Kiểm tra nếu slotStart nằm giữa bookingStart và bookingEnd hoặc trùng với bookingStart
           return (
             slotStart.isSame(bookingStart) ||
@@ -250,17 +271,20 @@ const Booking: React.FC = () => {
 
         return {
           ...slot,
-          status: isBooked ? "unavailable" : "available", // Đánh dấu slot là unavailable nếu nó đã được đặt
+          status: isBooked || isOnLeave ? "unavailable" : "available", // Đánh dấu slot là unavailable nếu nó đã được đặt hoặc trùng với lịch nghỉ
         };
       });
 
       // Cập nhật lại state của timeSlots để giao diện cập nhật
       setTimeSlots(updatedTimeSlots);
 
-      console.log("Updated time slots with booking status:", updatedTimeSlots);
+      console.log(
+        "Updated time slots with booking and leave status:",
+        updatedTimeSlots
+      );
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách booking:", error);
-      message.error("Không thể tải danh sách booking.");
+      console.error("Lỗi khi lấy danh sách booking hoặc lịch nghỉ:", error);
+      message.error("Không thể tải danh sách booking hoặc lịch nghỉ.");
     }
   };
 
