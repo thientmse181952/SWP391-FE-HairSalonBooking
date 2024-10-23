@@ -225,6 +225,48 @@ const StylistSchedule: React.FC = () => {
     };
 
     fetchServices();
+
+    const fetchLeaveSchedules = async () => {
+      try {
+        // Gọi API để lấy danh sách lịch nghỉ
+        const response = await api.get("/schedules");
+        const allSchedules = response.data;
+
+        // Lọc ra những lịch nghỉ có stylistId trùng với stylist đang đăng nhập và có status là "approved"
+        const approvedLeaves = allSchedules.filter(
+          (schedule: any) =>
+            schedule.stylist.id === parseInt(stylistId) &&
+            schedule.status === "approved"
+        );
+
+        // Log ra các lịch nghỉ đã lọc
+        console.log("Approved Leaves:", approvedLeaves);
+
+        // Định dạng lại lịch nghỉ để hiển thị lên lịch và tô đen những ngày đó
+        const formattedLeaves = approvedLeaves.map((leave: any) => {
+          return {
+            title: `Nghỉ: ${leave.reason}`, // Tiêu đề cho lịch nghỉ
+            start: new Date(leave.startTime), // Thời gian bắt đầu
+            end: new Date(leave.endTime), // Thời gian kết thúc
+            status: leave.status,
+            allDay: true, // Đánh dấu nghỉ cả ngày
+          };
+        });
+
+        // Log ra các lịch nghỉ đã được định dạng
+        console.log("Formatted Leave Events:", formattedLeaves);
+
+        // Kết hợp với các events khác (nếu có) để hiển thị trên lịch
+        setEvents((prevEvents) => [...prevEvents, ...formattedLeaves]);
+      } catch (error) {
+        console.error("Lỗi khi lấy lịch nghỉ của stylist:", error);
+        message.error("Không thể tải lịch nghỉ của stylist.");
+      }
+    };
+
+    if (stylistId) {
+      fetchLeaveSchedules();
+    }
   }, [stylistId]);
 
   useEffect(() => {
@@ -313,6 +355,7 @@ const StylistSchedule: React.FC = () => {
         selectable
         onSelectEvent={handleSelectEvent}
         eventPropGetter={(event) => {
+          console.log("Event được truyền vào lịch:", event); // Thêm log kiểm tra dữ liệu
           const backgroundColor = getStatusStyle(event.status).backgroundColor;
           const color = getStatusStyle(event.status).color;
 

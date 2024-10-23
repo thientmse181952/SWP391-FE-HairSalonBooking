@@ -88,7 +88,7 @@ const AdminCategory: React.FC = () => {
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
-        width={230}
+        width={250}
       >
         <div className="demo-logo-vertical" />
         <Menu
