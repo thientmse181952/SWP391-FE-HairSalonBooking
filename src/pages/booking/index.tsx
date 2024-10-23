@@ -469,6 +469,7 @@ const Booking: React.FC = () => {
             format="MM/DD/YYYY"
             onChange={handleDateChange}
             disabledDate={disabledDate}
+            allowClear={false}
           />
           <span className="day-of-week">
             {selectedDate.format("dddd, MM/DD/YYYY")}

@@ -57,16 +57,6 @@ const StylistSchedule: React.FC = () => {
     }
   };
 
-  const showSuccessModal = async (onSuccess: () => void) => {
-    Modal.success({
-      title: "Thanh toán thành công!",
-      content: "Giao dịch đã được hoàn thành. Cảm ơn bạn!",
-      onOk() {
-        onSuccess(); // Thực hiện callback khi người dùng bấm OK
-      },
-    });
-  };
-
   const handleRegisterLeave = async () => {
     try {
       if (!startTime || !endTime || !reason) {
@@ -131,6 +121,34 @@ const StylistSchedule: React.FC = () => {
     } catch (error) {
       console.error("Lỗi khi đăng ký ngày nghỉ:", error);
       message.error("Lỗi khi đăng ký ngày nghỉ, vui lòng thử lại.");
+    }
+  };
+
+  // Hàm để xử lý khi click vào sự kiện "Nghỉ"
+  const handleSelectLeaveEvent = (event: any) => {
+    if (event.title.includes("Nghỉ")) {
+      Modal.info({
+        title: "Thông tin lịch nghỉ",
+        content: (
+          <div>
+            <p>
+              <strong>Lý do nghỉ:</strong> {event.title.replace("Nghỉ: ", "")}
+            </p>
+            <p>
+              <strong>Thời gian bắt đầu nghỉ:</strong>{" "}
+              {moment(event.start).format("YYYY-MM-DD HH:mm")}
+            </p>
+            <p>
+              <strong>Thời gian kết thúc nghỉ:</strong>{" "}
+              {moment(event.end).format("YYYY-MM-DD HH:mm")}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong> {event.status}
+            </p>
+          </div>
+        ),
+        onOk() {},
+      });
     }
   };
 
@@ -221,9 +239,10 @@ const StylistSchedule: React.FC = () => {
       console.error("Lỗi:", error);
     }
   };
-
+  // useEffect thứ nhất để fetch bookings và services
   useEffect(() => {
     fetchBookings();
+
     const fetchServices = async () => {
       try {
         const response = await api.get("/service/getService"); // Gọi API để lấy tất cả dịch vụ
@@ -235,6 +254,38 @@ const StylistSchedule: React.FC = () => {
     };
 
     fetchServices();
+  }, []); // Chạy một lần khi component mount
+
+  useEffect(() => {
+    const splitLeaveIntoMultipleDays = (leave: any) => {
+      const events = [];
+      const start = moment(leave.startTime);
+      const end = moment(leave.endTime);
+
+      // Lặp qua từng ngày từ start đến end
+      while (start.isBefore(end, "day")) {
+        // Sự kiện cho ngày đầu tiên hoặc ngày giữa
+        events.push({
+          title: `Nghỉ: ${leave.reason}`,
+          start: new Date(start.format("YYYY-MM-DD 00:00:00")),
+          end: new Date(start.format("YYYY-MM-DD 23:59:59")),
+          status: leave.status,
+        });
+
+        // Chuyển sang ngày tiếp theo
+        start.add(1, "day");
+      }
+
+      // Sự kiện cho ngày cuối cùng (nếu có)
+      events.push({
+        title: `Nghỉ: ${leave.reason}`,
+        start: new Date(start.format("YYYY-MM-DD 00:00:00")),
+        end: new Date(end),
+        status: leave.status,
+      });
+
+      return events;
+    };
 
     const fetchLeaveSchedules = async () => {
       try {
@@ -249,19 +300,14 @@ const StylistSchedule: React.FC = () => {
             schedule.status === "approved"
         );
 
-        // Định dạng lại lịch nghỉ giống như booking mà không sử dụng allDay
-        const formattedLeaves = approvedLeaves.map((leave: any) => {
-          return {
-            title: `Nghỉ: ${leave.reason}`,
-            start: new Date(leave.startTime), // Sử dụng startTime
-            end: new Date(leave.endTime), // Sử dụng endTime
-            status: leave.status,
-            // Không sử dụng allDay nữa
-          };
+        // Định dạng lại lịch nghỉ giống như booking, xử lý lịch nghỉ nhiều ngày
+        let formattedLeaves: any[] = [];
+        approvedLeaves.forEach((leave: any) => {
+          formattedLeaves = [
+            ...formattedLeaves,
+            ...splitLeaveIntoMultipleDays(leave),
+          ];
         });
-
-        // Log ra dữ liệu lịch nghỉ để kiểm tra
-        console.log("Formatted Leave Events:", formattedLeaves);
 
         // Kết hợp với các events khác (nếu có) để hiển thị trên lịch
         setEvents((prevEvents) => {
@@ -281,7 +327,7 @@ const StylistSchedule: React.FC = () => {
     if (stylistId) {
       fetchLeaveSchedules();
     }
-  }, [stylistId]);
+  }, [stylistId]); // Chạy mỗi khi stylistId thay đổi
 
   useEffect(() => {
     if (selectedEvent) {
@@ -338,22 +384,27 @@ const StylistSchedule: React.FC = () => {
     setIsModalVisible(false);
   };
 
+  // Hàm xử lý khi click vào sự kiện trong lịch
   const handleSelectEvent = async (event: any) => {
-    try {
-      const bookingId = event.bookingId;
-      // Gọi API để lấy chi tiết booking với đầy đủ thông tin bao gồm cả payments
-      const response = await api.get(`/bookings/${bookingId}`);
-      const bookingDetails = response.data; // Lấy thông tin chi tiết từ API
+    if (event.title.includes("Nghỉ")) {
+      handleSelectLeaveEvent(event); // Gọi hàm xử lý lịch nghỉ
+    } else {
+      try {
+        const bookingId = event.bookingId;
+        // Gọi API để lấy chi tiết booking
+        const response = await api.get(`/bookings/${bookingId}`);
+        const bookingDetails = response.data;
 
-      // Cập nhật selectedEvent với đầy đủ thông tin bao gồm payments
-      setSelectedEvent({
-        ...event,
-        payments: bookingDetails.payments, // Thêm thông tin payments từ API
-      });
+        // Cập nhật selectedEvent
+        setSelectedEvent({
+          ...event,
+          payments: bookingDetails.payments, // Thêm thông tin payments
+        });
 
-      showModal();
-    } catch (error) {
-      console.error("Lỗi khi lấy chi tiết booking:", error);
+        showModal(); // Gọi modal hiển thị thông tin booking
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết booking:", error);
+      }
     }
   };
 
