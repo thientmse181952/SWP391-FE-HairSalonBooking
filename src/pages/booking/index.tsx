@@ -19,6 +19,19 @@ const Booking: React.FC = () => {
   const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const [timeSlots, setTimeSlots] = useState([
+    { time: "9:00 AM", status: "available" },
+    { time: "10:00 AM", status: "available" },
+    { time: "11:00 AM", status: "available" },
+    { time: "12:00 PM", status: "available" },
+    { time: "13:00 PM", status: "available" },
+    { time: "14:00 PM", status: "available" },
+    { time: "15:00 PM", status: "available" },
+    { time: "16:00 PM", status: "available" },
+    { time: "17:00 PM", status: "available" },
+    { time: "18:00 PM", status: "available" },
+    { time: "19:00 PM", status: "available" },
+  ]);
 
   useEffect(() => {
     const accountId = localStorage.getItem("accountId"); // Lấy accountId từ localStorage
@@ -50,35 +63,86 @@ const Booking: React.FC = () => {
       }
     };
     fetchServices();
+  }, []); // Chạy một lần khi vào trang
 
+  useEffect(() => {
     const fetchStylists = async () => {
       try {
         const response = await api.get("/account");
         const stylistAccounts = response.data.filter(
           (account: any) => account.role === "STYLIST"
         );
-        setStylists(stylistAccounts);
+
+        const bookingsResponse = await api.get("/bookings/getBooking");
+        const schedulesResponse = await api.get("/schedules");
+
+        const updatedAvailableStylists = [];
+
+        for (const stylist of stylistAccounts) {
+          const stylistId = stylist.id;
+
+          // Lọc booking và schedule của từng stylist
+          const stylistBookings = bookingsResponse.data.filter(
+            (booking: any) => booking.stylist.id === stylistId
+          );
+          const approvedLeaves = schedulesResponse.data.filter(
+            (schedule: any) =>
+              schedule.stylist.id === stylistId &&
+              schedule.status === "approved"
+          );
+
+          // Kiểm tra nếu stylist còn slot nào khả dụng trong ngày được chọn
+          const hasAvailableSlot = timeSlots.some((slot) => {
+            const slotStart = dayjs(
+              `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
+              ["YYYY-MM-DD h:mm A"]
+            );
+
+            const isOnLeave = approvedLeaves.some((leave: any) => {
+              const leaveStart = dayjs(leave.startTime);
+              const leaveEnd = dayjs(leave.endTime);
+              return (
+                slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
+                slotStart.isSame(leaveStart)
+              );
+            });
+
+            const isBooked = stylistBookings.some((booking: any) => {
+              const bookingStart = dayjs(
+                `${booking.appointmentDate} ${booking.startTime}`,
+                "YYYY-MM-DD HH:mm:ss"
+              );
+              const bookingEnd = dayjs(
+                `${booking.appointmentDate} ${booking.endTime}`,
+                "YYYY-MM-DD HH:mm:ss"
+              );
+              return (
+                slotStart.isSame(bookingStart) ||
+                slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
+              );
+            });
+
+            // Slot khả dụng nếu không bị booked và không trùng với lịch nghỉ
+            return !isBooked && !isOnLeave;
+          });
+
+          // Chỉ thêm stylist vào danh sách nếu có ít nhất một slot khả dụng
+          if (hasAvailableSlot) {
+            updatedAvailableStylists.push(stylist);
+          }
+        }
+
+        setStylists(updatedAvailableStylists); // Cập nhật stylist khả dụng
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
         message.error("Không thể tải danh sách stylist.");
       }
     };
-    fetchStylists();
-  }, []); // Chạy một lần khi vào trang
 
-  const [timeSlots, setTimeSlots] = useState([
-    { time: "9:00 AM", status: "available" },
-    { time: "10:00 AM", status: "available" },
-    { time: "11:00 AM", status: "available" },
-    { time: "12:00 PM", status: "available" },
-    { time: "13:00 PM", status: "available" },
-    { time: "14:00 PM", status: "available" },
-    { time: "15:00 PM", status: "available" },
-    { time: "16:00 PM", status: "available" },
-    { time: "17:00 PM", status: "available" },
-    { time: "18:00 PM", status: "available" },
-    { time: "19:00 PM", status: "available" },
-  ]);
+    fetchStylists();
+  }, [selectedDate, timeSlots]);
+
+  // Thêm selectedDate và timeSlots làm dependencies để load lại khi thay đổi
 
   const toggleSlotVisibility = () => {
     setShowAllSlots(!showAllSlots); // Đảo ngược trạng thái hiển thị
@@ -88,6 +152,7 @@ const Booking: React.FC = () => {
     setSelectedDate(date);
   };
 
+  // Logic kiểm tra stylist và ánh xạ đúng lịch nghỉ
   const handleServiceChange = async (values: number[]) => {
     setSelectedServices(values);
 
@@ -112,11 +177,7 @@ const Booking: React.FC = () => {
     console.log("Estimated duration:", estimatedDuration, "minutes");
     console.log("Estimated price:", estimatedPrice, "VND");
 
-    // Cập nhật thời gian dự kiến và giá dự kiến
-    setEstimatedDuration(estimatedDuration);
-    setEstimatedPrice(estimatedPrice);
-
-    let commonStylistIds: number[] = [];
+    let commonStylistIds = [];
 
     console.log("Selected Service IDs:", values); // Log các service được chọn
 
@@ -130,7 +191,7 @@ const Booking: React.FC = () => {
 
         // Lấy danh sách stylist account_id từ mỗi dịch vụ trả về
         const stylistIdsForService = serviceData.stylists.map(
-          (stylist: any) => stylist.id // Lấy stylist ID
+          (stylist) => stylist.id // Lấy stylist ID
         );
         console.log(
           `Stylist IDs for Service ID ${serviceId}:`,
@@ -150,57 +211,137 @@ const Booking: React.FC = () => {
 
       console.log("Common Stylist IDs after filtering:", commonStylistIds); // Log danh sách stylist sau khi lọc
 
-      // Nếu stylist hiện tại không nằm trong danh sách stylist có thể thực hiện các dịch vụ đã chọn, xóa stylist đã chọn
-      if (selectedStylist && !commonStylistIds.includes(selectedStylist)) {
-        setSelectedStylist(null);
-        message.info(
-          "Stylist hiện tại không thực hiện được tất cả dịch vụ đã chọn."
-        );
-      }
-
       // Gọi API /api/account để lấy danh sách tất cả account
       const accountResponse = await api.get(`/account`);
       const allAccounts = accountResponse.data;
 
       console.log("All Accounts:", allAccounts);
 
-      // Tìm fullName từ danh sách account dựa trên commonStylistIds và account_id
-      const availableStylists = commonStylistIds
+      // **Đây là phần ánh xạ lại stylistID đúng với accountID và fullName**
+      let availableStylists = commonStylistIds
         .map((stylistId) => {
-          const account = allAccounts.find((acc: any) =>
-            acc.stylists.some((stylist: any) => stylist.id === stylistId)
+          // Tìm account theo stylistId
+          const account = allAccounts.find((acc) =>
+            acc.stylists.some((stylist) => stylist.id === stylistId)
           );
+          console.log(
+            `Stylist ID ${stylistId} ánh xạ với account ID: ${
+              account ? account.id : "Không tìm thấy"
+            }, FullName: ${account ? account.fullName : "Không tìm thấy"}`
+          ); // Log việc ánh xạ stylistId và accountId
+
           return account
-            ? { id: account.id, fullName: account.fullName }
+            ? {
+                id: stylistId,
+                accountId: account.id,
+                fullName: account.fullName,
+              } // Ở đây sử dụng stylistId, không phải accountId
             : null;
         })
         .filter(Boolean); // Loại bỏ stylist null nếu không tìm thấy
 
       console.log("Render based on Common Stylist IDs:", availableStylists);
 
+      // **New Logic: Kiểm tra stylist có slot khả dụng**
+      const updatedAvailableStylists = [];
+      for (const stylist of availableStylists) {
+        const stylistId = stylist.id;
+
+        // Gọi API để lấy booking và lịch nghỉ của stylist
+        const bookingsResponse = await api.get("/bookings/getBooking");
+        const stylistBookings = bookingsResponse.data.filter(
+          (booking) => booking.stylist.id === stylistId
+        );
+
+        const schedulesResponse = await api.get("/schedules");
+        const approvedLeaves = schedulesResponse.data.filter(
+          (schedule) =>
+            schedule.stylist.id === stylistId && schedule.status === "approved"
+        );
+
+        console.log(
+          `Lịch nghỉ của stylist ${stylist.fullName}:`,
+          approvedLeaves
+        );
+
+        // Kiểm tra nếu stylist còn slot nào khả dụng trong ngày được chọn
+        let hasAvailableSlot = false;
+        timeSlots.forEach((slot) => {
+          const slotStart = dayjs(
+            `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
+            ["YYYY-MM-DD h:mm A"]
+          );
+
+          const isOnLeave = approvedLeaves.some((leave) => {
+            const leaveStart = dayjs(leave.startTime);
+            const leaveEnd = dayjs(leave.endTime);
+            console.log(
+              `Checking leave for stylist ${stylist.fullName}: slotStart: ${slotStart}, leaveStart: ${leaveStart}, leaveEnd: ${leaveEnd}`
+            );
+            return (
+              slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
+              slotStart.isSame(leaveStart)
+            );
+          });
+
+          const isBooked = stylistBookings.some((booking) => {
+            const bookingStart = dayjs(
+              `${booking.appointmentDate} ${booking.startTime}`,
+              "YYYY-MM-DD HH:mm:ss"
+            );
+            const bookingEnd = dayjs(
+              `${booking.appointmentDate} ${booking.endTime}`,
+              "YYYY-MM-DD HH:mm:ss"
+            );
+            return (
+              slotStart.isSame(bookingStart) ||
+              slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
+            );
+          });
+
+          console.log(
+            `Slot: ${slot.time}, Booked: ${isBooked}, On Leave: ${isOnLeave}`
+          ); // Log trạng thái của từng slot
+
+          if (!isBooked && !isOnLeave) {
+            hasAvailableSlot = true;
+          }
+        });
+
+        console.log(
+          `Stylist: ${stylist.fullName}, Has Available Slot: ${hasAvailableSlot}`
+        ); // Log xem stylist này có slot nào khả dụng không
+
+        // Nếu stylist có ít nhất 1 slot khả dụng, thêm vào danh sách
+        if (hasAvailableSlot) {
+          updatedAvailableStylists.push(stylist);
+        }
+      }
+
+      console.log("Updated available stylists:", updatedAvailableStylists);
+
       // Cập nhật danh sách stylist để render ra
-      setStylists(availableStylists);
+      setStylists(updatedAvailableStylists);
     } catch (error) {
       console.error("Lỗi khi lọc stylist:", error);
       message.error("Không thể lọc stylist.");
     }
   };
 
-  const handleStylistChange = async (value: number) => {
-    setSelectedStylist(value); // `value` là `accountID`
-    console.log("Account được chọn (accountID):", value); // Log ra accountID
+  const handleStylistChange = async (stylistID: number) => {
+    setSelectedStylist(stylistID); // `stylistID` là stylist id
+    console.log("Stylist được chọn (stylistID):", stylistID); // Log ra stylistID
 
     try {
-      // Gọi API để lấy thông tin stylist dựa trên accountID
-      const response = await api.get(`/${value}`);
+      // Gọi API để lấy thông tin stylist dựa trên stylistID
+      const response = await api.get(`/stylist/${stylistID}`);
       const selectedStylistData = response.data;
 
-      // Lấy stylistId từ account đã chọn
-      const stylistID = selectedStylistData.stylists[0]?.id; // Đảm bảo stylistID được lấy đúng
-      console.log("StylistID tương ứng với account đã chọn:", stylistID);
+      // Log thông tin stylist để kiểm tra
+      console.log("Thông tin stylist đã chọn:", selectedStylistData);
 
       if (!stylistID) {
-        message.error("Không thể tìm thấy stylist ID cho tài khoản này.");
+        message.error("Không thể tìm thấy stylist ID cho stylist này.");
         return;
       }
 
@@ -335,9 +476,8 @@ const Booking: React.FC = () => {
 
       console.log("Common Stylist IDs after filtering:", commonStylistIds);
 
-      // Xác định stylist ID dựa trên selectedStylist (accountID)
-      const stylistResponse = await api.get(`/${selectedStylist}`);
-      const stylistID = stylistResponse.data.stylists[0]?.id; // Lấy đúng stylistID từ stylist đã chọn
+      // Sửa lại: Chỉ sử dụng selectedStylist (stylist người dùng đã chọn)
+      const stylistID = selectedStylist;
 
       if (!stylistID) {
         message.error("Không tìm thấy stylist ID.");
@@ -372,7 +512,7 @@ const Booking: React.FC = () => {
       console.log("Start time:", startTime.format("HH:mm:ss"));
       console.log("End time:", endTime);
       console.log("Customer ID:", customerIdFromLocalStorage);
-      console.log("Stylist ID:", stylistID);
+      console.log("Stylist ID:", stylistID); // Chỉ truyền stylistID đang chọn
       console.log("Selected Services:", selectedServices);
 
       // **THÊM MỚI: Lấy danh sách booking đã có cho stylist được chọn**
@@ -421,7 +561,7 @@ const Booking: React.FC = () => {
       // Chuẩn bị dữ liệu để gửi lên API
       const bookingData = {
         service_id: selectedServices, // Truyền trực tiếp các service IDs
-        stylist_id: { id: stylistID }, // Chuyển đổi thành đối tượng Stylist
+        stylist_id: { id: stylistID }, // Stylist đã chọn
         customer_id: { id: customerIdFromLocalStorage }, // Chuyển đổi thành đối tượng Customer
         appointmentDate: appointmentDate, // Ngày đặt lịch
         startTime: startTime.format("HH:mm:ss"), // Chỉ giờ, phút, giây cho thời gian bắt đầu
