@@ -113,6 +113,14 @@ const Booking: React.FC = () => {
 
   const handleDateChange = (date: any) => {
     setSelectedDate(date);
+
+    // Clear dịch vụ và stylist khi thay đổi ngày
+    setSelectedServices([]); // Xóa các dịch vụ đã chọn
+    setSelectedStylist(null); // Xóa stylist đã chọn
+
+    // Reset các giá trị tính toán như thời gian và giá dự kiến
+    setEstimatedDuration(0);
+    setEstimatedPrice(0);
   };
 
   // Logic kiểm tra stylist và ánh xạ đúng lịch nghỉ
@@ -176,6 +184,14 @@ const Booking: React.FC = () => {
       }
 
       console.log("Common Stylist IDs after filtering:", commonStylistIds); // Log danh sách stylist sau khi lọc
+
+      // Kiểm tra nếu stylist hiện tại không nằm trong danh sách stylist có thể làm tất cả dịch vụ, xóa stylist đã chọn
+      if (selectedStylist && !commonStylistIds.includes(selectedStylist)) {
+        setSelectedStylist(null); // Xóa stylist đã chọn
+        message.warning(
+          "Stylist đã chọn không thể làm tất cả dịch vụ đã chọn."
+        ); // Hiển thị thông báo
+      }
 
       // Gọi API /api/account để lấy danh sách tất cả account
       const accountResponse = await api.get(`/account`);
