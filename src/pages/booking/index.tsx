@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./index.scss";
 import { DatePicker, Button, Select, message } from "antd";
 import dayjs from "dayjs";
@@ -33,6 +33,8 @@ const Booking: React.FC = () => {
     { time: "19:00 PM", status: "available" },
   ]);
 
+  const stylistsRef = useRef<any[]>([]);
+
   useEffect(() => {
     const accountId = localStorage.getItem("accountId"); // Lấy accountId từ localStorage
     console.log("AccountId:", accountId);
@@ -65,6 +67,7 @@ const Booking: React.FC = () => {
     fetchServices();
   }, []); // Chạy một lần khi vào trang
 
+  // useEffect để tính toán stylist khi thay đổi dịch vụ hoặc ngày
   useEffect(() => {
     const fetchStylists = async () => {
       try {
@@ -76,64 +79,18 @@ const Booking: React.FC = () => {
         const bookingsResponse = await api.get("/bookings/getBooking");
         const schedulesResponse = await api.get("/schedules");
 
-        const updatedAvailableStylists = [];
-
-        for (const stylist of stylistAccounts) {
-          const stylistId = stylist.id;
-
-          const stylistBookings = bookingsResponse.data.filter(
-            (booking: any) => booking.stylist.id === stylistId
-          );
-          const approvedLeaves = schedulesResponse.data.filter(
-            (schedule: any) =>
-              schedule.stylist.id === stylistId &&
-              schedule.status === "approved"
-          );
-
-          const hasAvailableSlot = timeSlots.some((slot) => {
-            const slotStart = dayjs(
-              `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
-              ["YYYY-MM-DD h:mm A"]
-            );
-
-            const isOnLeave = approvedLeaves.some((leave: any) => {
-              const leaveStart = dayjs(leave.startTime);
-              const leaveEnd = dayjs(leave.endTime);
-              return (
-                slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
-                slotStart.isSame(leaveStart)
-              );
-            });
-
-            const isBooked = stylistBookings.some((booking: any) => {
-              const bookingStart = dayjs(
-                `${booking.appointmentDate} ${booking.startTime}`,
-                "YYYY-MM-DD HH:mm:ss"
-              );
-              const bookingEnd = dayjs(
-                `${booking.appointmentDate} ${booking.endTime}`,
-                "YYYY-MM-DD HH:mm:ss"
-              );
-              return (
-                slotStart.isSame(bookingStart) ||
-                slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
-              );
-            });
-
-            return !isBooked && !isOnLeave;
-          });
-
-          if (hasAvailableSlot) {
-            updatedAvailableStylists.push({
-              id: stylist.id, // Chỉ dùng stylistId
-              fullName: stylist.fullName, // Dùng fullName để hiển thị
-            });
+        const updatedAvailableStylists = stylistAccounts.filter(
+          (stylist: any) => {
+            // Thực hiện logic để kiểm tra stylist có slot khả dụng hay không
+            // Sau đó trả về stylist có slot khả dụng
+            return true; // Giả sử stylist này có slot khả dụng
           }
-        }
+        );
 
-        console.log("Updated available stylists:", updatedAvailableStylists);
+        // Lưu danh sách stylist vào stylistsRef
+        stylistsRef.current = updatedAvailableStylists;
 
-        // Cập nhật availableStylists từ updatedAvailableStylists để hiển thị luôn
+        // Cập nhật state để hiển thị danh sách stylist
         setAvailableStylists([...updatedAvailableStylists]);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
@@ -142,7 +99,7 @@ const Booking: React.FC = () => {
     };
 
     fetchStylists();
-  }, [selectedDate, timeSlots, selectedServices]);
+  }, [selectedDate, selectedServices]);
 
   // Thêm selectedDate và timeSlots làm dependencies để load lại khi thay đổi
 
@@ -483,6 +440,68 @@ const Booking: React.FC = () => {
     }
   };
 
+  const handleStylistClick = async (stylistID: number) => {
+    setSelectedStylist(stylistID);
+    console.log("Stylist được chọn:", stylistID);
+
+    // Xử lý chỉ cần cập nhật timeSlots mà không làm thay đổi danh sách stylist
+    try {
+      const bookingsResponse = await api.get("/bookings/getBooking");
+      const stylistBookings = bookingsResponse.data.filter(
+        (booking: any) => booking.stylist.id === stylistID
+      );
+
+      const schedulesResponse = await api.get("/schedules");
+      const approvedLeaves = schedulesResponse.data.filter(
+        (schedule: any) =>
+          schedule.stylist.id === stylistID && schedule.status === "approved"
+      );
+
+      // Cập nhật trạng thái các slot
+      const updatedTimeSlots = timeSlots.map((slot) => {
+        const slotStart = dayjs(
+          `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
+          ["YYYY-MM-DD h:mm A"]
+        );
+
+        const isOnLeaveSlot = approvedLeaves.some((leave: any) => {
+          const leaveStart = dayjs(leave.startTime);
+          const leaveEnd = dayjs(leave.endTime);
+          return (
+            slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
+            slotStart.isSame(leaveStart)
+          );
+        });
+
+        const isBooked = stylistBookings.some((booking: any) => {
+          const bookingStart = dayjs(
+            `${booking.appointmentDate} ${booking.startTime}`,
+            "YYYY-MM-DD HH:mm:ss"
+          );
+          const bookingEnd = dayjs(
+            `${booking.appointmentDate} ${booking.endTime}`,
+            "YYYY-MM-DD HH:mm:ss"
+          );
+          return (
+            slotStart.isSame(bookingStart) ||
+            slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
+          );
+        });
+
+        return {
+          ...slot,
+          status: isBooked || isOnLeaveSlot ? "unavailable" : "available",
+        };
+      });
+
+      setTimeSlots(updatedTimeSlots);
+      console.log("Updated time slots:", updatedTimeSlots);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách booking hoặc lịch nghỉ:", error);
+      message.error("Không thể tải danh sách booking hoặc lịch nghỉ.");
+    }
+  };
+
   const handleTimeSlotChange = (time: string) => {
     setSelectedTimeSlot(time);
   };
@@ -709,7 +728,7 @@ const Booking: React.FC = () => {
         })()}
         <Select
           value={selectedStylist}
-          onChange={handleStylistChange}
+          onChange={handleStylistClick}
           placeholder="Chọn Hair Stylist"
           className="stylist-select"
         >
