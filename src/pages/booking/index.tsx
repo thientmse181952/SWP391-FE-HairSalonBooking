@@ -3,8 +3,12 @@ import "./index.scss";
 import { DatePicker, Button, Select, message } from "antd";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import api from "../../config/axios"; // Thêm axios để gọi API
+import api from "../../config/axios";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 const { Option } = Select;
 
 const Booking: React.FC = () => {
@@ -135,6 +139,9 @@ const Booking: React.FC = () => {
 
     console.log("Estimated duration:", estimatedDuration, "minutes");
     console.log("Estimated price:", estimatedPrice, "VND");
+
+    setEstimatedDuration(estimatedDuration);
+    setEstimatedPrice(estimatedPrice);
 
     let commonStylistIds = [];
 
@@ -524,23 +531,19 @@ const Booking: React.FC = () => {
         "Customer ID đang được truyền vào API:",
         customerIdFromLocalStorage
       );
-      let commonStylistIds: number[] = [];
+      let commonStylistIds = [];
 
-      // Duyệt qua từng dịch vụ được chọn và lấy stylist ID từ mỗi dịch vụ
       for (const serviceId of selectedServices) {
         const response = await api.get(`/service/${serviceId}`);
         const serviceData = response.data;
 
-        // Lấy danh sách stylist ID cho dịch vụ này
         const stylistIdsForService = serviceData.stylists.map(
-          (stylist: any) => stylist.id
+          (stylist) => stylist.id
         );
 
         if (commonStylistIds.length === 0) {
-          // Gán danh sách stylist của dịch vụ đầu tiên vào commonStylistIds
           commonStylistIds = stylistIdsForService;
         } else {
-          // Lọc những stylist xuất hiện trong tất cả các dịch vụ đã chọn
           commonStylistIds = commonStylistIds.filter((id) =>
             stylistIdsForService.includes(id)
           );
@@ -549,7 +552,6 @@ const Booking: React.FC = () => {
 
       console.log("Common Stylist IDs after filtering:", commonStylistIds);
 
-      // Sửa lại: Chỉ sử dụng selectedStylist (stylist người dùng đã chọn)
       const stylistID = selectedStylist;
 
       if (!stylistID) {
@@ -557,45 +559,43 @@ const Booking: React.FC = () => {
         return;
       }
 
-      // Gọi API để lấy thông tin từng dịch vụ đã chọn
       const selectedDurations = await Promise.all(
         selectedServices.map(async (serviceId) => {
           const response = await api.get(`/service/${serviceId}`);
           const serviceData = response.data;
 
-          return parseInt(serviceData.duration); // Trả về duration của dịch vụ dưới dạng số nguyên
+          return parseInt(serviceData.duration);
         })
       );
 
-      // Tính tổng thời gian endTime dựa trên tổng duration của tất cả các service
       const totalDuration = selectedDurations.reduce(
         (acc, duration) => acc + duration,
         0
       );
 
-      // Định dạng thời gian bắt đầu theo yêu cầu
       const appointmentDate = selectedDate.format("YYYY-MM-DD");
       const startTime = dayjs(`${appointmentDate} ${selectedTimeSlot}`, [
         "YYYY-MM-DD h:mm A",
-      ]); // Tạo startTime chính xác
+      ]);
 
-      // Tính toán endTime bằng cách thêm tổng thời lượng vào startTime, giữ nguyên giờ và phút
-      const endTime = startTime.add(totalDuration, "minute").format("HH:mm:ss"); // Định dạng endTime
+      const endTime = startTime.add(totalDuration, "minute");
 
       console.log("Start time:", startTime.format("HH:mm:ss"));
-      console.log("End time:", endTime);
+      console.log("End time:", endTime.format("HH:mm:ss"));
       console.log("Customer ID:", customerIdFromLocalStorage);
-      console.log("Stylist ID:", stylistID); // Chỉ truyền stylistID đang chọn
+      console.log("Stylist ID:", stylistID);
       console.log("Selected Services:", selectedServices);
 
-      // **THÊM MỚI: Lấy danh sách booking đã có cho stylist được chọn**
       const bookingsResponse = await api.get("/bookings/getBooking");
       const stylistBookings = bookingsResponse.data.filter(
-        (booking: any) => booking.stylist.id === stylistID
+        (booking) =>
+          booking.stylist.id === stylistID &&
+          booking.appointmentDate === appointmentDate
       );
 
-      // Kiểm tra xem thời gian đặt mới có trùng với bất kỳ khoảng thời gian nào đã được đặt trước đó không
-      const isOverlapping = stylistBookings.some((booking: any) => {
+      console.log("Danh sách lịch đã đặt cho stylist:", stylistBookings);
+
+      const isOverlapping = stylistBookings.some((booking) => {
         const bookingStart = dayjs(
           `${booking.appointmentDate} ${booking.startTime}`,
           "YYYY-MM-DD HH:mm:ss"
@@ -605,15 +605,32 @@ const Booking: React.FC = () => {
           "YYYY-MM-DD HH:mm:ss"
         );
 
-        // Chuyển startTime và endTime thành đối tượng dayjs
-        const formattedStartTime = dayjs(startTime, "HH:mm:ss");
-        const formattedEndTime = dayjs(endTime, "HH:mm:ss");
-
-        // Kiểm tra nếu thời gian của booking mới đè lên bất kỳ thời gian booking nào đã có
-        return (
-          formattedStartTime.isBefore(bookingEnd) &&
-          formattedEndTime.isAfter(bookingStart)
+        console.log(
+          "Lịch cũ - Start:",
+          bookingStart.format("HH:mm:ss"),
+          "End:",
+          bookingEnd.format("HH:mm:ss")
         );
+        console.log(
+          "Lịch mới - Start:",
+          startTime.format("HH:mm:ss"),
+          "End:",
+          endTime.format("HH:mm:ss")
+        );
+
+        // Sử dụng isSameOrAfter và isSameOrBefore để kiểm tra chính xác hơn
+        const isOverlap =
+          (startTime.isSameOrAfter(bookingStart) &&
+            startTime.isSameOrBefore(bookingEnd)) ||
+          (endTime.isSameOrAfter(bookingStart) &&
+            endTime.isSameOrBefore(bookingEnd)) ||
+          (startTime.isBefore(bookingStart) && endTime.isAfter(bookingEnd));
+
+        if (isOverlap) {
+          console.log("Trùng lịch với booking:", booking);
+        }
+
+        return isOverlap;
       });
 
       if (isOverlapping) {
@@ -621,43 +638,39 @@ const Booking: React.FC = () => {
         return;
       }
 
-      // Kiểm tra nếu endTime quá 20h
       const closingTime = dayjs(
         `${appointmentDate} 20:00:00`,
         "YYYY-MM-DD HH:mm:ss"
       );
-      if (dayjs(endTime, "HH:mm:ss").isAfter(closingTime)) {
+      if (endTime.isAfter(closingTime)) {
         message.error("Không được đặt dịch vụ quá 20h");
-        return; // Dừng việc gửi yêu cầu đặt lịch nếu endTime vượt quá 20h
+        return;
       }
 
-      // Chuẩn bị dữ liệu để gửi lên API
       const bookingData = {
-        service_id: selectedServices, // Truyền trực tiếp các service IDs
-        stylist_id: { id: stylistID }, // Stylist đã chọn
-        customer_id: { id: customerIdFromLocalStorage }, // Chuyển đổi thành đối tượng Customer
-        appointmentDate: appointmentDate, // Ngày đặt lịch
-        startTime: startTime.format("HH:mm:ss"), // Chỉ giờ, phút, giây cho thời gian bắt đầu
-        endTime: endTime, // Chỉ giờ, phút, giây cho thời gian kết thúc
-        status: "confirmed", // Trạng thái ban đầu
+        service_id: selectedServices,
+        stylist_id: { id: stylistID },
+        customer_id: { id: customerIdFromLocalStorage },
+        appointmentDate: appointmentDate,
+        startTime: startTime.format("HH:mm:ss"),
+        endTime: endTime.format("HH:mm:ss"),
+        status: "confirmed",
       };
 
       console.log("Booking data to be sent:", bookingData);
 
-      // Gửi dữ liệu lên API
       const response = await api.post("/bookings/createBooking", bookingData);
 
       if (response.status === 200) {
         message.success("Đặt lịch thành công!");
 
-        // **THÊM LOGIC RESET FORM SAU KHI ĐẶT LỊCH THÀNH CÔNG**
-        setSelectedDate(dayjs()); // Reset lại ngày
-        setSelectedServices([]); // Reset lại dịch vụ đã chọn
-        setSelectedStylist(null); // Reset stylist đã chọn
-        setSelectedTimeSlot(null); // Reset slot thời gian
-        setEstimatedDuration(0); // Reset thời gian dự kiến
-        setEstimatedPrice(0); // Reset giá dự kiến
-        setShowAllSlots(false); // Ẩn các khung giờ nếu đang hiển thị
+        setSelectedDate(dayjs());
+        setSelectedServices([]);
+        setSelectedStylist(null);
+        setSelectedTimeSlot(null);
+        setEstimatedDuration(0);
+        setEstimatedPrice(0);
+        setShowAllSlots(false);
       }
     } catch (error) {
       console.error("Lỗi khi tạo đặt lịch:", error);
