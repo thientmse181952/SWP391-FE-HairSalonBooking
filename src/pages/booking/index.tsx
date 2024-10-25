@@ -13,12 +13,12 @@ const Booking: React.FC = () => {
   const [selectedStylist, setSelectedStylist] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [services, setServices] = useState<any[]>([]);
-  const [stylists, setStylists] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [serviceDurations, setServiceDurations] = useState<number[]>([]); // Lưu trữ duration của nhiều service
   const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const [availableStylists, setAvailableStylists] = useState<any[]>([]);
   const [timeSlots, setTimeSlots] = useState([
     { time: "9:00 AM", status: "available" },
     { time: "10:00 AM", status: "available" },
@@ -81,7 +81,6 @@ const Booking: React.FC = () => {
         for (const stylist of stylistAccounts) {
           const stylistId = stylist.id;
 
-          // Lọc booking và schedule của từng stylist
           const stylistBookings = bookingsResponse.data.filter(
             (booking: any) => booking.stylist.id === stylistId
           );
@@ -91,7 +90,6 @@ const Booking: React.FC = () => {
               schedule.status === "approved"
           );
 
-          // Kiểm tra nếu stylist còn slot nào khả dụng trong ngày được chọn
           const hasAvailableSlot = timeSlots.some((slot) => {
             const slotStart = dayjs(
               `${selectedDate.format("YYYY-MM-DD")} ${slot.time}`,
@@ -122,17 +120,21 @@ const Booking: React.FC = () => {
               );
             });
 
-            // Slot khả dụng nếu không bị booked và không trùng với lịch nghỉ
             return !isBooked && !isOnLeave;
           });
 
-          // Chỉ thêm stylist vào danh sách nếu có ít nhất một slot khả dụng
           if (hasAvailableSlot) {
-            updatedAvailableStylists.push(stylist);
+            updatedAvailableStylists.push({
+              id: stylist.id, // Chỉ dùng stylistId
+              fullName: stylist.fullName, // Dùng fullName để hiển thị
+            });
           }
         }
 
-        setStylists(updatedAvailableStylists); // Cập nhật stylist khả dụng
+        console.log("Updated available stylists:", updatedAvailableStylists);
+
+        // Cập nhật availableStylists từ updatedAvailableStylists để hiển thị luôn
+        setAvailableStylists([...updatedAvailableStylists]);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
         message.error("Không thể tải danh sách stylist.");
@@ -140,7 +142,7 @@ const Booking: React.FC = () => {
     };
 
     fetchStylists();
-  }, [selectedDate, timeSlots]);
+  }, [selectedDate, timeSlots, selectedServices]);
 
   // Thêm selectedDate và timeSlots làm dependencies để load lại khi thay đổi
 
@@ -321,7 +323,7 @@ const Booking: React.FC = () => {
       console.log("Updated available stylists:", updatedAvailableStylists);
 
       // Cập nhật danh sách stylist để render ra
-      setStylists(updatedAvailableStylists);
+      setAvailableStylists(updatedAvailableStylists);
     } catch (error) {
       console.error("Lỗi khi lọc stylist:", error);
       message.error("Không thể lọc stylist.");
@@ -354,6 +356,8 @@ const Booking: React.FC = () => {
         (booking: any) => booking.stylist.id === stylistID
       );
 
+      console.log("Booking của stylist đã chọn:", stylistBookings);
+
       // **Thêm chức năng kiểm tra ngày nghỉ của stylist**
       const schedulesResponse = await api.get("/schedules");
       const approvedLeaves = schedulesResponse.data.filter(
@@ -361,8 +365,50 @@ const Booking: React.FC = () => {
           schedule.stylist.id === stylistID && schedule.status === "approved"
       );
 
-      console.log("Booking của stylist đã chọn:", stylistBookings);
       console.log("Ngày nghỉ đã duyệt của stylist:", approvedLeaves);
+
+      // **Bổ sung logic kiểm tra ngày nghỉ**
+      const isOnLeave = approvedLeaves.some((leave: any) => {
+        const leaveStart = dayjs(leave.startTime);
+        const leaveEnd = dayjs(leave.endTime);
+        console.log(
+          `Kiểm tra ngày nghỉ từ ${leaveStart} đến ${leaveEnd} với ngày được chọn: ${selectedDate}`
+        );
+        return dayjs(selectedDate).isBetween(leaveStart, leaveEnd, null, "[)");
+      });
+
+      if (isOnLeave) {
+        message.error("Stylist này đang nghỉ trong ngày đã chọn.");
+        console.log("Stylist đang nghỉ, dừng xử lý.");
+        return;
+      }
+
+      // **Bổ sung logic kiểm tra stylist có thể thực hiện dịch vụ**
+      const serviceResponse = await Promise.all(
+        selectedServices.map((serviceId) => api.get(`/service/${serviceId}`))
+      );
+
+      const availableForService = serviceResponse.every((service) =>
+        service.data.stylists.some((stylist: any) => stylist.id === stylistID)
+      );
+
+      console.log(
+        `Stylist có thể thực hiện dịch vụ đã chọn: ${availableForService}`
+      );
+
+      if (!availableForService) {
+        message.error(
+          "Stylist này không thể thực hiện tất cả các dịch vụ đã chọn."
+        );
+        console.log("Stylist không thể thực hiện tất cả dịch vụ, dừng xử lý.");
+        return;
+      }
+
+      // **Log thông tin lọc stylist sau khi chọn stylist**
+      console.log(
+        "Stylist sau khi chọn (Kiểm tra ngày nghỉ và dịch vụ):",
+        stylistID
+      );
 
       // Duyệt qua từng slot thời gian và kiểm tra nếu nó đã được đặt hoặc trùng với lịch nghỉ
       const updatedTimeSlots = timeSlots.map((slot) => {
@@ -385,6 +431,10 @@ const Booking: React.FC = () => {
           const leaveStart = dayjs(leave.startTime); // Convert lại leave startTime đúng với format
           const leaveEnd = dayjs(leave.endTime); // Convert lại leave endTime đúng với format
 
+          console.log(
+            `Kiểm tra slot ${slot.time} với ngày nghỉ từ ${leaveStart} đến ${leaveEnd}`
+          );
+
           // Kiểm tra nếu slot nằm trong khoảng thời gian nghỉ
           return (
             slotStart.isBetween(leaveStart, leaveEnd, null, "[)") ||
@@ -404,6 +454,10 @@ const Booking: React.FC = () => {
           );
 
           // Kiểm tra nếu slotStart nằm giữa bookingStart và bookingEnd hoặc trùng với bookingStart
+          console.log(
+            `Kiểm tra slot ${slot.time} với booking từ ${bookingStart} đến ${bookingEnd}`
+          );
+
           return (
             slotStart.isSame(bookingStart) ||
             slotStart.isBetween(bookingStart, bookingEnd, null, "[)")
@@ -649,13 +703,17 @@ const Booking: React.FC = () => {
 
       <div className="form-group">
         <label>Chọn Hair Stylist</label>
+        {(() => {
+          console.log("Available Stylists for rendering:", availableStylists);
+          return null; // Bạn cần trả về một giá trị hợp lệ trong JSX
+        })()}
         <Select
           value={selectedStylist}
           onChange={handleStylistChange}
           placeholder="Chọn Hair Stylist"
           className="stylist-select"
         >
-          {stylists.map((stylist) => (
+          {availableStylists.map((stylist) => (
             <Option value={stylist.id} key={stylist.id}>
               {stylist.fullName}
             </Option>
