@@ -64,6 +64,12 @@ const StylistSchedule: React.FC = () => {
         return;
       }
 
+      // Kiểm tra nếu endTime nằm trước startTime
+      if (moment(endTime).isBefore(moment(startTime))) {
+        message.error("Thời gian kết thúc phải sau thời gian bắt đầu!");
+        return;
+      }
+
       // Gọi API lấy danh sách schedule đã tồn tại
       const response = await api.get("/schedules");
       const existingSchedules = response.data;
@@ -101,6 +107,48 @@ const StylistSchedule: React.FC = () => {
 
       if (hasConflict) {
         message.error("Đã đăng ký ngày này rồi.");
+        return;
+      }
+
+      // Gọi API lấy danh sách bookings
+      const bookingsResponse = await api.get("/bookings/getBooking");
+      const stylistBookings = bookingsResponse.data.filter(
+        (booking: any) => booking.stylist.id === parseInt(stylistId)
+      );
+
+      // Kiểm tra xem có booking nào trùng với khoảng thời gian đăng ký nghỉ không
+      const hasBookingConflict = stylistBookings.some((booking: any) => {
+        const bookingStart = moment(
+          `${booking.appointmentDate} ${booking.startTime}`,
+          "YYYY-MM-DD HH:mm:ss"
+        );
+        const bookingEnd = moment(
+          `${booking.appointmentDate} ${booking.endTime}`,
+          "YYYY-MM-DD HH:mm:ss"
+        );
+
+        return (
+          moment(startTime).isBetween(
+            bookingStart,
+            bookingEnd,
+            undefined,
+            "[]"
+          ) ||
+          moment(endTime).isBetween(
+            bookingStart,
+            bookingEnd,
+            undefined,
+            "[]"
+          ) ||
+          bookingStart.isBetween(startTime, endTime, undefined, "[]") ||
+          bookingEnd.isBetween(startTime, endTime, undefined, "[]")
+        );
+      });
+
+      if (hasBookingConflict) {
+        message.error(
+          "Không thể đăng ký ngày nghỉ do đã có lịch booking trong thời gian này."
+        );
         return;
       }
 
