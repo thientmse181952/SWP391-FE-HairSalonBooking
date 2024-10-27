@@ -1,177 +1,185 @@
-import React, { useState } from 'react';
-import type { TableProps } from 'antd';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import "./index.scss"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Card, Col, Row, Statistic as AntStatistic, Table, Select } from "antd";
+import { ArrowUpOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import api from "../../../config/axios";
+import { Pie, PieChart } from "recharts";
 
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-}
+const { Option } = Select;
 
-const originData = Array.from({ length: 100 }).map<DataType>((_, i) => ({
-  key: i.toString(),
-  name: `Edward ${i}`,
-  age: 32,
-  address: `London Park no. ${i}`,
-}));
+function DashboardStatistic() {
+  const [data, setData] = useState<any>({});
+  const [selectedMonth, setSelectedMonth] = useState<number>(10); // Mặc định tháng 10
+  const [revenueData, setRevenueData] = useState<any>({});
+  const [eliteCustomers, setEliteCustomers] = useState<any[]>([]);
 
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: DataType;
-  index: number;
-}
+  const fetchData = async () => {
+    try {
+      const response = await api.get("/dashboard/stats");
+      setData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+  const fetchRevenueData = async (month: number, year: number) => {
+    try {
+      const response = await api.get(`/dashboard/revenue/${month}/${year}`);
+      setRevenueData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchEliteCustomers = async () => {
+    try {
+      const response = await api.get("/dashboard/customers");
+      setEliteCustomers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    fetchRevenueData(selectedMonth, 2024); // Gọi dữ liệu doanh thu cho năm 2024
+    fetchEliteCustomers(); // Gọi dữ liệu khách hàng ưu tú
+  }, [selectedMonth]);
+
+  const handleMonthChange = (value: number) => {
+    setSelectedMonth(value);
+  };
 
   return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
+    <div>
+      <Row gutter={16}>
+        <Col span={8}>
+          <Card bordered={false}>
+            <AntStatistic
+              title="Total Bookings"
+              value={data?.totalbookings}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ArrowUpOutlined />}
+              suffix=" bookings"
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card bordered={false}>
+            <AntStatistic
+              title="Customer Count"
+              value={data?.customercount}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ArrowUpOutlined />}
+              suffix=" customers"
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card bordered={false}>
+            <AntStatistic
+              title="Stylist Count"
+              value={data?.stylistcount}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ArrowUpOutlined />}
+              suffix=" stylists"
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card bordered={false}>
+            <AntStatistic
+              title="Service of Stylist Count"
+              value={data?.serviceofstylistcount}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ArrowUpOutlined />}
+              suffix=" services"
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <PieChart width={730} height={250}>
+        <Pie data={data?.top5services?.map(service => ({
+          name: service.serviceName,
+          value: service.bookingCount,
+        })) || []} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill="#8884d8" />
+        <Pie data={data?.topStylists?.map(stylist => ({
+          name: stylist.stylistName,
+          value: stylist.bookingCount,
+        })) || []} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#82ca9d" label />
+      </PieChart>
+
+      <Card title="Top 5 Services" style={{ marginTop: 16 }}>
+        <Table
+          columns={[
             {
-              required: true,
-              message: `Please Input ${title}!`,
+              title: 'Service Name',
+              dataIndex: 'serviceName',
+              key: 'serviceName',
+            },
+            {
+              title: 'Booking Count',
+              dataIndex: 'bookingCount',
+              key: 'bookingCount',
             },
           ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
+          dataSource={data?.top5services}
+          rowKey="serviceId"
+          pagination={false}
+        />
+      </Card>
+
+      <Card title="Top Stylists" style={{ marginTop: 16 }}>
+        <Table
+          columns={[
+            {
+              title: 'Stylist Name',
+              dataIndex: 'stylistName',
+              key: 'stylistName',
+            },
+            {
+              title: 'Booking Count',
+              dataIndex: 'bookingCount',
+              key: 'bookingCount',
+            },
+          ]}
+          dataSource={data?.topStylists}
+          rowKey="stylistId"
+          pagination={false}
+        />
+      </Card>
+
+      <Card title="Doanh Thu Theo Tháng" style={{ marginTop: 16 }}>
+        <Select defaultValue={selectedMonth} onChange={handleMonthChange} style={{ width: 120 }}>
+          {Array.from({ length: 12 }, (_, index) => (
+            <Option key={index + 1} value={index + 1}>
+              Tháng {index + 1}
+            </Option>
+          ))}
+        </Select>
+        <div style={{ marginTop: 16 }}>
+          <h3>Tổng Doanh Thu: {revenueData?.totalRevenue || "0"} VNĐ</h3>
+          <p>Tháng: {revenueData?.month}, Năm: {revenueData?.year}</p>
+        </div>
+      </Card>
+
+      <Card title="Khách Hàng Ưu Tú Nhất" style={{ marginTop: 16 }}>
+        <Table
+          columns={[
+            {
+              title: 'Khách Hàng',
+              dataIndex: 'fullName',
+              key: 'fullName',
+            },
+          ]}
+          dataSource={eliteCustomers}
+          rowKey="fullName"
+          pagination={false}
+        />
+      </Card>
+    </div>
   );
-};
+}
 
-const App: React.FC = () => {
-  const [form] = Form.useForm();
-  const [data, setData] = useState<DataType[]>(originData);
-  const [editingKey, setEditingKey] = useState('');
-
-  const isEditing = (record: DataType) => record.key === editingKey;
-
-  const edit = (record: Partial<DataType> & { key: React.Key }) => {
-    form.setFieldsValue({ name: '', age: '', address: '', ...record });
-    setEditingKey(record.key);
-  };
-
-  const cancel = () => {
-    setEditingKey('');
-  };
-
-  const save = async (key: React.Key) => {
-    try {
-      const row = (await form.validateFields()) as DataType;
-
-      const newData = [...data];
-      const index = newData.findIndex((item) => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setData(newData);
-        setEditingKey('');
-      } else {
-        newData.push(row);
-        setData(newData);
-        setEditingKey('');
-      }
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
-    }
-  };
-
-  const columns = [
-    {
-      title: 'name',
-      dataIndex: 'name',
-      width: '25%',
-      editable: true,
-    },
-    {
-      title: 'age',
-      dataIndex: 'age',
-      width: '15%',
-      editable: true,
-    },
-    {
-      title: 'address',
-      dataIndex: 'address',
-      width: '40%',
-      editable: true,
-    },
-    {
-      title: 'operation',
-      dataIndex: 'operation',
-      render: (_: any, record: DataType) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link onClick={() => save(record.key)} style={{ marginInlineEnd: 8 }}>
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
-        );
-      },
-    },
-  ];
-
-  const mergedColumns: TableProps<DataType>['columns'] = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: DataType) => ({
-        record,
-        inputType: col.dataIndex === 'age' ? 'number' : 'text',
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
-
-  return (
-    <Form form={form} component={false}>
-      <Table<DataType>
-        components={{
-          body: { cell: EditableCell },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        pagination={{ onChange: cancel }}
-      />
-    </Form>
-  );
-};
-
-export default App;
+export default DashboardStatistic;
