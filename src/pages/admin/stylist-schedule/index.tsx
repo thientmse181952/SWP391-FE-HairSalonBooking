@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, message } from "antd";
 import api from "../../../config/axios";
 import moment from "moment";
+import "./index.scss";
 
 interface Schedule {
-  scheduleID: number;
+  id: number;
   reason: string;
   status: string;
   startTime: string;
@@ -23,7 +24,7 @@ interface Account {
 
 function StylistScheduleAdmin() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  // const [accounts, setAccounts] = useState<Account[]>([]);
   const [editingRow, setEditingRow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ function StylistScheduleAdmin() {
         // Lấy danh sách lịch nghỉ
         const response = await api.get("/schedules");
         const allSchedules = response.data;
+        console.log("Schedules data:", allSchedules);
 
         // Lấy danh sách tài khoản
         const accountsResponse = await api.get("/account");
@@ -63,11 +65,11 @@ function StylistScheduleAdmin() {
   }, []);
 
   // Hàm xử lý cập nhật trạng thái
-  const handleApproval = async (scheduleID: number, status: string) => {
+  const handleApproval = async (id: number, status: string) => {
     try {
-      const statusPayload = status === "chấp nhận" ? "approved" : "cancel";
+      const statusPayload = status === "chấp nhận" ? "Chấp nhận" : "Từ chối";
 
-      await api.put(`/schedules/${scheduleID}/status`, statusPayload, {
+      await api.put(`/schedules/${id}/status`, statusPayload, {
         headers: {
           "Content-Type": "text/plain",
         },
@@ -110,8 +112,8 @@ function StylistScheduleAdmin() {
   const columns = [
     {
       title: "ID",
-      dataIndex: "scheduleID",
-      key: "scheduleID",
+      dataIndex: "id",
+      key: "id",
     },
     {
       title: "Tên Stylist",
@@ -139,36 +141,36 @@ function StylistScheduleAdmin() {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
+      render: (status: string) => {
+        return <span>{status}</span>;
+      },
     },
     {
       title: "Hành động",
       key: "action",
       render: (schedule: Schedule) => {
-        const { scheduleID, status } = schedule;
-        const isEditing = editingRow === scheduleID;
+        const { id, status } = schedule;
+        const isEditing = editingRow === id;
 
-        if (isEditing || status === "pending") {
+        if (isEditing || status === "Đang chờ xác nhận") {
           return (
             <div>
               <Button
                 type="primary"
-                onClick={() => handleApproval(scheduleID, "chấp nhận")}
+                onClick={() => handleApproval(id, "chấp nhận")}
                 style={{ marginRight: 8 }}
               >
                 Chấp nhận
               </Button>
-              <Button
-                danger
-                onClick={() => handleApproval(scheduleID, "từ chối")}
-              >
+              <Button danger onClick={() => handleApproval(id, "từ chối")}>
                 Từ chối
               </Button>
             </div>
           );
         }
 
-        if (status === "cancel" || status === "approved") {
-          return <Button onClick={() => setEditingRow(scheduleID)}>Sửa</Button>;
+        if (status === "Từ chối" || status === "Chấp nhận") {
+          return <Button onClick={() => setEditingRow(id)}>Sửa</Button>;
         }
 
         return null;
@@ -182,14 +184,26 @@ function StylistScheduleAdmin() {
       <Table
         columns={columns}
         dataSource={schedules.map((schedule) => ({
-          key: schedule.scheduleID,
-          scheduleID: schedule.scheduleID,
-          stylistFullName: schedule.stylist.fullName, // Đảm bảo tên stylist được hiển thị
+          key: schedule.id,
+          id: schedule.id,
+          stylistFullName: schedule.stylist.fullName,
           startTime: schedule.startTime,
           endTime: schedule.endTime,
           reason: schedule.reason,
           status: schedule.status,
         }))}
+        rowClassName={(record) => {
+          switch (record.status) {
+            case "Đang chờ xác nhận":
+              return "status-pending";
+            case "Chấp nhận":
+              return "status-approved";
+            case "Từ chối":
+              return "status-rejected";
+            default:
+              return "status-default";
+          }
+        }}
         pagination={false}
       />
     </div>

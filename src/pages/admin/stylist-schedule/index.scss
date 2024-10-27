@@ -1,0 +1,15 @@
+.status-pending {
+  background-color: #fff3cd; /* Màu vàng nhạt cho "Đang chờ xác nhận" */
+}
+
+.status-approved {
+  background-color: #d4edda; /* Màu xanh nhạt cho "Chấp nhận" */
+}
+
+.status-rejected {
+  background-color: #f8d7da; /* Màu đỏ nhạt cho "Từ chối" */
+}
+
+.status-default {
+  background-color: #f5f5f5; /* Màu xám nhạt cho các trạng thái khác */
+}

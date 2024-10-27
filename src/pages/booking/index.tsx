@@ -588,7 +588,7 @@ const Booking: React.FC = () => {
         appointmentDate: appointmentDate,
         startTime: startTime.format("HH:mm:ss"),
         endTime: endTime.format("HH:mm:ss"),
-        status: "confirmed",
+        status: "Đã xác nhận",
       };
 
       console.log("Booking data to be sent:", bookingData);

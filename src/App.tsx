@@ -17,7 +17,6 @@ import AdminSelection from "./pages/admin/collection-management";
 import AdminCategory from "./components/admin-category";
 import StylistCategory from "./components/stylist-template";
 import LayoutCustomer from "./components/layout-customer"; // Import LayoutCustomer
-import SidebarCustomer from "./components/sidebar-customer"; // Import SidebarCustomer
 import Collection from "./pages/collection";
 import Services from "./pages/services/services-list";
 import Brand from "./pages/brand";
@@ -34,8 +33,9 @@ import ProtectedRoute from "./components/routes/ProtectedRoute";
 import StylistAccountManagement from "./pages/admin/stylist-account";
 import CustomerBookingList from "./pages/customer-booking";
 import SuccessPage from "./pages/payment";
-import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 import CategoryCollectionManagement from "./pages/admin/category-collection-management";
+import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
+import CalendarManagement from "./pages/admin/calendar-management";
 
 function App() {
   const router = createBrowserRouter([
@@ -98,7 +98,7 @@ function App() {
         { path: "adminDashboard", element: <AdminDashboard /> },
         {
           path: "adminCalendarManagement",
-          element: <AdminCalendarManagement />,
+          element: <CalendarManagement />,
         },
         { path: "adminServiceManagement", element: <AdminServiceManagement /> },
         { path: "adminSelection", element: <AdminSelection /> },

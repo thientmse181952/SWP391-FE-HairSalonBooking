@@ -38,7 +38,7 @@ const CustomerBookingList: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => getStatusInVietnamese(status),
+      render: (status: string) => status,
     },
     {
       title: "Stylist",
@@ -56,10 +56,10 @@ const CustomerBookingList: React.FC = () => {
       key: "feedback",
       render: (text: any, record: any) => {
         const bookingFeedback = feedbacks.find(
-          (feedback: any) => feedback.booking.bookingId === record.bookingId
+          (feedback: any) => feedback.booking.id === record.id
         );
         return bookingFeedback ? (
-          <div className="feedback-container">
+          <div className="feedback-container" key={record.id}>
             <Rate
               disabled
               allowHalf
@@ -70,7 +70,7 @@ const CustomerBookingList: React.FC = () => {
             </div>
           </div>
         ) : (
-          <span>Chưa có đánh giá</span>
+          <span key={record.id}>Chưa có đánh giá</span>
         );
       },
     },
@@ -78,17 +78,17 @@ const CustomerBookingList: React.FC = () => {
       title: "Hành động",
       key: "action",
       render: (text: any, record: any) => {
-        // Chỉ hiển thị nút feedback khi trạng thái là "paid"
-        if (record.status === "paid") {
+        // Chỉ hiển thị nút feedback khi trạng thái là "Đã thanh toán"
+        if (record.status === "Đã thanh toán") {
           const bookingFeedback = feedbacks.find(
-            (feedback: any) => feedback.booking.bookingId === record.bookingId
+            (feedback: any) => feedback.booking.id === record.id
           );
           return (
             <Button
               type="primary"
               onClick={() =>
                 openFeedbackModal(
-                  record.bookingId,
+                  record.id,
                   bookingFeedback?.feedbackId,
                   record.status
                 )
@@ -104,28 +104,13 @@ const CustomerBookingList: React.FC = () => {
     },
   ];
 
-  const getStatusInVietnamese = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "Đã xác nhận";
-      case "completed":
-        return "Đã hoàn thành dịch vụ";
-      case "paid":
-        return "Thanh toán thành công";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return "Không rõ";
-    }
-  };
-
   const openFeedbackModal = (
     bookingId: number,
     feedbackId?: number,
     status?: string
   ) => {
     // Kiểm tra trạng thái của booking, chỉ cho phép feedback nếu status là "paid"
-    if (status !== "paid") {
+    if (status !== "Đã thanh toán") {
       message.warning("Chỉ có thể đánh giá khi dịch vụ đã được thanh toán.");
       return;
     }
@@ -166,7 +151,7 @@ const CustomerBookingList: React.FC = () => {
       const feedbackData = {
         rating_stylist: ratingStylist,
         comment,
-        booking: { bookingId: currentBookingId },
+        booking: { id: currentBookingId },
       };
 
       let response;
@@ -254,7 +239,7 @@ const CustomerBookingList: React.FC = () => {
 
   useEffect(() => {
     if (bookings.length > 0 && accounts.length > 0 && services.length > 0) {
-      const newUpdatedBookings = bookings.map((booking: any) => {
+      const newUpdatedBookings = bookings.reverse().map((booking: any) => {
         const stylistAccount = accounts.find((account: any) =>
           account.stylists.some(
             (stylist: any) => stylist.id === booking.stylist.id
@@ -263,9 +248,7 @@ const CustomerBookingList: React.FC = () => {
 
         const serviceNames = services
           .filter((service: any) =>
-            service.bookings.some(
-              (book: any) => book.bookingId === booking.bookingId
-            )
+            service.bookings.some((book: any) => book.id === booking.id)
           )
           .map((service: any) => service.name)
           .join(", ");
@@ -289,10 +272,12 @@ const CustomerBookingList: React.FC = () => {
       <Table
         columns={columns}
         dataSource={updatedBookings}
-        rowKey="bookingId"
+        rowKey="id"
         rowClassName={(record: any) => {
           const statusClass = record.status
-            ? `booking-status-${record.status}`
+            ? `booking-status-${record.status
+                .replace(/\s+/g, "-")
+                .toLowerCase()}`
             : "booking-status-default";
           return statusClass;
         }}

@@ -13,7 +13,7 @@ function PaymentPage() {
   const vnp_TransactionStatus: string | null = params("vnp_TransactionStatus");
   const vnp_Amount: string | null = params("vnp_Amount"); // Lấy số tiền
   const paymentDate = new Date().toISOString().split("T")[0]; // Ngày thanh toán hiện tại
-  const paymentType = "transfer"; // Loại thanh toán
+  const paymentType = "Chuyển khoản"; // Loại thanh toán
 
   console.log("Booking ID:", vnp_OrderInfo);
   console.log("Status: ", vnp_TransactionStatus);
@@ -45,7 +45,7 @@ function PaymentPage() {
           try {
             await api.put(
               `/bookings/${vnp_OrderInfo}/status`, // Sử dụng vnp_OrderInfo làm bookingId
-              "paid",
+              "Đã thanh toán",
               {
                 headers: {
                   "Content-Type": "text/plain",

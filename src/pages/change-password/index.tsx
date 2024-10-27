@@ -21,7 +21,7 @@ const ChangePassword: React.FC = () => {
 
       console.log("Dữ liệu gửi đi:", requestData);
 
-      const response = await api.put("/password", requestData);
+      const response = await api.put("/change-password", requestData);
 
       if (response.status === 200) {
         message.success("Đổi mật khẩu thành công!");
