@@ -506,8 +506,8 @@ const StylistSchedule: React.FC = () => {
           if (event.title.includes("Nghỉ")) {
             return {
               style: {
-                backgroundColor: "black", // Màu nền đen cho ngày nghỉ
-                color: "white", // Chữ màu trắng
+                backgroundColor: "#ccc", // Màu nền đen cho ngày nghỉ
+                color: "black", // Chữ màu trắng
                 borderRadius: "8px",
                 padding: "5px",
               },

@@ -87,11 +87,7 @@ const CustomerBookingList: React.FC = () => {
             <Button
               type="primary"
               onClick={() =>
-                openFeedbackModal(
-                  record.id,
-                  bookingFeedback?.feedbackId,
-                  record.status
-                )
+                openFeedbackModal(record.id, bookingFeedback?.id, record.status)
               }
             >
               {bookingFeedback ? "Sửa" : "Đánh giá"}
@@ -109,27 +105,34 @@ const CustomerBookingList: React.FC = () => {
     feedbackId?: number,
     status?: string
   ) => {
-    // Kiểm tra trạng thái của booking, chỉ cho phép feedback nếu status là "paid"
+    // Kiểm tra trạng thái của booking, chỉ cho phép feedback nếu status là "Đã thanh toán"
     if (status !== "Đã thanh toán") {
       message.warning("Chỉ có thể đánh giá khi dịch vụ đã được thanh toán.");
       return;
     }
 
+    console.log("Đang mở modal với bookingId:", bookingId);
+    console.log("feedbackId truyền vào:", feedbackId);
+
     setCurrentBookingId(bookingId);
 
     if (feedbackId) {
       const existingFeedback = feedbacks.find(
-        (feedback: any) => feedback.feedbackId === feedbackId
+        (feedback: any) => feedback.id === feedbackId
       );
+      console.log("existingFeedback tìm thấy:", existingFeedback);
+
       if (existingFeedback) {
         setRatingStylist(parseFloat(existingFeedback.rating_stylist));
         setComment(existingFeedback.comment);
-        setCurrentFeedbackId(existingFeedback.feedbackId); // Set feedbackId cho việc chỉnh sửa
+        setCurrentFeedbackId(existingFeedback.id); // Set feedbackId cho việc chỉnh sửa
+        console.log("Đã set rating và comment từ feedback hiện có");
       }
     } else {
       setRatingStylist(0);
       setComment("");
       setCurrentFeedbackId(null); // Reset feedbackId cho feedback mới
+      console.log("Feedback mới, không có feedbackId");
     }
 
     setIsModalVisible(true);
@@ -151,7 +154,7 @@ const CustomerBookingList: React.FC = () => {
       const feedbackData = {
         rating_stylist: ratingStylist,
         comment,
-        booking: { id: currentBookingId },
+        booking: { id: currentBookingId }, // Thay 'bookingId' thành 'id'
       };
 
       let response;
@@ -287,7 +290,7 @@ const CustomerBookingList: React.FC = () => {
         visible={isModalVisible}
         onOk={handleSubmitFeedback}
         onCancel={closeFeedbackModal}
-        okText={currentFeedbackId ? "Xác nhận" : "Gửi đánh giá"}
+        okText={currentFeedbackId ? "Sửa" : "Gửi đánh giá"} // Thay đổi văn bản tùy thuộc vào trạng thái
         cancelText="Hủy"
       >
         <div>
