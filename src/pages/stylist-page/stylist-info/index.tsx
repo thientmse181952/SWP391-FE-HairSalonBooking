@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, message, Col, Row, Select, Button } from "antd";
+import { Form, Input, message, Col, Row, Select, Button, Upload } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
+import uploadFile from "../../../utils/file"; // Giả định bạn đã có hàm uploadFile
+import "./index.scss";
 
 interface Service {
   id: number;
@@ -26,6 +29,7 @@ const StylistInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAccountAndServices = async () => {
@@ -102,11 +106,27 @@ const StylistInfo: React.FC = () => {
     setEditable(true); // Chỉ kích hoạt chỉnh sửa, không gửi API
   };
 
+  const handleChange = ({ fileList: newFileList }: any) =>
+    setFileList(newFileList);
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
   const onFinish = async (values: Stylist) => {
     try {
       const accountId = localStorage.getItem("accountId");
       const stylistID = stylist?.id;
       console.log(accountId + "    " + stylistID);
+
+      let imageUrl = stylist?.image; // Giữ URL hiện tại nếu không có ảnh mới
+      if (fileList.length > 0) {
+        const file = fileList[0];
+        imageUrl = await uploadFile(file.originFileObj); // Upload ảnh mới
+      }
 
       // PUT request cho fullName, email, gender
       await api.put(`/${accountId}`, {
@@ -118,9 +138,15 @@ const StylistInfo: React.FC = () => {
       // PUT request cho hình ảnh và rating
       await api.put(`/stylist/${stylistID}`, {
         id: stylistID,
-        image: values.image,
+        image: imageUrl ?? "", // Đảm bảo imageUrl là chuỗi
         service_id: values.service_id, // Truyền dưới dạng mảng số nguyên
       });
+
+      // Cập nhật lại stylist state để hiển thị hình ảnh mới ngay lập tức
+      setStylist((prevStylist) => ({
+        ...prevStylist!,
+        image: imageUrl ?? "",
+      }));
 
       message.success("Cập nhật thông tin stylist thành công!");
       setEditable(false); // Sau khi cập nhật, ngừng chế độ chỉnh sửa
@@ -160,7 +186,22 @@ const StylistInfo: React.FC = () => {
             </Form.Item>
 
             <Form.Item label="Hình ảnh" name="image">
-              <Input disabled={!editable} />
+              {!editable ? (
+                <img
+                  src={stylist?.image}
+                  alt="Stylist Image"
+                  className="stylist-image"
+                />
+              ) : (
+                <Upload
+                  listType="picture-card"
+                  fileList={fileList}
+                  onChange={handleChange}
+                  beforeUpload={() => false} // Ngăn việc upload tự động, xử lý khi submit form
+                >
+                  {fileList.length >= 1 ? null : uploadButton}
+                </Upload>
+              )}
             </Form.Item>
 
             <Form.Item label="Rating" name="rating">
