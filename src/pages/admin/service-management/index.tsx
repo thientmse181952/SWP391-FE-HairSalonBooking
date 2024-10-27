@@ -129,6 +129,11 @@ const AdminServiceManagement: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
+      const modifiedValues = {
+        ...values,
+        description: values.description.replace(/\n/g, "<br>"), // Thay \n bằng <br>
+      };
+
       let imageUrl = "";
       if (fileList.length > 0) {
         const file = fileList[0];
@@ -138,10 +143,10 @@ const AdminServiceManagement: React.FC = () => {
       const currentDate = formatDate(new Date());
 
       const serviceData = {
-        ...values,
-        price: values.price.toString(),
-        duration: values.duration.toString(),
-        category: values.categoryId.toString(),
+        ...modifiedValues,
+        price: modifiedValues.price.toString(),
+        duration: modifiedValues.duration.toString(),
+        category: { id: modifiedValues.categoryId },
         serviceImage: imageUrl || editingService?.serviceImage || "",
         date: currentDate,
       };
@@ -176,8 +181,20 @@ const AdminServiceManagement: React.FC = () => {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+
+    // Thiết lập fileList với hình ảnh hiện tại
+    setFileList([
+      {
+        uid: "-1",
+        name: "current_image",
+        status: "done",
+        url: service.serviceImage, // URL hình ảnh hiện tại
+      },
+    ]);
+
     form.setFieldsValue({
       ...service,
+      description: service.description.replace(/<br>/g, "\n"), // Thay thế <br> bằng \n cho mô tả
       categoryId: service.category.id,
     });
     setOpenModal(true);
@@ -237,6 +254,8 @@ const AdminServiceManagement: React.FC = () => {
       title: "Giá",
       dataIndex: "price",
       key: "price",
+      render: (price: string) =>
+        `${new Intl.NumberFormat("vi-VN").format(Number(price))}`,
     },
     {
       title: "Thời lượng (phút)",
@@ -349,8 +368,12 @@ const AdminServiceManagement: React.FC = () => {
               {categoryMap[selectedService.category.id]}
             </p>
             <p>
-              <strong>Giá:</strong> {selectedService.price}
+              <strong>Giá:</strong>{" "}
+              {new Intl.NumberFormat("vi-VN").format(
+                Number(selectedService.price)
+              )}
             </p>
+
             <p>
               <strong>Thời lượng:</strong> {selectedService.duration} phút
             </p>
@@ -401,16 +424,6 @@ const AdminServiceManagement: React.FC = () => {
             ]}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            label="Stylist"
-            name="stylist"
-            rules={[{ required: true, message: "Vui lòng chọn stylist!" }]}
-          >
-            <Select placeholder="Chọn stylist">
-              <Select.Option value="1">Stylist 1</Select.Option>
-              <Select.Option value="2">Stylist 2</Select.Option>
-            </Select>
           </Form.Item>
           <Form.Item
             label="Danh mục"
