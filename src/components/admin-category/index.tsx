@@ -90,6 +90,7 @@ const AdminCategory: React.FC = () => {
         onCollapse={(value) => setCollapsed(value)}
         width={250}
       >
+        /* From Uiverse.io by Nawsome */
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
@@ -108,6 +109,7 @@ const AdminCategory: React.FC = () => {
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }} />
+      
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Admin</Breadcrumb.Item>

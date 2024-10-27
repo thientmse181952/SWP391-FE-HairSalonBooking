@@ -31,3 +31,25 @@ $text-color: #000000;
     color: $text-color;
   }
 }
+
+/* From Uiverse.io by Nawsome */ 
+@keyframes clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes counter-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
