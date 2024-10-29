@@ -27,7 +27,7 @@ const servicesList = [
   { id: 5, name: "Dịch vụ 5" },
 ];
 
-const AddStylist: React.FC = () => {
+const adminEmployeeRegistration: React.FC = () => {
   const [stylists, setStylists] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editingStylist, setEditingStylist] = useState<any>(null);
@@ -37,7 +37,7 @@ const AddStylist: React.FC = () => {
   useEffect(() => {
     const fetchStylists = async () => {
       try {
-        const response = await api.get("/stylists");
+        const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
         setStylists(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
@@ -50,7 +50,7 @@ const AddStylist: React.FC = () => {
     setEditingStylist(stylist);
     form.setFieldsValue({
       ...stylist,
-      services: stylist.services.map((service: any) => service.id),
+      services: stylist.services ? stylist.services.map((service: any) => service.id) : [],
     });
     setOpenModal(true);
   };
@@ -59,7 +59,7 @@ const AddStylist: React.FC = () => {
     try {
       await api.delete(`/stylists/${id}`);
       message.success("Xóa stylist thành công!");
-      const response = await api.get("/stylists");
+      const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
       setStylists(response.data);
     } catch (error) {
       message.error("Lỗi khi xóa stylist!");
@@ -94,7 +94,7 @@ const AddStylist: React.FC = () => {
 
       setOpenModal(false);
       form.resetFields();
-      const response = await api.get("/stylists");
+      const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
       setStylists(response.data);
       setEditingStylist(null);
     } catch (error) {
@@ -105,32 +105,19 @@ const AddStylist: React.FC = () => {
   const columns = [
     {
       title: "Ảnh đại diện",
-      dataIndex: "avatar",
+      dataIndex: "image",
       render: (text: string) => (
-        <img
-          src={text}
-          alt="avatar"
-          style={{ borderRadius: "50%", width: 50, height: 50 }}
-        />
+        <img src={text} alt="avatar" style={{ borderRadius: "50%", width: 50, height: 50 }} />
       ),
     },
     {
-      title: "Tên",
-      dataIndex: "name",
+      title: "ID",
+      dataIndex: "id",
     },
     {
-      title: "Giới tính",
-      dataIndex: "gender",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-    },
-    {
-      title: "Dịch vụ đảm nhiệm",
-      dataIndex: "services",
-      render: (services: any) =>
-        services.map((service: any) => service.name).join(", "),
+      title: "Đánh giá",
+      dataIndex: "rating",
+      render: (rating: any) => rating || "Chưa có đánh giá",
     },
     {
       title: "Hành động",
@@ -246,4 +233,4 @@ const AddStylist: React.FC = () => {
   );
 };
 
-export default AddStylist;
+export default adminEmployeeRegistration;
