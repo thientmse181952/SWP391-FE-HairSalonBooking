@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message, Select } from "antd";
 import api from "../../../config/axios";
 import moment from "moment";
 import "./index.scss";
+
+const { Option } = Select;
 
 interface Schedule {
   id: number;
@@ -12,57 +14,34 @@ interface Schedule {
   endTime: string;
   stylist: {
     id: number;
+    image: string;
+    rating: string;
     fullName?: string;
   };
 }
 
-interface Account {
-  id: number;
-  fullName: string;
-  stylists: { id: number }[];
-}
-
 function StylistScheduleAdmin() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  // const [accounts, setAccounts] = useState<Account[]>([]);
-  const [editingRow, setEditingRow] = useState<number | null>(null);
+  const [selectedStylist, setSelectedStylist] = useState("All");
 
   useEffect(() => {
-    const fetchSchedulesAndAccounts = async () => {
+    const fetchSchedules = async () => {
       try {
-        // Lấy danh sách lịch nghỉ
-        const response = await api.get("/schedules");
+        const response = await api.get("http://localhost:8080/api/schedules");
         const allSchedules = response.data;
-        console.log("Schedules data:", allSchedules);
 
-        // Lấy danh sách tài khoản
-        const accountsResponse = await api.get("/account");
-        const allAccounts = accountsResponse.data;
+        const filteredSchedules = selectedStylist === "All"
+          ? allSchedules
+          : allSchedules.filter(schedule => schedule.stylist.id === selectedStylist);
 
-        // Gán fullName vào stylist dựa trên stylistID
-        const schedulesWithNames = allSchedules.map((schedule: Schedule) => {
-          const stylistAccount = allAccounts.find((account: Account) =>
-            account.stylists.some(
-              (stylist) => stylist.id === schedule.stylist.id
-            )
-          );
-          return {
-            ...schedule,
-            stylist: {
-              ...schedule.stylist,
-              fullName: stylistAccount ? stylistAccount.fullName : "Unknown",
-            },
-          };
-        });
-
-        setSchedules(schedulesWithNames);
+        setSchedules(filteredSchedules);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
       }
     };
 
-    fetchSchedulesAndAccounts();
-  }, []);
+    fetchSchedules();
+  }, [selectedStylist]);
 
   // Hàm xử lý cập nhật trạng thái
   const handleApproval = async (id: number, status: string) => {
@@ -75,35 +54,10 @@ function StylistScheduleAdmin() {
         },
       });
 
-      message.success(
-        `Lịch đã được cập nhật thành công với trạng thái: ${status}`
-      );
+      message.success(`Lịch đã được cập nhật thành công với trạng thái: ${status}`);
 
-      // Sau khi cập nhật, lấy lại danh sách schedules và accounts để gán lại fullName
-      const [schedulesResponse, accountsResponse] = await Promise.all([
-        api.get("/schedules"),
-        api.get("/account"),
-      ]);
-
-      const allSchedules = schedulesResponse.data;
-      const allAccounts = accountsResponse.data;
-
-      // Gán fullName vào stylist dựa trên stylistID sau khi cập nhật
-      const schedulesWithNames = allSchedules.map((schedule: Schedule) => {
-        const stylistAccount = allAccounts.find((account: Account) =>
-          account.stylists.some((stylist) => stylist.id === schedule.stylist.id)
-        );
-        return {
-          ...schedule,
-          stylist: {
-            ...schedule.stylist,
-            fullName: stylistAccount ? stylistAccount.fullName : "Unknown",
-          },
-        };
-      });
-
-      setSchedules(schedulesWithNames); // Cập nhật lại danh sách lịch với tên stylist đầy đủ
-      setEditingRow(null); // Ẩn chế độ chỉnh sửa sau khi cập nhật
+      const response = await api.get("http://localhost:8080/api/schedules");
+      setSchedules(response.data);
     } catch (error) {
       message.error("Lỗi khi cập nhật trạng thái lịch!");
     }
@@ -117,8 +71,13 @@ function StylistScheduleAdmin() {
     },
     {
       title: "Tên Stylist",
-      dataIndex: "stylistFullName",
-      key: "stylistFullName",
+      dataIndex: "stylist",
+      render: (stylist: any) => (
+        <div>
+          <img src={stylist.image} alt="stylist" style={{ width: 50, height: 50, borderRadius: "50%" }} />
+          <span>{stylist.fullName || "Unknown"}</span>
+        </div>
+      ),
     },
     {
       title: "Ngày bắt đầu",
@@ -141,52 +100,64 @@ function StylistScheduleAdmin() {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
-        return <span>{status}</span>;
-      },
+      render: (status: string) => <span>{status}</span>,
     },
     {
       title: "Hành động",
       key: "action",
       render: (schedule: Schedule) => {
         const { id, status } = schedule;
-        const isEditing = editingRow === id;
 
-        if (isEditing || status === "Đang chờ xác nhận") {
-          return (
-            <div>
-              <Button
-                type="primary"
-                onClick={() => handleApproval(id, "chấp nhận")}
-                style={{ marginRight: 8 }}
-              >
-                Chấp nhận
-              </Button>
-              <Button danger onClick={() => handleApproval(id, "từ chối")}>
-                Từ chối
-              </Button>
-            </div>
-          );
+        function setEditingRow(id: number): void {
+          throw new Error("Function not implemented.");
         }
 
-        if (status === "Từ chối" || status === "Chấp nhận") {
-          return <Button onClick={() => setEditingRow(id)}>Sửa</Button>;
-        }
-
-        return null;
+        return (
+          <div>
+            {status === "Đang chờ xác nhận" && (
+              <>
+                <Button
+                  type="primary"
+                  onClick={() => handleApproval(id, "chấp nhận")}
+                  style={{ marginRight: 8 }}
+                >
+                  Chấp nhận
+                </Button>
+                <Button danger onClick={() => handleApproval(id, "từ chối")}>
+                  Từ chối
+                </Button>
+              </>
+            )}
+            {status === "Từ chối" || status === "Chấp nhận" ? (
+              <Button onClick={() => setEditingRow(id)}>Sửa</Button>
+            ) : null}
+          </div>
+        );
       },
     },
   ];
 
   return (
     <div>
-      <h2>Quản lý lịch nghỉ của Stylist</h2>
+      <h2>Quản lý lịch của Stylist</h2>
+      <Select
+        defaultValue="All"
+        style={{ width: 200, marginBottom: 20 }}
+        onChange={(value) => setSelectedStylist(value)}
+      >
+        <Option value="All">Tất cả</Option>
+        {schedules.map(schedule => (
+          <Option key={schedule.stylist.id} value={schedule.stylist.id}>
+            {schedule.stylist.fullName || "Unknown"}
+          </Option>
+        ))}
+      </Select>
       <Table
         columns={columns}
         dataSource={schedules.map((schedule) => ({
           key: schedule.id,
           id: schedule.id,
-          stylistFullName: schedule.stylist.fullName,
+          stylist: schedule.stylist,
           startTime: schedule.startTime,
           endTime: schedule.endTime,
           reason: schedule.reason,
