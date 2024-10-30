@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Input, message, Select } from "antd";
+import { Button, Form, Input, message, Select, Modal } from "antd";
 import "./index.scss";
 import api from "../../../config/axios";
 
@@ -20,6 +20,8 @@ const AdminInformation: React.FC = () => {
   });
   const [accountId, setAccountId] = useState<number | null>(null); // Lưu ID của tài khoản
   const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [passwordForm] = Form.useForm();
 
   useEffect(() => {
     const fetchAdminInformation = async () => {
@@ -115,6 +117,42 @@ const AdminInformation: React.FC = () => {
     console.log("Failed:", errorInfo);
   };
 
+  // Hàm xử lý khi mở modal đổi mật khẩu
+  const showPasswordModal = () => {
+    setIsPasswordModalVisible(true);
+  };
+
+  // Hàm xử lý khi submit form đổi mật khẩu
+  const handlePasswordChange = async (values: any) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.put(
+        "/change-password",
+        {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+          confirmPassword: values.confirmPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        message.success("Đổi mật khẩu thành công!");
+        setIsPasswordModalVisible(false);
+        passwordForm.resetFields(); // Reset form đổi mật khẩu
+      } else {
+        message.error("Đổi mật khẩu thất bại, vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đổi mật khẩu:", error);
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    }
+  };
+
   return (
     <div className="admin-content">
       <h1>Thông tin Admin</h1>
@@ -168,11 +206,15 @@ const AdminInformation: React.FC = () => {
           </Select>
         </Form.Item>
 
-        {/* Nút để kích hoạt chế độ chỉnh sửa */}
         {!editable && (
-          <Button type="primary" onClick={handleEditClick}>
-            Sửa thông tin
-          </Button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Button type="primary" onClick={handleEditClick}>
+              Sửa thông tin
+            </Button>
+            <Button type="primary" onClick={showPasswordModal}>
+              Đổi Mật Khẩu
+            </Button>
+          </div>
         )}
 
         {/* Nút cập nhật chỉ hiển thị khi chế độ chỉnh sửa được bật */}
@@ -184,6 +226,58 @@ const AdminInformation: React.FC = () => {
           </Form.Item>
         )}
       </Form>
+
+      {/* Modal đổi mật khẩu */}
+      <Modal
+        title="Đổi Mật Khẩu"
+        visible={isPasswordModalVisible}
+        onCancel={() => setIsPasswordModalVisible(false)}
+        footer={null}
+      >
+        <Form form={passwordForm} onFinish={handlePasswordChange}>
+          <Form.Item
+            label="Mật khẩu hiện tại"
+            name="currentPassword"
+            rules={[
+              { required: true, message: "Vui lòng nhập mật khẩu hiện tại!" },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            label="Mật khẩu mới"
+            name="newPassword"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu mới!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            label="Xác nhận mật khẩu mới"
+            name="confirmPassword"
+            dependencies={["newPassword"]}
+            rules={[
+              { required: true, message: "Vui lòng xác nhận mật khẩu mới!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("newPassword") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Mật khẩu xác nhận không khớp!")
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Xác nhận
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, message, Col, Row, Select, Button, Upload } from "antd";
+import {
+  Form,
+  Input,
+  message,
+  Col,
+  Row,
+  Select,
+  Button,
+  Upload,
+  Modal,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
 import uploadFile from "../../../utils/file"; // Giả định bạn đã có hàm uploadFile
@@ -30,6 +40,43 @@ const StylistInfo: React.FC = () => {
   const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
+
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [passwordForm] = Form.useForm(); // Form cho modal đổi mật khẩu
+
+  const showPasswordModal = () => {
+    setIsPasswordModalVisible(true);
+  };
+
+  const handlePasswordChange = async (values: any) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.put(
+        "/change-password",
+        {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+          confirmPassword: values.confirmPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        message.success("Đổi mật khẩu thành công!");
+        setIsPasswordModalVisible(false);
+        passwordForm.resetFields();
+      } else {
+        message.error("Đổi mật khẩu thất bại, vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đổi mật khẩu:", error);
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    }
+  };
 
   useEffect(() => {
     const fetchAccountAndServices = async () => {
@@ -225,9 +272,14 @@ const StylistInfo: React.FC = () => {
 
             {/* Nút để kích hoạt chế độ chỉnh sửa */}
             {!editable && (
-              <Button type="primary" onClick={handleEditClick}>
-                Sửa thông tin
-              </Button>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <Button type="primary" onClick={handleEditClick}>
+                  Sửa thông tin
+                </Button>
+                <Button type="primary" onClick={showPasswordModal}>
+                  Đổi Mật Khẩu
+                </Button>
+              </div>
             )}
 
             {/* Nút cập nhật chỉ hiển thị khi chế độ chỉnh sửa được bật */}
@@ -240,6 +292,60 @@ const StylistInfo: React.FC = () => {
             )}
           </Form>
         )}
+
+        {/* Modal Đổi Mật Khẩu */}
+        <Modal
+          title="Đổi Mật Khẩu"
+          visible={isPasswordModalVisible}
+          onCancel={() => setIsPasswordModalVisible(false)}
+          footer={null}
+        >
+          <Form form={passwordForm} onFinish={handlePasswordChange}>
+            <Form.Item
+              label="Mật khẩu hiện tại"
+              name="currentPassword"
+              rules={[
+                { required: true, message: "Vui lòng nhập mật khẩu hiện tại!" },
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+            <Form.Item
+              label="Mật khẩu mới"
+              name="newPassword"
+              rules={[
+                { required: true, message: "Vui lòng nhập mật khẩu mới!" },
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+            <Form.Item
+              label="Xác nhận mật khẩu mới"
+              name="confirmPassword"
+              dependencies={["newPassword"]}
+              rules={[
+                { required: true, message: "Vui lòng xác nhận mật khẩu mới!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("newPassword") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Mật khẩu xác nhận không khớp!")
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Xác nhận
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
       </Col>
     </Row>
   );
