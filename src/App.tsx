@@ -11,7 +11,6 @@ import AdminInfo from "./pages/admin/admin-info";
 import AdminPersonnelManagement from "./pages/admin/customer-list";
 import AdminEmployeeRegistration from "./pages/admin/stylist-management";
 import AdminDashboard from "./pages/admin/admin-dashboard";
-import AdminCalendarManagement from "./pages/admin/calendar-management";
 import AdminServiceManagement from "./pages/admin/service-management";
 import AdminSelection from "./pages/admin/collection-management";
 import AdminCategory from "./components/admin-category";
