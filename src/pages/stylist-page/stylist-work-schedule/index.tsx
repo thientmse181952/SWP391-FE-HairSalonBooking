@@ -583,7 +583,7 @@ const StylistSchedule: React.FC = () => {
       </Modal>
 
       <Modal
-        title="Chi tiết dịch vụ"
+        title="Chi tiết lịch đặt"
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}

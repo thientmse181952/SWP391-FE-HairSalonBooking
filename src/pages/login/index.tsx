@@ -1,10 +1,7 @@
 import React from "react";
 import { Button, Input, Form, message } from "antd";
-import { GoogleOutlined } from "@ant-design/icons";
 import "./index.scss";
-import { googleProvider } from "../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để lưu trạng thái
 import api from "../../config/axios.ts";
 
@@ -202,27 +199,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleLoginGoogle = () => {
-    const auth = getAuth();
-    signInWithPopup(auth, googleProvider)
-      .then((result) => {
-        // Nhận token từ Google
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-
-        // Lưu token và fullName vào localStorage
-        localStorage.setItem("token", token);
-        localStorage.setItem("fullName", user.displayName);
-
-        // Chuyển hướng người dùng đến trang chủ hoặc trang chính
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   const onFinish = (values: { username: string; password: string }) => {
     handleLogin(values);
   };
@@ -257,16 +233,6 @@ const Login: React.FC = () => {
           <Form.Item>
             <Button type="primary" className="login-button" htmlType="submit">
               Đăng nhập
-            </Button>
-          </Form.Item>
-
-          <Form.Item className="google-button">
-            <Button
-              icon={<GoogleOutlined />}
-              className="google-btn"
-              onClick={handleLoginGoogle}
-            >
-              Đăng nhập bằng Google
             </Button>
           </Form.Item>
 

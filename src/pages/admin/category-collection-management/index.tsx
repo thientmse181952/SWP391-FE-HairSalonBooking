@@ -123,7 +123,7 @@ const CategoryCollectionManagement: React.FC = () => {
 
   return (
     <div className="card">
-      <h1>Quản Lý Danh Mục Collection</h1>
+      <h1>Quản Lý Danh Mục BST</h1>
       <Button type="primary" onClick={() => setOpenModal(true)}>
         Thêm Category Collection
       </Button>

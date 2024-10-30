@@ -23,16 +23,18 @@ const StylistFeedback: React.FC = () => {
             (feedback: any) =>
               feedback.booking.stylist.id === parseInt(stylistId || "0")
           )
-          .map((feedback: any) => ({
-            key: feedback.feedbackId,
-            customerId: feedback.booking.customer.id,
-            bookingId: feedback.booking.bookingId,
-            appointmentDate: feedback.booking.appointmentDate,
-            startTime: feedback.booking.startTime,
-            endTime: feedback.booking.endTime,
-            feedback: feedback.comment,
-            rating: parseFloat(feedback.rating_stylist),
-          }));
+          .map((feedback: any) => {
+            return {
+              key: feedback.id, // hoặc feedback.feedbackId nếu `feedbackId` là thuộc tính chính xác
+              customerId: feedback.booking.customer.id,
+              bookingId: feedback.booking.id, // Cập nhật chỗ này để lấy booking.id thay vì booking.bookingId
+              appointmentDate: feedback.booking.appointmentDate,
+              startTime: feedback.booking.startTime,
+              endTime: feedback.booking.endTime,
+              feedback: feedback.comment,
+              rating: parseFloat(feedback.rating_stylist),
+            };
+          });
 
         setFeedbacks(filteredFeedbacks);
       } catch (error) {
@@ -54,6 +56,7 @@ const StylistFeedback: React.FC = () => {
     const fetchServices = async () => {
       try {
         const serviceResponse = await api.get("/service/getService");
+        console.log("Dữ liệu services từ API:", serviceResponse.data); // Kiểm tra dữ liệu services
         setServices(serviceResponse.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách service:", error);
@@ -66,18 +69,26 @@ const StylistFeedback: React.FC = () => {
     fetchServices();
   }, [stylistId]);
 
+  // Hàm lấy tên dịch vụ theo bookingId
+  const getServiceNamesByBookingId = (bookingId: number) => {
+    // Lọc ra tất cả các dịch vụ có chứa bookingId này
+    const relevantServices = services.filter((service: any) =>
+      service.bookings.some((booking: any) => booking.id === bookingId)
+    );
+    console.log(
+      "Dịch vụ tìm được cho bookingId",
+      bookingId,
+      "là:",
+      relevantServices
+    ); // Kiểm tra các dịch vụ tìm thấy
+    return relevantServices.map((service: any) => service.name).join(", ");
+  };
+
   const getCustomerName = (customerId: number) => {
     const account = accounts.find((account: any) =>
       account.customers.some((customer: any) => customer.id === customerId)
     );
     return account ? account.fullName : `Khách hàng ${customerId}`;
-  };
-
-  const getServiceName = (bookingId: number) => {
-    const service = services.find((service: any) =>
-      service.bookings.some((booking: any) => booking.bookingId === bookingId)
-    );
-    return service ? service.name : "Không rõ dịch vụ";
   };
 
   const columns = [
@@ -92,7 +103,7 @@ const StylistFeedback: React.FC = () => {
       title: "Dịch Vụ",
       dataIndex: "bookingId",
       key: "bookingId",
-      render: (bookingId: number) => getServiceName(bookingId),
+      render: (bookingId: number) => getServiceNamesByBookingId(bookingId),
       width: "15%",
     },
     {
