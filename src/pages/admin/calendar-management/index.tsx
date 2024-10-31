@@ -159,6 +159,9 @@ const CalendarManagement: React.FC = () => {
 
   const fetchBookingsAndLeaves = async (stylistId: number) => {
     try {
+      // Fetch customer names first
+      const customerNamesMap = await fetchCustomerNames();
+
       const [bookingsResponse, schedulesResponse] = await Promise.all([
         api.get("/bookings/getBooking"),
         api.get("/schedules"),
@@ -167,8 +170,6 @@ const CalendarManagement: React.FC = () => {
       const stylistBookings = bookingsResponse.data.filter(
         (booking: any) => booking.stylist.id === stylistId
       );
-
-      await fetchCustomerNames(stylistBookings);
 
       const stylistSchedules = schedulesResponse.data.filter(
         (schedule: any) =>
@@ -180,7 +181,7 @@ const CalendarManagement: React.FC = () => {
 
       const formattedBookings = stylistBookings.map((booking: any) => ({
         title: `Khách hàng: ${
-          customerNames[booking.customer.id] || "Chưa xác định"
+          customerNamesMap[booking.customer.id] || "Chưa xác định"
         }`,
         start: new Date(`${booking.appointmentDate} ${booking.startTime}`),
         end: new Date(`${booking.appointmentDate} ${booking.endTime}`),
@@ -201,6 +202,13 @@ const CalendarManagement: React.FC = () => {
       message.error("Không thể tải lịch.");
     }
   };
+
+  // Xóa useEffect hiện tại cho fetchCustomerNames và fetchBookingsAndLeaves
+  useEffect(() => {
+    if (selectedStylistId) {
+      fetchBookingsAndLeaves(selectedStylistId);
+    }
+  }, [selectedStylistId]);
 
   useEffect(() => {
     if (selectedStylistId) {
