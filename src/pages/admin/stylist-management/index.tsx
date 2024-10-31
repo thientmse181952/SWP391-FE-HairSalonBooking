@@ -35,11 +35,26 @@ const adminEmployeeRegistration: React.FC = () => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
 
+  const [services, setServices] = useState([]);
+
+useEffect(() => {
+  const fetchServices = async () => {
+    try {
+      const response = await api.get("http://localhost:8080/api/service/getService");
+      setServices(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách dịch vụ:", error);
+    }
+  };
+  fetchServices();
+}, []);
+
   useEffect(() => {
     const fetchStylists = async () => {
       try {
         const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
         setStylists(response.data);
+        
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
       }
@@ -102,7 +117,19 @@ const adminEmployeeRegistration: React.FC = () => {
       dataIndex: "rating",
       render: (rating: any) => rating || "Chưa có đánh giá",
     },
-    
+    {
+      title: "Các dịch vụ đảm nhiệm",
+      dataIndex: "id",
+      render: (stylistId: number) => {
+        const stylistServices = services.filter(service => 
+          service.stylists.some(stylist => stylist.id === stylistId)
+        );
+
+        return stylistServices.length > 0 
+          ? stylistServices.map(service => service.name).join(", ") 
+          : "Không có dịch vụ";
+      },
+    },
   ];
 
   return (
