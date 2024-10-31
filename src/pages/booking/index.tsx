@@ -80,21 +80,53 @@ const Booking: React.FC = () => {
           (account: any) => account.role === "STYLIST"
         );
 
-        const bookingsResponse = await api.get("/bookings/getBooking");
         const schedulesResponse = await api.get("/schedules");
 
         const updatedAvailableStylists = stylistAccounts.filter(
           (stylist: any) => {
-            // Thực hiện logic để kiểm tra stylist có slot khả dụng hay không
-            // Sau đó trả về stylist có slot khả dụng
-            return true; // Giả sử stylist này có slot khả dụng
+            // Lấy danh sách lịch nghỉ của stylist
+            const approvedLeaves = schedulesResponse.data.filter(
+              (schedule: any) =>
+                schedule.stylist.id === stylist.id &&
+                schedule.status === "Chấp nhận"
+            );
+
+            console.log(
+              `Stylist ${stylist.fullName} - Approved Leaves:`,
+              approvedLeaves
+            );
+
+            // Kiểm tra nếu stylist có nghỉ vào ngày được chọn
+            const isOnLeave = approvedLeaves.some((leave: any) => {
+              const leaveStart = dayjs(leave.startTime).startOf("day");
+              const leaveEnd = dayjs(leave.endTime).endOf("day");
+              const isLeave = selectedDate.isBetween(
+                leaveStart,
+                leaveEnd,
+                null,
+                "[]"
+              );
+              console.log(
+                `Stylist ${
+                  stylist.fullName
+                } - Checking leave on ${selectedDate.format(
+                  "YYYY-MM-DD"
+                )} - Leave Start: ${leaveStart.format(
+                  "YYYY-MM-DD"
+                )}, Leave End: ${leaveEnd.format(
+                  "YYYY-MM-DD"
+                )}, isOnLeave: ${isLeave}`
+              );
+              return isLeave;
+            });
+
+            // Chỉ bao gồm stylist không có lịch nghỉ vào ngày đã chọn
+            return !isOnLeave;
           }
         );
 
-        // Lưu danh sách stylist vào stylistsRef
+        // Lưu danh sách stylist vào stylistsRef và cập nhật danh sách khả dụng
         stylistsRef.current = updatedAvailableStylists;
-
-        // Cập nhật state để hiển thị danh sách stylist
         setAvailableStylists([...updatedAvailableStylists]);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
@@ -290,7 +322,7 @@ const Booking: React.FC = () => {
         const schedulesResponse = await api.get("/schedules");
         const approvedLeaves = schedulesResponse.data.filter(
           (schedule) =>
-            schedule.stylist.id === stylistId && schedule.status === "approved"
+            schedule.stylist.id === stylistId && schedule.status === "Chấp nhận"
         );
 
         console.log(
@@ -376,7 +408,7 @@ const Booking: React.FC = () => {
       const schedulesResponse = await api.get("/schedules");
       const approvedLeaves = schedulesResponse.data.filter(
         (schedule: any) =>
-          schedule.stylist.id === stylistID && schedule.status === "approved"
+          schedule.stylist.id === stylistID && schedule.status === "Chấp nhận"
       );
 
       // Lấy ngày và thời gian hiện tại

@@ -1,99 +1,82 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Table,
-  Modal,
-  Form,
-  Input,
-  Popconfirm,
-  message,
-  Radio,
-} from "antd";
+import { Button, Table, Form, Popconfirm, message } from "antd";
 import api from "../../../config/axios"; // Sử dụng api để gọi API
 
 const AdminPersonnelManagement: React.FC = () => {
   const [accounts, setAccounts] = useState([]); // Trạng thái lưu danh sách stylist
   const [loading, setLoading] = useState(true); // Trạng thái loading khi gọi API
-  const [openModal, setOpenModal] = useState(false); // Trạng thái modal thêm/sửa stylist
-  const [editingAccount, setEditingAccount] = useState(null); // Trạng thái chỉnh sửa stylist
-  const [form] = Form.useForm(); // Sử dụng form của Ant Design
 
+  const fetchAccounts = async () => {
+    setLoading(true); // Bật trạng thái loading khi bắt đầu fetch
+    try {
+      const response = await api.get("/account"); // Gọi API lấy danh sách tài khoản
+      const customers = response.data
+        .filter((account: any) => account.role === "CUSTOMER")
+        .sort((a: any, b: any) => b.id - a.id);
+      setAccounts(customers); // Lưu dữ liệu cus vào state
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách customer:", error);
+    } finally {
+      setLoading(false); // Tắt trạng thái loading khi hoàn tất
+    }
+  };
   // Gọi API để lấy danh sách stylist từ server
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await api.get("/account"); // Gọi API lấy danh sách tài khoản cus
-        const customers = response.data.filter(
-          (account: any) => account.role === "CUSTOMER"
-        );
-        setAccounts(customers); // Lưu dữ liệu cus vào state
-        setLoading(false); // Tắt loading sau khi lấy dữ liệu xong
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách customer:", error);
-      }
-    };
-
     fetchAccounts();
   }, []);
 
-  // Xử lý khi form được submit để thêm hoặc sửa stylist
-  const onFinish = async (values: any) => {
+  const handleBan = async (id: number) => {
     try {
-      if (editingAccount) {
-        // Nếu đang trong trạng thái chỉnh sửa, gọi API PUT
-        await api.put(`/account/${editingAccount.id}`, {
-          ...editingAccount,
-          ...values,
-        });
-        message.success("Cập nhật customer thành công!");
+      // Truy vấn thông tin tài khoản dựa trên id trước khi thực hiện ban
+      const accountResponse = await api.get(`/${id}`);
+      const customerID = accountResponse.data.customers[0]?.id;
+
+      if (customerID) {
+        // Gọi API để lấy toàn bộ bookings tương ứng với customerID
+        const bookingsResponse = await api.get(`/bookings/getBooking`);
+        const bookings = bookingsResponse.data.filter(
+          (booking: any) =>
+            booking.customer.id === customerID &&
+            booking.status === "Đã xác nhận"
+        );
+
+        console.log(
+          "Thông tin các booking 'Đã xác nhận' của customer:",
+          bookings
+        );
+
+        // Lặp qua từng booking và gọi API DELETE để xóa
+        for (const booking of bookings) {
+          await api.delete(`/bookings/${booking.id}`);
+          console.log(`Đã xóa booking với id: ${booking.id}`);
+        }
       } else {
-        // Nếu là thêm mới, gọi API POST
-        await api.post("/register", {
-          ...values,
-          role: "CUSTOMER",
-          enabled: true,
-        });
-        message.success("Thêm customer thành công!");
+        console.log("Không tìm thấy customerID cho tài khoản này.");
       }
 
-      // Fetch lại danh sách ngay lập tức sau khi thêm hoặc cập nhật thành công
-      const response = await api.get("/account");
-      const customer = response.data.filter(
-        (account: any) => account.role === "CUSTOMER"
-      );
-      setAccounts(customer); // Cập nhật danh sách stylist mới
+      // Thực hiện cấm tài khoản
+      await api.delete(`/${id}`); // Đường dẫn mới cho API
+      message.success("Cấm tài khoản thành công!");
 
-      setOpenModal(false); // Đóng modal ngay lập tức sau khi API thành công
-      form.resetFields(); // Reset form ngay sau khi API thành công
-      setEditingAccount(null); // Reset trạng thái chỉnh sửa
+      // Fetch lại danh sách sau khi cấm thành công
+      fetchAccounts();
     } catch (error) {
-      console.error("Lỗi khi tạo/cập nhật customer:", error);
-      message.error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+      message.error("Lỗi khi cấm tài khoản!");
+      console.error("Chi tiết lỗi:", error);
     }
   };
 
-  // Xử lý khi nhấn nút "Sửa", mở modal và điền thông tin stylist vào form
-  const handleEdit = (account: any) => {
-    setEditingAccount(account);
-    form.setFieldsValue(account);
-    setOpenModal(true);
-  };
-
-  // Xử lý khi nhấn nút "Xóa", gọi API DELETE
-  const handleDelete = async (id: number) => {
+  // Hàm xử lý bỏ cấm tài khoản
+  const handleUnban = async (id: number) => {
     try {
-      await api.delete(`/account/${id}`);
-      message.success("Xóa Customer thành công!");
-      // Fetch lại danh sách sau khi xóa thành công
-      const response = await api.get("/account");
-      const customer = response.data.filter(
-        (account: any) => account.role === "CUSTOMER"
-      );
-      setAccounts(customer);
+      await api.put(`/${id}/restore`); // Đường dẫn cho API bỏ cấm tài khoản
+      message.success("Bỏ cấm tài khoản thành công!");
+      // Fetch lại danh sách sau khi bỏ cấm thành công
+      fetchAccounts();
     } catch (error) {
-      message.error("Lỗi khi xóa customer!");
+      message.error("Lỗi khi bỏ cấm tài khoản!");
     }
   };
 
@@ -113,6 +96,7 @@ const AdminPersonnelManagement: React.FC = () => {
       title: "Giới tính",
       dataIndex: "gender",
       key: "gender",
+      render: (gender: string) => (gender === "Male" ? "Nam" : "Nữ"),
     },
     {
       title: "Email",
@@ -125,27 +109,39 @@ const AdminPersonnelManagement: React.FC = () => {
       key: "phone",
     },
     {
+      title: "Trạng thái",
+      dataIndex: "deleted",
+      key: "status",
+      render: (deleted: boolean) => (deleted ? "Bị cấm" : "Đang hoạt động"),
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (account: any) => (
         <>
-          <Button
-            type="link"
-            onClick={() => handleEdit(account)}
-            style={{ marginRight: 8 }}
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa khánh hàng này không?"
-            onConfirm={() => handleDelete(account.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button type="link" danger>
-              Xóa
-            </Button>
-          </Popconfirm>
+          {account.deleted ? (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn bỏ cấm tài khoản này không?"
+              onConfirm={() => handleUnban(account.id)}
+              okText="Có"
+              cancelText="Không"
+            >
+              <Button type="link" style={{ color: "green" }}>
+                Bỏ cấm
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn cấm tài khoản này không?"
+              onConfirm={() => handleBan(account.id)}
+              okText="Có"
+              cancelText="Không"
+            >
+              <Button type="link" danger>
+                Cấm tài khoản
+              </Button>
+            </Popconfirm>
+          )}
         </>
       ),
     },
@@ -154,9 +150,6 @@ const AdminPersonnelManagement: React.FC = () => {
   return (
     <div className="card">
       <h1>Quản Lý khách hàng</h1>
-      <Button type="primary" onClick={() => setOpenModal(true)}>
-        Thêm Khách hàng
-      </Button>
       {/* Hiển thị bảng chứa danh sách stylist */}
       <Table
         columns={columns}
@@ -164,105 +157,8 @@ const AdminPersonnelManagement: React.FC = () => {
         rowKey="id"
         loading={loading}
         style={{ marginTop: 20 }}
+        tableLayout="fixed"
       />
-      {/* Modal thêm/sửa stylist */}
-      <Modal
-        title={editingAccount ? "Chỉnh sửa customer" : "Thêm customer mới"}
-        open={openModal}
-        onCancel={() => {
-          setOpenModal(false);
-          setEditingAccount(null); // Đặt lại trạng thái
-        }}
-        footer={null}
-      >
-        <Form form={form} onFinish={onFinish}>
-          {/* Tên stylist */}
-          <Form.Item
-            label="Tên Khách hàng mới"
-            name="fullName"
-            rules={[{ required: true, message: "Vui lòng nhập tên customer!" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          {/* Email */}
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Vui lòng nhập email hợp lệ!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          {/* Số điện thoại */}
-          <Form.Item
-            label="Số điện thoại"
-            name="phone"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          {/* Mật khẩu */}
-          <Form.Item
-            label="Mật khẩu"
-            name="password"
-            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          {/* Nhập lại mật khẩu */}
-          <Form.Item
-            label="Nhập lại mật khẩu"
-            name="confirmPassword"
-            dependencies={["password"]}
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng xác nhận mật khẩu!",
-              },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error("Mật khẩu không khớp!"));
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          {/* Giới tính */}
-          <Form.Item
-            label="Giới tính"
-            name="gender"
-            rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
-          >
-            <Radio.Group>
-              <Radio value="Male">Nam</Radio>
-              <Radio value="Female">Nữ</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          {/* Nút thêm/sửa */}
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editingAccount ? "Cập nhật" : "Thêm customer"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };

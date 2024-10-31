@@ -26,8 +26,6 @@ const Login: React.FC = () => {
       console.log("Kết quả đăng nhập:", response.data);
 
       if (response.status === 200) {
-        message.success("Đăng nhập thành công!");
-
         // Lấy token, fullName và số điện thoại từ response
         const token = response.data.token;
         const fullName = response.data.fullName;
@@ -82,6 +80,16 @@ const Login: React.FC = () => {
                   Authorization: `Bearer ${token}`,
                 },
               });
+
+              // Kiểm tra trạng thái 'deleted' của tài khoản
+              if (accountDetails.data.deleted) {
+                message.error(
+                  "Tài khoản của bạn đã bị cấm và không thể đăng nhập."
+                );
+                return; // Ngừng tiến trình đăng nhập nếu tài khoản bị cấm
+              }
+
+              message.success("Đăng nhập thành công!");
 
               // Kiểm tra xem "customers" có trống hay không
               if (accountDetails.data.customers.length === 0) {
@@ -193,9 +201,15 @@ const Login: React.FC = () => {
       } else {
         message.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin!");
       }
-    } catch (error) {
-      console.error("Lỗi khi đăng nhập:", error);
-      message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        // Kiểm tra nếu API trả về mã lỗi 400 và thông báo liên quan đến tài khoản/mật khẩu
+        if (error.response.data === "Username or password invalid!") {
+          message.error("Tài khoản hoặc mật khẩu sai.");
+        }
+      } else {
+        message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+      }
     }
   };
 
