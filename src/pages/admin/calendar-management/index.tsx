@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import {
-  Select,
-  Modal,
-  Button,
-  message,
-  InputNumber,
-  DatePicker,
-  Input,
-} from "antd";
+import { Select, Modal, Button, message } from "antd";
 import moment from "moment";
 import api from "../../../config/axios";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -19,17 +11,20 @@ const localizer = momentLocalizer(moment);
 const CalendarManagement: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [events, setEvents] = useState<any[]>([]);
-  const [stylists, setStylists] = useState<any[]>([]);
   const [selectedStylistId, setSelectedStylistId] = useState<number | null>(
     null
   );
   const [customerNames, setCustomerNames] = useState<{ [key: number]: string }>(
     {}
   );
-  const [services, setServices] = useState<any[]>([]);
   const [serviceNames, setServiceNames] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [schedules, setSchedules] = useState<any[]>([]);
+  const [temporaryStylistId, setTemporaryStylistId] = useState<number | null>(
+    null
+  );
+  const [allStylists, setAllStylists] = useState<any[]>([]);
+  const [availableStylists, setAvailableStylists] = useState<any[]>([]);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -46,22 +41,144 @@ const CalendarManagement: React.FC = () => {
     }
   };
 
-  const handleChangeStylist = async (bookingId: number, stylistId: number) => {
+  // Hàm để lấy tất cả stylist có deleted = false, chỉ dùng cho form "Chọn Stylist"
+  const fetchAllStylists = async () => {
     try {
-      const response = await api.put(`/bookings/${bookingId}/stylist`, {
+      const response = await api.get("/account");
+      const stylistAccounts = response.data.filter(
+        (account: any) =>
+          account.role === "STYLIST" && account.deleted === false
+      );
+
+      const allStylistsData = stylistAccounts.map((account: any) => ({
+        id: account.stylists[0]?.id,
+        fullName: account.fullName,
+      }));
+
+      setAllStylists(allStylistsData); // Gán danh sách stylist vào allStylists
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách stylist:", error);
+      message.error("Không thể tải danh sách stylist.");
+    }
+  };
+
+  // Hàm để lấy stylist khả dụng khi đổi stylist trong modal
+  const fetchAvailableStylistsForModal = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      const response = await api.get("/account");
+      const schedulesResponse = await api.get("/schedules");
+      const bookingsResponse = await api.get("/bookings/getBooking");
+
+      const stylistAccounts = response.data.filter(
+        (account: any) =>
+          account.role === "STYLIST" && account.deleted === false
+      );
+
+      const filteredStylists = stylistAccounts
+        .filter((account: any) => {
+          const stylistId = account.stylists[0]?.id;
+          const currentStylistId = selectedEvent.stylistId;
+
+          if (stylistId === currentStylistId) return true;
+
+          const approvedLeaves = schedulesResponse.data.filter(
+            (schedule: any) =>
+              schedule.stylist.id === stylistId &&
+              schedule.status === "Chấp nhận"
+          );
+
+          const stylistBookings = bookingsResponse.data.filter(
+            (booking: any) => booking.stylist.id === stylistId
+          );
+
+          return (
+            !approvedLeaves.some((leave: any) => {
+              const leaveStart = moment(leave.startTime);
+              const leaveEnd = moment(leave.endTime);
+              return (
+                moment(selectedEvent.start).isBetween(
+                  leaveStart,
+                  leaveEnd,
+                  null,
+                  "[]"
+                ) ||
+                moment(selectedEvent.end).isBetween(
+                  leaveStart,
+                  leaveEnd,
+                  null,
+                  "[]"
+                )
+              );
+            }) &&
+            !stylistBookings.some((booking: any) => {
+              const bookingStart = moment(
+                `${booking.appointmentDate} ${booking.startTime}`
+              );
+              const bookingEnd = moment(
+                `${booking.appointmentDate} ${booking.endTime}`
+              );
+              return (
+                moment(selectedEvent.start).isBetween(
+                  bookingStart,
+                  bookingEnd,
+                  null,
+                  "[]"
+                ) ||
+                moment(selectedEvent.end).isBetween(
+                  bookingStart,
+                  bookingEnd,
+                  null,
+                  "[]"
+                )
+              );
+            })
+          );
+        })
+        .map((account: any) => ({
+          id: account.stylists[0]?.id,
+          fullName: account.fullName,
+        }));
+
+      setAvailableStylists(filteredStylists); // Gán stylist khả dụng vào availableStylists
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách stylist khả dụng:", error);
+      message.error("Không thể tải stylist khả dụng.");
+    }
+  };
+
+  // Gọi fetchAllStylists một lần khi component mount để hiển thị tất cả stylist
+  useEffect(() => {
+    fetchAllStylists();
+  }, []);
+
+  // Gọi fetchAvailableStylistsForModal khi mở modal "Đổi Stylist"
+  useEffect(() => {
+    if (isModalVisible) {
+      fetchAvailableStylistsForModal();
+    }
+  }, [isModalVisible]);
+
+  const handleChangeStylist = async () => {
+    if (temporaryStylistId === null || !selectedEvent) return;
+
+    try {
+      const response = await api.put(`/bookings/${selectedEvent.id}/stylist`, {
         stylist_id: {
-          id: stylistId,
-          image: "", // Bạn có thể tùy chỉnh hoặc bỏ qua các giá trị này nếu không cần
+          id: temporaryStylistId,
+          image: "",
           rating: "",
         },
       });
-      console.log("API Response:", response.data); // Log dữ liệu trả về từ API
+      console.log("API Response:", response.data);
       message.success("Stylist đã được cập nhật thành công!");
 
-      // Fetch lại dữ liệu booking ngay sau khi đổi stylist thành công
       if (selectedStylistId) {
         await fetchBookingsAndLeaves(selectedStylistId);
       }
+
+      setIsModalVisible(false);
     } catch (error) {
       console.error("Lỗi khi đổi stylist:", error);
       message.error("Không thể đổi stylist, vui lòng thử lại.");
@@ -75,38 +192,6 @@ const CalendarManagement: React.FC = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-
-  useEffect(() => {
-    const fetchStylists = async () => {
-      try {
-        const response = await api.get("/account");
-        console.log("Dữ liệu từ API /account:", response.data); // Kiểm tra dữ liệu trả về từ API
-
-        const stylistAccounts = response.data.filter(
-          (account: any) => account.role === "STYLIST"
-        );
-        console.log("Danh sách stylist sau khi lọc:", stylistAccounts); // Kiểm tra danh sách stylist đã lọc
-
-        const stylistsData = stylistAccounts.map((account: any) => {
-          // Kiểm tra từng stylist để chắc chắn lấy đúng id và fullName
-          console.log("Stylist trước khi chuyển đổi:", account);
-          return {
-            id: account.stylists[0]?.id, // Dùng optional chaining để tránh lỗi nếu stylists không tồn tại
-            fullName: account.fullName,
-          };
-        });
-
-        console.log("Danh sách stylistsData sau khi chuyển đổi:", stylistsData); // Kiểm tra danh sách stylist cuối cùng
-
-        setStylists(stylistsData);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách stylist:", error);
-        message.error("Không thể tải danh sách stylist.");
-      }
-    };
-
-    fetchStylists();
-  }, []);
 
   const fetchCustomerNames = async () => {
     try {
@@ -136,7 +221,6 @@ const CalendarManagement: React.FC = () => {
     const start = moment(leave.startTime);
     const end = moment(leave.endTime);
 
-    // Lặp qua từng ngày từ start đến end
     while (start.isBefore(end, "day")) {
       events.push({
         title: `Nghỉ: ${leave.reason}`,
@@ -159,7 +243,6 @@ const CalendarManagement: React.FC = () => {
 
   const fetchBookingsAndLeaves = async (stylistId: number) => {
     try {
-      // Fetch customer names first
       const customerNamesMap = await fetchCustomerNames();
 
       const [bookingsResponse, schedulesResponse] = await Promise.all([
@@ -176,7 +259,6 @@ const CalendarManagement: React.FC = () => {
           schedule.stylist.id === stylistId && schedule.status === "Chấp nhận"
       );
 
-      // Cập nhật danh sách lịch nghỉ vào state
       setSchedules(stylistSchedules);
 
       const formattedBookings = stylistBookings.map((booking: any) => ({
@@ -203,13 +285,6 @@ const CalendarManagement: React.FC = () => {
     }
   };
 
-  // Xóa useEffect hiện tại cho fetchCustomerNames và fetchBookingsAndLeaves
-  useEffect(() => {
-    if (selectedStylistId) {
-      fetchBookingsAndLeaves(selectedStylistId);
-    }
-  }, [selectedStylistId]);
-
   useEffect(() => {
     if (selectedStylistId) {
       fetchBookingsAndLeaves(selectedStylistId);
@@ -221,8 +296,6 @@ const CalendarManagement: React.FC = () => {
 
     if (event.title.startsWith("Nghỉ:")) {
       const scheduleId = event.scheduleID;
-
-      // Tìm lịch nghỉ từ danh sách schedules đã lưu trong state
       const scheduleDetails = schedules.find(
         (schedule: any) => schedule.id === scheduleId
       );
@@ -243,9 +316,7 @@ const CalendarManagement: React.FC = () => {
       return;
     }
 
-    // Xử lý cho sự kiện booking
     const bookingId = event.id || event.bookingId;
-
     if (bookingId) {
       console.log("Đang lấy chi tiết booking cho bookingId:", bookingId);
       try {
@@ -275,7 +346,7 @@ const CalendarManagement: React.FC = () => {
           serviceNames: serviceNamesList,
           totalPrice: totalPrice.toLocaleString("vi-VN") + " VND",
           status: bookingDetails.status,
-          isLeave: false, // Đánh dấu đây không phải là sự kiện nghỉ
+          isLeave: false,
         });
         setIsModalVisible(true);
       } catch (error) {
@@ -295,7 +366,7 @@ const CalendarManagement: React.FC = () => {
         onChange={(value) => setSelectedStylistId(value)}
         allowClear
       >
-        {stylists.map((stylist) => (
+        {allStylists.map((stylist) => (
           <Option key={stylist.id} value={stylist.id}>
             {stylist.fullName}
           </Option>
@@ -322,7 +393,6 @@ const CalendarManagement: React.FC = () => {
         {selectedEvent && (
           <div>
             {selectedEvent.isLeave ? (
-              // Hiển thị thông tin cho lịch nghỉ
               <>
                 <p>
                   <strong>Loại sự kiện:</strong> Lịch nghỉ
@@ -335,13 +405,11 @@ const CalendarManagement: React.FC = () => {
                   {moment(selectedEvent.start).format("DD/MM/YYYY HH:mm")} -{" "}
                   {moment(selectedEvent.end).format("DD/MM/YYYY HH:mm")}
                 </p>
-
                 <p>
                   <strong>Trạng thái:</strong> {selectedEvent.status}
                 </p>
               </>
             ) : (
-              // Hiển thị thông tin cho booking
               <>
                 <p>
                   <strong>Khách hàng:</strong>{" "}
@@ -399,17 +467,22 @@ const CalendarManagement: React.FC = () => {
             </p>
             <Select
               placeholder="Chọn Stylist"
-              onChange={(stylistId) =>
-                handleChangeStylist(selectedEvent.id, stylistId)
-              }
+              onChange={(stylistId) => setTemporaryStylistId(stylistId)}
               style={{ width: 200 }}
             >
-              {stylists.map((stylist) => (
+              {availableStylists.map((stylist) => (
                 <Option key={stylist.id} value={stylist.id}>
                   {stylist.fullName}
                 </Option>
               ))}
             </Select>
+            <Button
+              type="primary"
+              style={{ marginTop: "10px" }}
+              onClick={handleChangeStylist}
+            >
+              Xác nhận
+            </Button>
           </div>
         )}
       </Modal>
