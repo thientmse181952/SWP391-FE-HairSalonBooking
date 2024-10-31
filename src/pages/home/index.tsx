@@ -6,7 +6,7 @@ import HairStylistSlider from "../../components/stylists";
 import ScrollToTop from "../../components/scroll-to-top";
 
 const Home: React.FC = () => {
-  const navigate = useNavigate(); // Khai báo navigate
+  const navigate = useNavigate();
 
   const handleServiceClick = () => {
     navigate("/services");
@@ -15,10 +15,10 @@ const Home: React.FC = () => {
   const handleBookingClick = () => {
     const token = localStorage.getItem("token"); // Lấy token từ localStorage
     if (token) {
-      navigate("/booking"); // Nếu đã đăng nhập, điều hướng đến trang booking
+      navigate("/booking"); // Đã đăng nhập
     } else {
-      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!"); // Hiển thị thông báo yêu cầu đăng nhập
-      navigate("/login"); // Điều hướng đến trang login nếu chưa đăng nhập
+      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!");
+      navigate("/login"); // Chưa đăng nhập
     }
   };
 

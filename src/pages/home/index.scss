@@ -146,7 +146,7 @@
     text-align: center;
 
     h3 {
-      font-size: 28px; /* Tăng kích thước chữ */
+      font-size: 28px;
       font-weight: normal;
       letter-spacing: 2px;
       color: #333;
@@ -155,7 +155,7 @@
     }
 
     h1 {
-      font-size: 60px; /* Tăng kích thước chữ */
+      font-size: 60px;
       font-weight: bold;
       letter-spacing: 4px;
       color: #000;
@@ -164,7 +164,7 @@
     .banner-image {
       img {
         width: 100%;
-        max-width: 1300px; /* Điều chỉnh max-width lên 1300px */
+        max-width: 1300px;
         height: auto;
         object-fit: cover;
         border-radius: 10px;
@@ -174,9 +174,9 @@
     .booking-button {
       background-color: #c58246;
       color: #fff;
-      font-size: 22px; /* Tăng kích thước chữ */
+      font-size: 22px;
       font-weight: bold;
-      padding: 20px 50px; /* Tăng kích thước button */
+      padding: 20px 50px;
       border: none;
       border-radius: 30px;
       cursor: pointer;

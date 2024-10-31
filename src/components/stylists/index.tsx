@@ -9,22 +9,20 @@ const HairStylistSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false); // Animation state
 
-  // Fetch stylist image and names from API
   useEffect(() => {
     const fetchStylists = async () => {
       try {
-        // Fetch stylists and account data
+        // Fetch dữ liệu stylists và account
         const [stylistResponse, accountResponse] = await Promise.all([
           api.get("/stylist/getAllStylist"),
           api.get("/account"),
         ]);
 
-        // Map account data to stylist ID to get the correct name
         const stylistAccounts = accountResponse.data.filter(
           (account: any) => account.role === "STYLIST"
         );
 
-        // Create stylist data including both name and image
+        // Lấy đúng tên stylist từ account
         const stylistsWithNames = stylistResponse.data.map((stylist: any) => {
           const account = stylistAccounts.find((account: any) =>
             account.stylists.some((s: any) => s.id === stylist.id)
@@ -63,6 +61,7 @@ const HairStylistSlider: React.FC = () => {
     }
   };
 
+  // Chuyển silde tự động (nếu là ảnh cuối, thì quay về ảnh đầu)
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) =>
@@ -73,6 +72,7 @@ const HairStylistSlider: React.FC = () => {
     return () => clearInterval(interval);
   }, [stylistData]);
 
+  // Xác định vị trí stylist trước và sau
   const getIndexes = () => {
     const leftIndex =
       (currentIndex === 0 ? stylistData.length - 1 : currentIndex - 1) %
@@ -87,7 +87,7 @@ const HairStylistSlider: React.FC = () => {
     setCurrentIndex(index);
   };
 
-  // Handle animation complete
+  // Kết thúc animation
   useEffect(() => {
     if (isAnimating) {
       const timer = setTimeout(() => {

@@ -17,7 +17,6 @@ const Login: React.FC = () => {
     try {
       console.log("Đang đăng nhập với:", values);
 
-      // Gọi API đăng nhập
       const response = await api.post("login", {
         username: values.username,
         password: values.password,
@@ -26,7 +25,6 @@ const Login: React.FC = () => {
       console.log("Kết quả đăng nhập:", response.data);
 
       if (response.status === 200) {
-        // Lấy token, fullName và số điện thoại từ response
         const token = response.data.token;
         const fullName = response.data.fullName;
         const phone = values.username; // Sử dụng số điện thoại (username) để tìm tài khoản
@@ -38,12 +36,12 @@ const Login: React.FC = () => {
           throw new Error("Không có token từ API!");
         }
 
-        // Lưu token và thông tin vào localStorage
+        // Lưu thông tin vào localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("fullName", fullName);
         localStorage.setItem("phone", phone);
 
-        // Gọi API /api/account để lấy tất cả thông tin tài khoản
+        // Lấy tất cả thông tin tài khoản
         try {
           const accountResponse = await api.get("account", {
             headers: {
@@ -55,7 +53,7 @@ const Login: React.FC = () => {
 
           // Duyệt qua tất cả các tài khoản để tìm tài khoản hiện tại dựa trên số điện thoại
           const currentUser = accountResponse.data.find(
-            (user) => user.phone === phone
+            (user: any) => user.phone === phone
           );
 
           console.log("Tài khoản hiện tại:", currentUser);
@@ -63,25 +61,24 @@ const Login: React.FC = () => {
           if (currentUser) {
             // Cập nhật thông tin người dùng vào UserContext và lưu accountId
             setUser({
-              id: currentUser.id, // Lưu accountId
+              id: currentUser.id,
               role: currentUser.role,
               name: currentUser.fullName,
               token: token,
             });
 
-            // Lưu accountId vào localStorage
-            localStorage.setItem("accountId", currentUser.id); // Lưu accountId vào localStorage
+            localStorage.setItem("accountId", currentUser.id);
 
-            // Nếu role là CUSTOMER thì kiểm tra và gọi API tạo thông tin khách hàng nếu cần
+            // Nếu role là CUSTOMER thì kiểm tra và gọi API tạo thông tin khách hàng nếu chưa có
             if (currentUser.role === "CUSTOMER") {
-              // Gọi API /api/{accountId} để kiểm tra thông tin khách hàng
+              // Kiểm tra thông tin khách hàng
               const accountDetails = await api.get(`/${currentUser.id}`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               });
 
-              // Kiểm tra trạng thái 'deleted' của tài khoản
+              // Kiểm tra trạng thái 'deleted'
               if (accountDetails.data.deleted) {
                 message.error(
                   "Tài khoản của bạn đã bị cấm và không thể đăng nhập."
@@ -91,9 +88,9 @@ const Login: React.FC = () => {
 
               message.success("Đăng nhập thành công!");
 
-              // Kiểm tra xem "customers" có trống hay không
+              // Kiểm tra "customers" có trống hay không
               if (accountDetails.data.customers.length === 0) {
-                // Gọi API POST /customer nếu "customers" trống
+                // Nếu "customers" trống
                 const customerResponse = await api.post(
                   "/customer",
                   { id: 0 },
@@ -110,7 +107,6 @@ const Login: React.FC = () => {
                 ) {
                   message.success("Tạo thông tin khách hàng thành công!");
 
-                  // Lưu customerId vào localStorage
                   localStorage.setItem("customerId", customerResponse.data.id);
                   console.log(
                     "Customer ID đã được tạo và lưu:",
@@ -138,15 +134,14 @@ const Login: React.FC = () => {
             }
 
             // Nếu role là STYLIST, kiểm tra thông tin stylist
-            // After checking the role of the current user is "STYLIST"
             if (currentUser.role === "STYLIST") {
               // Kiểm tra nếu stylists array tồn tại và stylist đã có ID
               if (currentUser.stylists.length > 0) {
                 const stylistId = currentUser.stylists[0].id;
-                localStorage.setItem("stylistId", stylistId); // Lưu stylistId vào localStorage
+                localStorage.setItem("stylistId", stylistId);
                 console.log("Stylist ID saved to localStorage:", stylistId);
               } else {
-                // Nếu không có stylist nào tồn tại, gọi API tạo stylist mới
+                // Nếu không có stylist nào tồn tại, tạo stylist mới
                 const newStylist = {
                   rating: "",
                   image: "",
@@ -183,9 +178,10 @@ const Login: React.FC = () => {
                   message.error("Có lỗi khi tạo stylist.");
                 }
               }
+              message.success("Đăng nhập thành công!");
               navigate("/stylistpage/stylistInfo");
             } else if (currentUser.role === "MANAGER") {
-              console.log("Điều hướng đến trang admin");
+              message.success("Đăng nhập thành công!");
               navigate("/adminpage/adminInfo");
             } else {
               console.log("Điều hướng đến trang chủ");
@@ -203,7 +199,6 @@ const Login: React.FC = () => {
       }
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
-        // Kiểm tra nếu API trả về mã lỗi 400 và thông báo liên quan đến tài khoản/mật khẩu
         if (error.response.data === "Username or password invalid!") {
           message.error("Tài khoản hoặc mật khẩu sai.");
         }

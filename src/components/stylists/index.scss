@@ -8,21 +8,21 @@
 
   .left-title {
     position: relative;
-    left: -100px; /* Điều chỉnh vị trí cho hợp lý */
+    left: -100px;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     font-size: 24px;
     font-weight: bold;
     letter-spacing: 2px;
     color: #333;
-    margin-right: 50px; /* Tăng khoảng cách giữa tiêu đề và slider */
+    margin-right: 50px;
   }
 
   .slider-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: 50px; /* Giảm khoảng cách giữa slider và tiêu đề */
+    margin-left: 50px;
   }
 
   .slider-container {
@@ -50,7 +50,7 @@
         width: 330px;
         opacity: 0.5;
         transform: translateX(0);
-        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out; // Thêm transition mượt mà
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out; // Transition mượt mà
 
         img {
           width: 330px;
@@ -71,7 +71,7 @@
       .active {
         opacity: 1;
         transform: scale(1.05) translateX(0); // Hiệu ứng scale nhẹ và chuyển đổi vị trí
-        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out; // Mượt mà hơn
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
         h3 {
           font-size: 24px;
           color: #333;

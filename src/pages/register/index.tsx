@@ -10,26 +10,23 @@ import "./index.scss";
 import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-  const [form] = useForm(); // Khởi tạo form
+  const [form] = useForm();
   const navigate = useNavigate();
 
   // Hàm gửi yêu cầu đăng ký
   const registerUser = async (values: Store) => {
     try {
-      // Gọi API POST duy nhất để đăng ký
       const registerResponse = await api.post("/register", {
         fullName: values.fullname,
         email: values.email,
         phone: values.phone,
         password: values.password,
-        role: "CUSTOMER", // Mặc định đặt là CUSTOMER
+        role: "CUSTOMER",
         gender: values.gender,
       });
 
-      // Kiểm tra phản hồi API đăng ký
       if (registerResponse.status === 201 || registerResponse.status === 200) {
         message.success("Đăng ký thành công!");
-        // Chuyển hướng đến trang đăng nhập hoặc trang chính
         navigate("/login");
       } else {
         message.error("Đăng ký thất bại, vui lòng thử lại!");
@@ -42,7 +39,7 @@ const Register: React.FC = () => {
 
   const onFinish = (values: Store): void => {
     console.log("Success:", values);
-    registerUser(values); // Gọi hàm đăng ký sau khi form hợp lệ
+    registerUser(values);
   };
 
   const onFinishFailed = (errorInfo: ValidateErrorEntity): void => {
@@ -82,7 +79,7 @@ const Register: React.FC = () => {
           label="Email của bạn"
           name="email"
           rules={[
-            { required: false, message: "Vui lòng nhập email của bạn!" },
+            { required: true, message: "Vui lòng nhập email của bạn!" },
             { type: "email", message: "Vui lòng nhập địa chỉ email hợp lệ!" },
           ]}
         >

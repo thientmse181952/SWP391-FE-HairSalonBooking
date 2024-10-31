@@ -67,14 +67,40 @@ function App() {
       element: <Layout />,
       children: [{ path: "", element: <ResetPassword /> }],
     },
-    // Layout dành cho Customer với các trang như thông tin và đổi mật khẩu
+    {
+      path: "collection",
+      element: <Layout />,
+      children: [
+        { path: "", element: <Collection /> },
+        { path: ":categoryName", element: <Collection /> },
+      ],
+    },
+    {
+      path: "services",
+      element: <Layout />,
+      children: [
+        { path: "", element: <Services /> },
+        { path: "detail/:id", element: <ServicesDetail /> },
+      ],
+    },
+    {
+      path: "brand",
+      element: <Layout />,
+      children: [{ path: "", element: <Brand /> }],
+    },
+    {
+      path: "booking",
+      element: <Layout />,
+      children: [{ path: "", element: <Booking /> }],
+    },
+    // Layout dành cho Customer
     {
       path: "customer",
       element: <LayoutCustomer />, // Áp dụng LayoutCustomer cho customer
       children: [
-        { path: "information", element: <CustomerInformation /> }, // Thông tin khách hàng
-        { path: "change-password", element: <ChangePassword /> }, // Đổi mật khẩu
-        { path: "bookings", element: <CustomerBookingList /> }, // Đổi mật khẩu
+        { path: "information", element: <CustomerInformation /> },
+        { path: "change-password", element: <ChangePassword /> },
+        { path: "bookings", element: <CustomerBookingList /> },
       ],
     },
     {
@@ -125,32 +151,7 @@ function App() {
         { path: "StylistDayoff", element: <StylistDayoff /> },
       ],
     },
-    {
-      path: "collection",
-      element: <Layout />,
-      children: [
-        { path: "", element: <Collection /> },
-        { path: ":categoryName", element: <Collection /> },
-      ],
-    },
-    {
-      path: "services",
-      element: <Layout />,
-      children: [
-        { path: "", element: <Services /> },
-        { path: "detail/:id", element: <ServicesDetail /> },
-      ],
-    },
-    {
-      path: "brand",
-      element: <Layout />,
-      children: [{ path: "", element: <Brand /> }],
-    },
-    {
-      path: "booking",
-      element: <Layout />,
-      children: [{ path: "", element: <Booking /> }],
-    },
+    
   ]);
 
   return <RouterProvider router={router} />;
