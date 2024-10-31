@@ -1,15 +1,22 @@
 import React, { useState } from "react";
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
   TeamOutlined,
   UserOutlined,
-  UploadOutlined,
+  UserAddOutlined,
+  LogoutOutlined,
+  GiftOutlined,
+  SolutionOutlined,
+  TagsOutlined,
+  AppstoreOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
+  DashboardOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu, message, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
+import { useLocation } from "react-router-dom";
 import "./index.scss";
 
 const { Content, Sider } = Layout;
@@ -18,6 +25,8 @@ const AdminCategory: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { setUser } = useUser(); // Lấy hàm setUser từ UserContext để cập nhật trạng thái người dùng
   const navigate = useNavigate(); // Sử dụng hook navigate để điều hướng
+  const location = useLocation(); // Lấy URL hiện tại
+  const currentCategory = location.pathname.split("/").pop();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -48,36 +57,36 @@ const AdminCategory: React.FC = () => {
   }
 
   const items = [
-    getItem("Thông Tin Admin", "adminInfo", <PieChartOutlined />),
-    getItem(
-      "Quản Lý Khách Hàng",
-      "adminPersonnelManagement",
-      <DesktopOutlined />
-    ), // Đường dẫn cho Tất cả nhân sự
+    getItem("Thông Tin Admin", "adminInfo", <UserOutlined />),
+    getItem("Quản Lý Khách Hàng", "adminPersonnelManagement", <TeamOutlined />), // Đường dẫn cho Tất cả nhân sự
     getItem(
       "Tạo Tài Khoản Stylist",
       "create-stylist-account",
-      <UserOutlined />
+      <UserAddOutlined />
     ), // Đường dẫn cho Tạo Tài Khoản Stylist
-    getItem("Quản Lý Nhân Viên", "adminEmployeeRegistration", <UserOutlined />), // Đường dẫn cho Đăng ký nhân viên
-    getItem("Dashboard", "adminDashboard", <TeamOutlined />), // Đường dẫn cho Dashboard
-    getItem("Quản Lý Lịch", "adminCalendarManagement", <FileOutlined />), // Đường dẫn cho Xếp lịch Stylist
-    getItem("Quản Lý Lịch Nghỉ", "stylist-schedule", <UserOutlined />),
+    getItem(
+      "Quản Lý Nhân Viên",
+      "adminEmployeeRegistration",
+      <IdcardOutlined />
+    ), // Đường dẫn cho Đăng ký nhân viên
+    getItem("Dashboard", "adminDashboard", <DashboardOutlined />), // Đường dẫn cho Dashboard
+    getItem("Quản Lý Lịch", "adminCalendarManagement", <CalendarOutlined />), // Đường dẫn cho Xếp lịch Stylist
+    getItem("Quản Lý Lịch Nghỉ", "stylist-schedule", <ScheduleOutlined />),
     getItem(
       "Quản Lý Danh Mục Dịch Vụ",
       "category-management",
-      <UserOutlined />
+      <AppstoreOutlined />
     ),
-    getItem("Quản Lý Dịch Vụ", "adminServiceManagement", <UserOutlined />),
+    getItem("Quản Lý Dịch Vụ", "adminServiceManagement", <SolutionOutlined />),
     getItem(
       "Quản Lý Danh Mục BST",
       "category-collection-management",
-      <UserOutlined />
+      <TagsOutlined />
     ),
-    getItem("Quản Lý BST", "collection-management", <UserOutlined />), // Đường dẫn cho Quản lý dịch vụ
+    getItem("Quản Lý BST", "collection-management", <GiftOutlined />), // Đường dẫn cho Quản lý dịch vụ
     {
       key: "logout",
-      icon: <UploadOutlined />,
+      icon: <LogoutOutlined />,
       label: <span onClick={handleLogout}>Logout</span>, // Gọi trực tiếp handleLogout khi click vào Logout
     },
   ];
@@ -110,7 +119,7 @@ const AdminCategory: React.FC = () => {
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Admin</Breadcrumb.Item>
-            <Breadcrumb.Item>Category</Breadcrumb.Item>
+            <Breadcrumb.Item>{currentCategory}</Breadcrumb.Item>
           </Breadcrumb>
           <div
             style={{

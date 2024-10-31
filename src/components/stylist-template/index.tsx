@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UploadOutlined,
+  CalendarOutlined,
+  CommentOutlined,
+  LogoutOutlined,
+  ScheduleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu, message, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
+import { useLocation } from "react-router-dom";
 
 const { Content, Sider } = Layout;
 
@@ -35,7 +35,8 @@ const StylistPage: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
+  const location = useLocation();
+  const currentCategory = location.pathname.split("/").pop();
   // Hàm handleLogout tương tự admin
   const handleLogout = () => {
     localStorage.clear();
@@ -48,14 +49,13 @@ const StylistPage: React.FC = () => {
   };
 
   const items = [
-    getItem("Stylist Information", "stylistInfo", <PieChartOutlined />),
-    getItem("Stylist Feedback", "stylistFeedback", <DesktopOutlined />),
-    getItem("Stylist Performance", "stylistPerformance", <UserOutlined />),
-    getItem("Stylist Schedule", "stylistSchedule", <TeamOutlined />),
-    getItem("Stylist Day Off", "stylistDayoff", <FileOutlined />),
+    getItem("Thông Tin Stylist", "stylistInfo", <UserOutlined />),
+    getItem("Danh Sách Feedback", "stylistFeedback", <CommentOutlined />),
+    getItem("Lịch Làm Việc", "stylistSchedule", <CalendarOutlined />),
+    getItem("Lịch Nghỉ", "stylistDayoff", <ScheduleOutlined />),
     {
       key: "logout",
-      icon: <UploadOutlined />,
+      icon: <LogoutOutlined />,
       label: <span onClick={handleLogout}>Logout</span>, // Gọi trực tiếp handleLogout khi click vào Logout
     },
   ];
@@ -87,7 +87,7 @@ const StylistPage: React.FC = () => {
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Stylist</Breadcrumb.Item>
-            <Breadcrumb.Item>Category</Breadcrumb.Item>
+            <Breadcrumb.Item>{currentCategory}</Breadcrumb.Item>
           </Breadcrumb>
           <div
             style={{

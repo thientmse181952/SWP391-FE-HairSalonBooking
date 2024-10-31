@@ -79,6 +79,83 @@ const StylistInfo: React.FC = () => {
   };
 
   useEffect(() => {
+    const fetchAndUpdateStylistRating = async () => {
+      try {
+        const accountId = localStorage.getItem("accountId"); // Lấy accountID từ localStorage
+        console.log("Account ID from localStorage:", accountId); // Log kiểm tra accountId
+
+        if (!accountId) {
+          console.error("Không tìm thấy accountID trong localStorage.");
+          return;
+        }
+
+        // Gọi API để lấy thông tin tài khoản và từ đó lấy stylistID
+        const accountResponse = await api.get(`/${accountId}`);
+        const accountData = accountResponse.data;
+        console.log("Account Data:", accountData); // Log để kiểm tra dữ liệu tài khoản nhận được
+
+        const stylistID = accountData.stylists?.[0]?.id; // Lấy stylistID từ dữ liệu tài khoản
+        console.log("Stylist ID:", stylistID); // Log stylistID để kiểm tra
+
+        if (!stylistID) {
+          console.error("Stylist ID không tồn tại trong dữ liệu tài khoản.");
+          return;
+        }
+
+        // Gọi API để lấy toàn bộ feedbacks
+        const feedbackResponse = await api.get("/feedback/getAllFeedback");
+        const feedbacks = feedbackResponse.data;
+        console.log("All Feedback Data:", feedbacks); // Log toàn bộ feedbacks để kiểm tra
+
+        // Lọc feedback của stylist có ID tương ứng (stylistID nằm trong booking.stylist.id)
+        const stylistFeedbacks = feedbacks.filter(
+          (feedback: any) => feedback.booking.stylist?.id === stylistID
+        );
+        console.log("Filtered Feedbacks for Stylist:", stylistFeedbacks); // Kiểm tra feedbacks đã được lọc
+
+        if (stylistFeedbacks.length > 0) {
+          const totalRating = stylistFeedbacks.reduce(
+            (sum: number, feedback: any) =>
+              sum + parseFloat(feedback.rating_stylist),
+            0
+          );
+          const averageRating = (totalRating / stylistFeedbacks.length).toFixed(
+            1
+          );
+
+          console.log("Average Rating for Stylist:", averageRating); // Kiểm tra giá trị rating trung bình
+
+          // Kiểm tra dữ liệu trước khi gọi API
+          console.log("Sending PUT request to update rating for stylist:", {
+            stylistID,
+            rating: averageRating,
+          });
+
+          // Gửi PUT request để cập nhật rating
+          await api.put(`/stylist/${stylistID}/rating`, averageRating, {
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          });
+
+          // Cập nhật rating trong state nếu cần
+          setStylist((prevStylist) => ({
+            ...prevStylist!,
+            rating: averageRating,
+          }));
+        } else {
+          console.log("Không có feedback cho stylist này.");
+        }
+      } catch (error) {
+        console.error("Lỗi khi cập nhật rating của stylist:", error);
+        message.error("Không thể cập nhật rating của stylist.");
+      }
+    };
+
+    fetchAndUpdateStylistRating();
+  }, []);
+
+  useEffect(() => {
     const fetchAccountAndServices = async () => {
       try {
         const accountId = localStorage.getItem("accountId");
