@@ -218,6 +218,21 @@ function DashboardStatistic() {
           pagination={false}
         />
       </Card> */}
+      
+      <Card title="Top Khách Hàng tiềm năng Nhất" style={{ marginTop: 16 }}>
+        <Table
+          columns={[
+            {
+              title: "Khách Hàng",
+              dataIndex: "fullName",
+              key: "fullName",
+            },
+          ]}
+          dataSource={eliteCustomers}
+          rowKey="fullName"
+          pagination={false}
+        />
+      </Card>
 
       <Row gutter={16}>
       <Col span={12}>
@@ -341,20 +356,6 @@ function DashboardStatistic() {
         </ResponsiveContainer>
       </Card>
 
-      <Card title="Top Khách Hàng tiềm năng Nhất" style={{ marginTop: 16 }}>
-        <Table
-          columns={[
-            {
-              title: "Khách Hàng",
-              dataIndex: "fullName",
-              key: "fullName",
-            },
-          ]}
-          dataSource={eliteCustomers}
-          rowKey="fullName"
-          pagination={false}
-        />
-      </Card>
     </div>
   );
 }
