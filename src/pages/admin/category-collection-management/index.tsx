@@ -70,13 +70,20 @@ const CategoryCollectionManagement: React.FC = () => {
   };
 
   // Xử lý khi nhấn nút "Xóa", gọi API DELETE
+  // Xử lý khi nhấn nút "Xóa", gọi API DELETE
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/category-collection/${id}`);
       message.success("Xóa danh mục collection thành công!");
+
       // Fetch lại danh sách sau khi xóa thành công
       const response = await api.get("/category-collection/getCollection");
-      setCategoryCollections(response.data);
+
+      // Sắp xếp lại danh sách theo ID giảm dần sau khi xóa
+      const sortedCollections = response.data.sort(
+        (a: any, b: any) => b.id - a.id
+      );
+      setCategoryCollections(sortedCollections);
     } catch (error) {
       message.error("Lỗi khi xóa danh mục collection!");
     }

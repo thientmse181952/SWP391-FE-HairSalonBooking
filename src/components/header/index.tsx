@@ -4,6 +4,7 @@ import { FaFacebookF, FaGoogle, FaUserCircle } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import "./index.scss";
 import { message } from "antd";
+import { useUser } from "../../context/UserContext";
 
 function Header() {
   const navigate = useNavigate(); // Khởi tạo useNavigate
@@ -11,11 +12,17 @@ function Header() {
   const [userFullName, setUserFullName] = useState<string | null>(null); // Tạo state để lưu fullName người dùng
   const [token, setToken] = useState<string | null>(null); // Tạo state để lưu token
   const [isSticky, setIsSticky] = useState(false); // State để theo dõi khi header-bottom cần cố định
+  const { user } = useUser();
 
   useEffect(() => {
     // Cuộn lên đầu trang mỗi khi location.pathname thay đổi với hiệu ứng mượt
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]); // Theo dõi sự thay đổi của pathname
+
+  useEffect(() => {
+    const fullName = localStorage.getItem("fullName");
+    setUserFullName(fullName);
+  }, [location]);
 
   useEffect(() => {
     // Kiểm tra localStorage xem người dùng đã đăng nhập hay chưa
@@ -88,7 +95,7 @@ function Header() {
           <FaUserCircle />
           {userFullName ? (
             <div>
-              <span>Xin chào, {userFullName}</span> <br />
+              <span>Xin chào, {user.name}</span> <br />
               <div className="account-actions">
                 <button
                   className="account-info"

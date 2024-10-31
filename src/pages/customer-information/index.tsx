@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Form, Input, message, Select } from "antd";
 import api from "../../config/axios"; // Sử dụng api đã cấu hình
 import "./index.scss";
+import { useUser } from "../../context/UserContext";
 
 interface Customer {
   fullName: string;
@@ -19,6 +20,7 @@ const CustomerInformation: React.FC = () => {
     gender: "",
   });
   const [accountId, setAccountId] = useState<number | null>(null); // Lưu ID của tài khoản
+  const { user, setUser } = useUser();
 
   useEffect(() => {
     const fetchCustomerInformation = async () => {
@@ -105,6 +107,14 @@ const CustomerInformation: React.FC = () => {
           phone: customer.phone, // Giữ nguyên số điện thoại
           email: values.email,
           gender: values.gender,
+        });
+
+        // Cập nhật `localStorage` với tên mới để đồng bộ với Header
+        setUser({
+          ...user!,
+          name: values.fullName,
+          token: user!.token,
+          role: user!.role,
         });
       } else {
         message.error("Cập nhật thất bại, vui lòng thử lại!");

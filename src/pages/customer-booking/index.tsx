@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, Modal, Rate, Table, message } from "antd";
+import { Button, Input, Modal, Popconfirm, Rate, Table, message } from "antd";
 import moment from "moment";
 import api from "../../config/axios";
 import "./index.scss";
@@ -78,27 +78,69 @@ const CustomerBookingList: React.FC = () => {
       title: "Hành động",
       key: "action",
       render: (text: any, record: any) => {
-        // Chỉ hiển thị nút feedback khi trạng thái là "Đã thanh toán"
-        if (record.status === "Đã thanh toán") {
-          const bookingFeedback = feedbacks.find(
-            (feedback: any) => feedback.booking.id === record.id
-          );
-          return (
-            <Button
-              type="primary"
-              onClick={() =>
-                openFeedbackModal(record.id, bookingFeedback?.id, record.status)
-              }
-            >
-              {bookingFeedback ? "Sửa" : "Đánh giá"}
-            </Button>
-          );
-        } else {
-          return null; // Không hiển thị nút nếu trạng thái không phải là "paid"
-        }
+        // Chỉ hiển thị nút feedback và xóa khi trạng thái là "Đã xác nhận"
+        const isConfirmed = record.status === "Đã xác nhận";
+        const bookingFeedback = feedbacks.find(
+          (feedback: any) => feedback.booking.id === record.id
+        );
+
+        return (
+          <div>
+            {isConfirmed && (
+              <Popconfirm
+                title="Bạn có chắc chắn muốn xóa đặt lịch này không?"
+                onConfirm={() => handleDeleteBooking(record.id)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button type="link" danger>
+                  Xóa
+                </Button>
+              </Popconfirm>
+            )}
+            {record.status === "Đã thanh toán" && (
+              <Button
+                type="primary"
+                onClick={() =>
+                  openFeedbackModal(
+                    record.id,
+                    bookingFeedback?.id,
+                    record.status
+                  )
+                }
+              >
+                {bookingFeedback ? "Sửa" : "Đánh giá"}
+              </Button>
+            )}
+          </div>
+        );
       },
     },
   ];
+
+  const handleDeleteBooking = async (bookingId: number) => {
+    try {
+      console.log("Deleting booking with ID:", bookingId); // Log ID của booking trước khi gọi API
+
+      const response = await api.delete(`/bookings/${bookingId}`);
+      if (response.status === 200) {
+        message.success("Xóa đặt lịch thành công!");
+
+        // Cập nhật lại danh sách booking sau khi xóa thành công và sắp xếp lại theo thứ tự giảm dần
+        setBookings(
+          (prevBookings) =>
+            prevBookings
+              .filter((booking) => booking.id !== bookingId)
+              .sort((a, b) => b.id - a.id) // Sắp xếp theo ID giảm dần
+        );
+      } else {
+        message.error("Không thể xóa đặt lịch. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa đặt lịch:", error);
+      message.error("Đã xảy ra lỗi khi xóa đặt lịch.");
+    }
+  };
 
   const openFeedbackModal = (
     bookingId: number,
@@ -197,9 +239,12 @@ const CustomerBookingList: React.FC = () => {
         const response = await api.get("/bookings/getBooking");
         const allBookings = response.data;
 
-        const customerBookings = allBookings.filter(
-          (booking: any) => booking.customer.id === parseInt(customerId || "0")
-        );
+        const customerBookings = allBookings
+          .filter(
+            (booking: any) =>
+              booking.customer.id === parseInt(customerId || "0")
+          )
+          .reverse(); // Sắp xếp ngược dữ liệu từ API trả về
 
         setBookings(customerBookings);
       } catch (error) {
@@ -242,7 +287,7 @@ const CustomerBookingList: React.FC = () => {
 
   useEffect(() => {
     if (bookings.length > 0 && accounts.length > 0 && services.length > 0) {
-      const newUpdatedBookings = bookings.reverse().map((booking: any) => {
+      const newUpdatedBookings = bookings.map((booking: any) => {
         const stylistAccount = accounts.find((account: any) =>
           account.stylists.some(
             (stylist: any) => stylist.id === booking.stylist.id
