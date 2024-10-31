@@ -247,6 +247,10 @@ const StylistSchedule: React.FC = () => {
 
   const fetchEvents = async (namesMap: { [key: number]: string }) => {
     try {
+      // Nếu namesMap chưa được truyền, tự gọi fetchCustomerNames để lấy namesMap
+      if (!namesMap) {
+        namesMap = await fetchCustomerNames();
+      }
       console.log(
         "Danh sách tên khách hàng khi fetchEvents bắt đầu:",
         namesMap

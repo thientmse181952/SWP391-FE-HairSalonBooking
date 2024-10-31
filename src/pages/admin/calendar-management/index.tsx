@@ -46,6 +46,28 @@ const CalendarManagement: React.FC = () => {
     }
   };
 
+  const handleChangeStylist = async (bookingId: number, stylistId: number) => {
+    try {
+      const response = await api.put(`/bookings/${bookingId}/stylist`, {
+        stylist_id: {
+          id: stylistId,
+          image: "", // Bạn có thể tùy chỉnh hoặc bỏ qua các giá trị này nếu không cần
+          rating: "",
+        },
+      });
+      console.log("API Response:", response.data); // Log dữ liệu trả về từ API
+      message.success("Stylist đã được cập nhật thành công!");
+
+      // Fetch lại dữ liệu booking ngay sau khi đổi stylist thành công
+      if (selectedStylistId) {
+        await fetchBookingsAndLeaves(selectedStylistId);
+      }
+    } catch (error) {
+      console.error("Lỗi khi đổi stylist:", error);
+      message.error("Không thể đổi stylist, vui lòng thử lại.");
+    }
+  };
+
   const handleOk = () => {
     setIsModalVisible(false);
   };
@@ -360,6 +382,26 @@ const CalendarManagement: React.FC = () => {
                 )}
               </>
             )}
+          </div>
+        )}
+        {selectedEvent && selectedEvent.status === "Đã xác nhận" && (
+          <div>
+            <p>
+              <strong>Đổi stylist:</strong>
+            </p>
+            <Select
+              placeholder="Chọn Stylist"
+              onChange={(stylistId) =>
+                handleChangeStylist(selectedEvent.id, stylistId)
+              }
+              style={{ width: 200 }}
+            >
+              {stylists.map((stylist) => (
+                <Option key={stylist.id} value={stylist.id}>
+                  {stylist.fullName}
+                </Option>
+              ))}
+            </Select>
           </div>
         )}
       </Modal>

@@ -12,7 +12,7 @@ import { Breadcrumb, Layout, Menu, message, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 function getItem(
   label: React.ReactNode,
@@ -84,7 +84,6 @@ const StylistPage: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Stylist</Breadcrumb.Item>
