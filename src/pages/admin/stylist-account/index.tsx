@@ -19,22 +19,25 @@ const StylistAccountManagement: React.FC = () => {
   const [openModal, setOpenModal] = useState(false); // Trạng thái modal thêm/sửa stylist
   const [editingAccount, setEditingAccount] = useState(null); // Trạng thái chỉnh sửa stylist
   const [form] = Form.useForm(); // Sử dụng form của Ant Design
+  const [openChangePasswordModal, setOpenChangePasswordModal] = useState(false);
 
-  // Gọi API để lấy danh sách stylist từ server
+  const fetchAccounts = async () => {
+    try {
+      const response = await api.get("/account");
+      const stylists = response.data
+        .filter(
+          (account: any) =>
+            account.role === "STYLIST" && account.deleted === false
+        ) // Lọc deleted = false
+        .sort((a: any, b: any) => b.id - a.id); // Sắp xếp theo ID giảm dần
+      setAccounts(stylists);
+      setLoading(false);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách stylist:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await api.get("/account"); // Gọi API lấy danh sách tài khoản stylist
-        const stylists = response.data.filter(
-          (account: any) => account.role === "STYLIST"
-        );
-        setAccounts(stylists); // Lưu dữ liệu stylist vào state
-        setLoading(false); // Tắt loading sau khi lấy dữ liệu xong
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách stylist:", error);
-      }
-    };
-
     fetchAccounts();
   }, []);
 
@@ -42,11 +45,13 @@ const StylistAccountManagement: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       if (editingAccount) {
-        // Nếu đang trong trạng thái chỉnh sửa, gọi API PUT
-        await api.put(`/account/${editingAccount.id}`, {
-          ...editingAccount,
-          ...values,
-        });
+        // Nếu đang trong trạng thái chỉnh sửa, gọi API PUT và chỉ gửi các thông tin cần thiết
+        const updateData = {
+          fullName: values.fullName,
+          email: values.email,
+          gender: values.gender,
+        };
+        await api.put(`/${editingAccount.id}`, updateData);
         message.success("Cập nhật stylist thành công!");
       } else {
         // Nếu là thêm mới, gọi API POST
@@ -60,9 +65,12 @@ const StylistAccountManagement: React.FC = () => {
 
       // Fetch lại danh sách ngay lập tức sau khi thêm hoặc cập nhật thành công
       const response = await api.get("/account");
-      const stylists = response.data.filter(
-        (account: any) => account.role === "STYLIST"
-      );
+      const stylists = response.data
+        .filter(
+          (account: any) =>
+            account.role === "STYLIST" && account.deleted === false
+        )
+        .sort((a: any, b: any) => b.id - a.id); // Sắp xếp theo ID giảm dần
       setAccounts(stylists); // Cập nhật danh sách stylist mới
 
       setOpenModal(false); // Đóng modal ngay lập tức sau khi API thành công
@@ -84,7 +92,7 @@ const StylistAccountManagement: React.FC = () => {
   // Xử lý khi nhấn nút "Xóa", gọi API DELETE
   const handleDelete = async (id: number) => {
     try {
-      await api.delete(`/account/${id}`);
+      await api.delete(`/${id}`);
       message.success("Xóa stylist thành công!");
       // Fetch lại danh sách sau khi xóa thành công
       const response = await api.get("/account");
@@ -97,31 +105,43 @@ const StylistAccountManagement: React.FC = () => {
     }
   };
 
-  // Cấu trúc cột của bảng
+  // Cấu trúc cột của bảng StylistAccountManagement
   const columns = [
     {
       title: "ID",
       dataIndex: "id",
       key: "id",
+      width: "10%",
     },
     {
       title: "Tên stylist",
       dataIndex: "fullName",
       key: "fullName",
+      width: "20%",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      width: "25%",
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       key: "phone",
+      width: "15%",
+    },
+    {
+      title: "Giới tính",
+      dataIndex: "gender",
+      key: "gender",
+      width: "10%",
+      render: (gender: string) => (gender === "Male" ? "Nam" : "Nữ"),
     },
     {
       title: "Hành động",
       key: "action",
+      width: "20%",
       render: (account: any) => (
         <>
           <Button
@@ -149,17 +169,27 @@ const StylistAccountManagement: React.FC = () => {
   return (
     <div className="card">
       <h1>Quản Lý Tài Khoản Stylist</h1>
-      <Button type="primary" onClick={() => setOpenModal(true)}>
+      <Button
+        type="primary"
+        onClick={() => {
+          setOpenModal(true);
+          form.resetFields(); // Reset các thông tin trong form khi mở modal
+        }}
+      >
         Thêm Stylist
       </Button>
+
       {/* Hiển thị bảng chứa danh sách stylist */}
       <Table
         columns={columns}
         dataSource={accounts}
         rowKey="id"
         loading={loading}
-        style={{ marginTop: 20 }}
+        pagination={false}
+        scroll={{ x: "max-content" }} // Đảm bảo bảng cuộn được khi chiều rộng vượt quá kích thước thẻ card
+        style={{ marginTop: 20, width: "100%" }} // Đảm bảo bảng chiếm toàn bộ chiều rộng của thẻ card
       />
+
       {/* Modal thêm/sửa stylist */}
       <Modal
         title={editingAccount ? "Chỉnh sửa stylist" : "Thêm stylist mới"}
@@ -195,48 +225,53 @@ const StylistAccountManagement: React.FC = () => {
             <Input />
           </Form.Item>
 
-          {/* Số điện thoại */}
-          <Form.Item
-            label="Số điện thoại"
-            name="phone"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+          {/* Số điện thoại - Chỉ hiển thị khi thêm stylist */}
+          {!editingAccount && (
+            <Form.Item
+              label="Số điện thoại"
+              name="phone"
+              rules={[
+                { required: true, message: "Vui lòng nhập số điện thoại!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          )}
 
-          {/* Mật khẩu */}
-          <Form.Item
-            label="Mật khẩu"
-            name="password"
-            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
+          {/* Mật khẩu - Chỉ hiển thị khi thêm stylist */}
+          {!editingAccount && (
+            <>
+              <Form.Item
+                label="Mật khẩu"
+                name="password"
+                rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+              >
+                <Input.Password />
+              </Form.Item>
 
-          {/* Nhập lại mật khẩu */}
-          <Form.Item
-            label="Nhập lại mật khẩu"
-            name="confirmPassword"
-            dependencies={["password"]}
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng xác nhận mật khẩu!",
-              },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error("Mật khẩu không khớp!"));
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+              <Form.Item
+                label="Nhập lại mật khẩu"
+                name="confirmPassword"
+                dependencies={["password"]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng xác nhận mật khẩu!",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("Mật khẩu không khớp!"));
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+            </>
+          )}
 
           {/* Giới tính */}
           <Form.Item

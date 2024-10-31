@@ -7,3 +7,8 @@
   box-sizing: border-box;
   font-family: 'Old Standard TT', serif;
 }
+
+.card {
+  max-width: 800px;
+  width: 100%;
+}

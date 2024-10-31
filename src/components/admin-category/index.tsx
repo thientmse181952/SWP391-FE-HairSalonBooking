@@ -12,7 +12,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 import "./index.scss";
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const AdminCategory: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -50,7 +50,7 @@ const AdminCategory: React.FC = () => {
   const items = [
     getItem("Thông Tin Admin", "adminInfo", <PieChartOutlined />),
     getItem(
-      "Personnel Management",
+      "Quản Lý Khách Hàng",
       "adminPersonnelManagement",
       <DesktopOutlined />
     ), // Đường dẫn cho Tất cả nhân sự
@@ -107,7 +107,6 @@ const AdminCategory: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Admin</Breadcrumb.Item>
