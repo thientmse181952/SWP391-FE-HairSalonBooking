@@ -40,20 +40,22 @@ function StylistScheduleAdmin() {
         const allAccounts = accountsResponse.data;
 
         // Gán fullName vào stylist dựa trên stylistID
-        const schedulesWithNames = allSchedules.map((schedule: Schedule) => {
-          const stylistAccount = allAccounts.find((account: Account) =>
-            account.stylists.some(
-              (stylist) => stylist.id === schedule.stylist.id
-            )
-          );
-          return {
-            ...schedule,
-            stylist: {
-              ...schedule.stylist,
-              fullName: stylistAccount ? stylistAccount.fullName : "Unknown",
-            },
-          };
-        });
+        const schedulesWithNames = allSchedules
+          .map((schedule: Schedule) => {
+            const stylistAccount = allAccounts.find((account: Account) =>
+              account.stylists.some(
+                (stylist) => stylist.id === schedule.stylist.id
+              )
+            );
+            return {
+              ...schedule,
+              stylist: {
+                ...schedule.stylist,
+                fullName: stylistAccount ? stylistAccount.fullName : "Unknown",
+              },
+            };
+          })
+          .sort((a, b) => b.id - a.id);
 
         setSchedules(schedulesWithNames);
       } catch (error) {
@@ -67,8 +69,50 @@ function StylistScheduleAdmin() {
   // Hàm xử lý cập nhật trạng thái
   const handleApproval = async (id: number, status: string) => {
     try {
-      const statusPayload = status === "chấp nhận" ? "Chấp nhận" : "Từ chối";
+      // Kiểm tra booking của stylist trước khi "chấp nhận"
+      if (status === "chấp nhận") {
+        const bookingsResponse = await api.get("/bookings/getBooking");
+        const allBookings = bookingsResponse.data;
 
+        // Tìm lịch nghỉ được phê duyệt
+        const scheduleToApprove = schedules.find(
+          (schedule) => schedule.id === id
+        );
+
+        console.log("Schedule cần phê duyệt:", scheduleToApprove);
+        console.log("Danh sách tất cả bookings:", allBookings);
+
+        const hasConflictingBooking = allBookings.some((booking: any) => {
+          const isSameStylist =
+            booking.stylist.id === scheduleToApprove?.stylist.id;
+          const isTimeConflict =
+            moment(scheduleToApprove?.startTime).isBefore(
+              moment(`${booking.appointmentDate} ${booking.endTime}`)
+            ) &&
+            moment(scheduleToApprove?.endTime).isAfter(
+              moment(`${booking.appointmentDate} ${booking.startTime}`)
+            );
+
+          console.log("Kiểm tra booking:", booking);
+          console.log("Stylist trùng:", isSameStylist);
+          console.log("Thời gian trùng:", isTimeConflict);
+
+          // Kiểm tra xem stylist có booking với thời gian trùng không
+          return (
+            isSameStylist && isTimeConflict && booking.status === "Đã xác nhận"
+          );
+        });
+
+        if (hasConflictingBooking) {
+          message.warning(
+            "Stylist này hiện có booking trùng với lịch nghỉ, không thể duyệt lịch nghỉ."
+          );
+          console.log("Có booking trùng thời gian, không cho phép duyệt.");
+          return;
+        }
+      }
+
+      const statusPayload = status === "chấp nhận" ? "Chấp nhận" : "Từ chối";
       await api.put(`/schedules/${id}/status`, statusPayload, {
         headers: {
           "Content-Type": "text/plain",
@@ -79,7 +123,6 @@ function StylistScheduleAdmin() {
         `Lịch đã được cập nhật thành công với trạng thái: ${status}`
       );
 
-      // Sau khi cập nhật, lấy lại danh sách schedules và accounts để gán lại fullName
       const [schedulesResponse, accountsResponse] = await Promise.all([
         api.get("/schedules"),
         api.get("/account"),
@@ -88,7 +131,6 @@ function StylistScheduleAdmin() {
       const allSchedules = schedulesResponse.data;
       const allAccounts = accountsResponse.data;
 
-      // Gán fullName vào stylist dựa trên stylistID sau khi cập nhật
       const schedulesWithNames = allSchedules.map((schedule: Schedule) => {
         const stylistAccount = allAccounts.find((account: Account) =>
           account.stylists.some((stylist) => stylist.id === schedule.stylist.id)
@@ -102,10 +144,13 @@ function StylistScheduleAdmin() {
         };
       });
 
-      setSchedules(schedulesWithNames); // Cập nhật lại danh sách lịch với tên stylist đầy đủ
-      setEditingRow(null); // Ẩn chế độ chỉnh sửa sau khi cập nhật
+      schedulesWithNames.sort((a: Schedule, b: Schedule) => b.id - a.id);
+
+      setSchedules(schedulesWithNames);
+      setEditingRow(null);
     } catch (error) {
       message.error("Lỗi khi cập nhật trạng thái lịch!");
+      console.error("Chi tiết lỗi:", error);
     }
   };
 
