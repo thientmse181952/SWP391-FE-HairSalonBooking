@@ -9,12 +9,10 @@ const localizer = momentLocalizer(moment);
 
 const StylistSchedule: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
-  const [events, setEvents] = useState<any[]>([]); // State to store bookings
+  const [events, setEvents] = useState<any[]>([]);
   const [customerNames, setCustomerNames] = useState<{ [key: number]: string }>(
     {}
-  ); // To store customer names
-
-  // Get stylistId from localStorage
+  );
   const stylistId = localStorage.getItem("stylistId");
   const [services, setServices] = useState<any[]>([]);
   const [serviceNames, setServiceNames] = useState<string[]>([]);
@@ -44,8 +42,8 @@ const StylistSchedule: React.FC = () => {
 
   // Đảm bảo fetchCustomerNames được gọi trước khi fetchEvents
   useEffect(() => {
-    fetchCustomerNames().then(() => {
-      fetchEvents();
+    fetchCustomerNames().then((namesMap) => {
+      fetchEvents(namesMap);
     });
   }, []);
 
@@ -55,7 +53,7 @@ const StylistSchedule: React.FC = () => {
       const accounts: any[] = response.data;
       const namesMap: { [key: number]: string } = {};
 
-      console.log("Dữ liệu từ API /account:", accounts); // Kiểm tra dữ liệu trả về từ API
+      console.log("Dữ liệu từ API /account:", accounts);
 
       accounts.forEach((account: any) => {
         if (
@@ -73,13 +71,13 @@ const StylistSchedule: React.FC = () => {
       });
 
       setCustomerNames(namesMap); // Cập nhật state
-      console.log("Danh sách tên khách hàng sau khi ánh xạ:", namesMap); // Kiểm tra kết quả ánh xạ
+      console.log("Danh sách tên khách hàng sau khi ánh xạ:", namesMap);
 
-      return namesMap; // Trả về danh sách tên khách hàng đã ánh xạ
+      return namesMap;
     } catch (error) {
       console.error("Lỗi khi lấy danh sách khách hàng:", error);
       message.error("Không thể tải danh sách khách hàng.");
-      return {}; // Trả về một object rỗng nếu xảy ra lỗi
+      return {};
     }
   };
 
@@ -96,14 +94,14 @@ const StylistSchedule: React.FC = () => {
         return;
       }
 
-      // Gọi API lấy danh sách schedule đã tồn tại
+      // Lấy danh sách schedule đã tồn tại
       const response = await api.get("/schedules");
       const existingSchedules = response.data;
 
       // Kiểm tra xem có lịch nghỉ nào trùng với stylistId và khoảng thời gian đã chọn không
       const hasConflict = existingSchedules.some((schedule: any) => {
         return (
-          schedule.stylist.id === parseInt(stylistId) &&
+          schedule.stylist.id === parseInt(stylistId || "0") &&
           (moment(startTime).isBetween(
             schedule.startTime,
             schedule.endTime,
@@ -136,10 +134,10 @@ const StylistSchedule: React.FC = () => {
         return;
       }
 
-      // Gọi API lấy danh sách bookings
+      // Lấy danh sách bookings
       const bookingsResponse = await api.get("/bookings/getBooking");
       const stylistBookings = bookingsResponse.data.filter(
-        (booking: any) => booking.stylist.id === parseInt(stylistId)
+        (booking: any) => booking.stylist.id === parseInt(stylistId || "0")
       );
 
       // Kiểm tra xem có booking nào trùng với khoảng thời gian đăng ký nghỉ không
@@ -191,14 +189,14 @@ const StylistSchedule: React.FC = () => {
 
       await api.post("/schedules", data);
       message.success("Đăng ký ngày nghỉ thành công!");
-      setIsLeaveModalVisible(false); // Đóng modal sau khi đăng ký thành công
+      setIsLeaveModalVisible(false);
     } catch (error) {
       console.error("Lỗi khi đăng ký ngày nghỉ:", error);
       message.error("Lỗi khi đăng ký ngày nghỉ, vui lòng thử lại.");
     }
   };
 
-  // Hàm để xử lý khi click vào sự kiện "Nghỉ"
+  // Khi click vào sự kiện "Nghỉ"
   const handleSelectLeaveEvent = (event: any) => {
     if (event.title.includes("Nghỉ")) {
       Modal.info({
@@ -228,7 +226,7 @@ const StylistSchedule: React.FC = () => {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      // Gọi API để thay đổi trạng thái booking, chỉ truyền chuỗi newStatus
+      // Thay đổi trạng thái booking, truyền chuỗi newStatus
       await api.put(`/bookings/${id}/status`, newStatus, {
         headers: {
           "Content-Type": "text/plain",
@@ -236,7 +234,8 @@ const StylistSchedule: React.FC = () => {
       });
 
       // Sau khi thay đổi trạng thái thành công, fetch lại dữ liệu
-      fetchEvents(); // Gọi lại hàm fetchEvents để cập nhật danh sách booking mới nhất
+      const namesMap = await fetchCustomerNames();
+      fetchEvents(namesMap);
 
       message.success("Trạng thái đã được cập nhật thành công!");
     } catch (error) {
@@ -254,28 +253,28 @@ const StylistSchedule: React.FC = () => {
       console.log(
         "Danh sách tên khách hàng khi fetchEvents bắt đầu:",
         namesMap
-      ); // Kiểm tra `namesMap` trước khi sử dụng
+      );
 
       // Fetch bookings
       const bookingsResponse = await api.get("/bookings/getBooking");
       const allBookings: any[] = bookingsResponse.data;
-      console.log("Dữ liệu từ API /bookings/getBooking:", allBookings); // Kiểm tra dữ liệu từ API bookings
+      console.log("Dữ liệu từ API /bookings/getBooking:", allBookings);
 
       const stylistBookings = allBookings.filter(
         (booking: any) =>
           booking.stylist && booking.stylist.id === parseInt(stylistId || "0")
       );
-      console.log("Danh sách bookings của stylist:", stylistBookings); // Kiểm tra danh sách bookings của stylist
+      console.log("Danh sách bookings của stylist:", stylistBookings);
 
       const formattedBookings = stylistBookings
         .map((booking: any) => {
-          // Kiểm tra `undefined` cho `customer` và các trường `appointmentDate`, `startTime`, `endTime`
+          // Kiểm tra `undefined` cho `customer`, `appointmentDate`, `startTime`, `endTime`
           if (!booking.customer || !booking.customer.id) {
             console.warn(
               "Booking không có customer hoặc customer ID:",
               booking
             );
-            return null; // Bỏ qua các booking không có customer ID
+            return null;
           }
 
           if (
@@ -284,12 +283,12 @@ const StylistSchedule: React.FC = () => {
             !booking.endTime
           ) {
             console.warn("Booking thiếu dữ liệu ngày giờ:", booking);
-            return null; // Bỏ qua nếu thiếu bất kỳ thông tin ngày giờ nào
+            return null;
           }
 
-          console.log("Giá trị của appointmentDate:", booking.appointmentDate); // Kiểm tra giá trị trước khi .split
-          console.log("Giá trị của startTime:", booking.startTime); // Kiểm tra giá trị trước khi .split
-          console.log("Giá trị của endTime:", booking.endTime); // Kiểm tra giá trị trước khi .split
+          console.log("Giá trị của appointmentDate:", booking.appointmentDate);
+          console.log("Giá trị của startTime:", booking.startTime);
+          console.log("Giá trị của endTime:", booking.endTime);
 
           const [year, month, day] = booking.appointmentDate
             .split("-")
@@ -306,7 +305,7 @@ const StylistSchedule: React.FC = () => {
             `Customer ID: ${booking.customer.id}, Tên khách hàng: ${
               namesMap[booking.customer.id]
             }`
-          ); // Kiểm tra xem customer ID có ánh xạ đúng không
+          );
 
           return {
             title: `Khách hàng: ${
@@ -318,12 +317,12 @@ const StylistSchedule: React.FC = () => {
             status: booking.status,
           };
         })
-        .filter(Boolean); // Loại bỏ các giá trị null khỏi mảng
+        .filter(Boolean);
 
-      // Fetch leaves
+      // Lấy dữ liệu ngày nghỉ
       const schedulesResponse = await api.get("/schedules");
       const allSchedules: any[] = schedulesResponse.data;
-      console.log("Dữ liệu từ API /schedules:", allSchedules); // Kiểm tra dữ liệu từ API schedules
+      console.log("Dữ liệu từ API /schedules:", allSchedules);
 
       const approvedLeaves = allSchedules.filter(
         (schedule: any) =>
@@ -340,7 +339,7 @@ const StylistSchedule: React.FC = () => {
         ];
       });
 
-      // Kết hợp cả bookings và leaves
+      // Kết hợp bookings và leaves
       const combinedEvents = [...formattedBookings, ...formattedLeaves];
       console.log("Combined Events (Bookings + Leaves):", combinedEvents);
 
@@ -354,12 +353,19 @@ const StylistSchedule: React.FC = () => {
   // Sử dụng useEffect để gọi fetchCustomerNames và fetchEvents tuần tự
   useEffect(() => {
     fetchCustomerNames().then((namesMap) => {
-      fetchEvents(namesMap); // Truyền namesMap trực tiếp vào fetchEvents
+      fetchEvents(namesMap);
     });
   }, []);
 
-  const splitLeaveIntoMultipleDays = (leave: any) => {
-    const events = [];
+  interface EventType {
+    title: string;
+    start: Date;
+    end: Date;
+    status: any;
+  }
+
+  const splitLeaveIntoMultipleDays = (leave: any): EventType[] => {
+    const events: EventType[] = [];
     const start = moment(leave.startTime);
     const end = moment(leave.endTime);
 
@@ -367,8 +373,8 @@ const StylistSchedule: React.FC = () => {
     while (start.isBefore(end, "day")) {
       events.push({
         title: `Nghỉ: ${leave.reason}`,
-        start: new Date(start.format("YYYY-MM-DD 00:00:00")),
-        end: new Date(start.format("YYYY-MM-DD 23:59:59")),
+        start: start.clone().startOf("day").toDate(),
+        end: start.clone().endOf("day").toDate(),
         status: leave.status,
       });
       start.add(1, "day");
@@ -376,23 +382,27 @@ const StylistSchedule: React.FC = () => {
 
     events.push({
       title: `Nghỉ: ${leave.reason}`,
-      start: new Date(start.format("YYYY-MM-DD 00:00:00")),
-      end: new Date(end),
+      start: start.clone().startOf("day").toDate(),
+      end: end.toDate(),
       status: leave.status,
     });
 
     return events;
   };
 
-  // useEffect thứ nhất để fetch bookings và services
+  // fetch bookings và services
   useEffect(() => {
-    fetchCustomerNames();
-    fetchEvents();
+    const initializeData = async () => {
+      const namesMap = await fetchCustomerNames();
+      fetchEvents(namesMap); // Truyền namesMap vào fetchEvents
+    };
+
+    initializeData();
 
     const fetchServices = async () => {
       try {
-        const response = await api.get("/service/getService"); // Gọi API để lấy tất cả dịch vụ
-        setServices(response.data); // Lưu tất cả dịch vụ vào state
+        const response = await api.get("/service/getService");
+        setServices(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách dịch vụ:", error);
         message.error("Không thể tải danh sách dịch vụ.");
@@ -400,11 +410,11 @@ const StylistSchedule: React.FC = () => {
     };
 
     fetchServices();
-  }, []); // Chạy một lần khi component mount
+  }, []);
 
   useEffect(() => {
     if (selectedEvent) {
-      console.log("Nội dung selectedEvent:", selectedEvent); // Kiểm tra nội dung của selectedEvent
+      console.log("Nội dung selectedEvent:", selectedEvent);
       const bookingId = selectedEvent.id;
       if (!bookingId) {
         console.error("Không tìm thấy bookingId trong selectedEvent!");
@@ -473,18 +483,18 @@ const StylistSchedule: React.FC = () => {
       handleSelectLeaveEvent(event); // Gọi hàm xử lý lịch nghỉ
     } else {
       try {
-        const bookingId = event.id; // Lấy 'id' chính xác của booking
+        const bookingId = event.id;
         console.log("Booking ID:", bookingId);
 
-        // Gọi API để lấy chi tiết booking
+        // Lấy chi tiết booking
         const response = await api.get(`/bookings/${bookingId}`);
         const bookingDetails = response.data;
 
         // Cập nhật selectedEvent với thông tin booking và bookingId
         setSelectedEvent({
           ...event,
-          payments: bookingDetails.payments, // Thêm thông tin payments
-          bookingId: bookingId, // Đặt bookingId trực tiếp vào selectedEvent
+          payments: bookingDetails.payments,
+          bookingId: bookingId,
         });
 
         showModal(); // Gọi modal hiển thị thông tin booking
@@ -506,18 +516,18 @@ const StylistSchedule: React.FC = () => {
         selectable
         onSelectEvent={handleSelectEvent}
         eventPropGetter={(event) => {
-          // Kiểm tra nếu là ngày nghỉ thì hiển thị với màu đen và các thuộc tính riêng
+          // Kiểm tra nếu là ngày nghỉ
           if (event.title.includes("Nghỉ")) {
             return {
               style: {
-                backgroundColor: "#ccc", // Màu nền đen cho ngày nghỉ
-                color: "black", // Chữ màu trắng
+                backgroundColor: "#ccc",
+                color: "black",
                 borderRadius: "8px",
                 padding: "5px",
               },
             };
           } else {
-            // Định dạng bình thường cho các sự kiện khác (ví dụ: booking)
+            // Định dạng bình thường cho booking
             const backgroundColor = getStatusStyle(
               event.status
             ).backgroundColor;
@@ -535,11 +545,7 @@ const StylistSchedule: React.FC = () => {
         }}
       />
 
-      {/* Nút để mở modal đăng ký ngày nghỉ */}
-      <Button
-        type="primary"
-        onClick={() => setIsLeaveModalVisible(true)} // Mở modal
-      >
+      <Button type="primary" onClick={() => setIsLeaveModalVisible(true)}>
         Đăng ký ngày nghỉ
       </Button>
 
@@ -556,8 +562,8 @@ const StylistSchedule: React.FC = () => {
             key="submit"
             type="primary"
             onClick={async () => {
-              await handleRegisterLeave(); // Gọi hàm đăng ký nghỉ
-              setIsLeaveModalVisible(false); // Đóng modal sau khi đăng ký thành công
+              await handleRegisterLeave();
+              setIsLeaveModalVisible(false);
             }}
           >
             Đăng ký
@@ -568,14 +574,18 @@ const StylistSchedule: React.FC = () => {
         <DatePicker
           showTime
           format="YYYY-MM-DD HH:mm"
-          onChange={(date, dateString) => setStartTime(dateString)}
+          onChange={(_, dateString) =>
+            setStartTime(typeof dateString === "string" ? dateString : null)
+          }
         />
 
         <p>Chọn thời gian kết thúc:</p>
         <DatePicker
           showTime
           format="YYYY-MM-DD HH:mm"
-          onChange={(date, dateString) => setEndTime(dateString)}
+          onChange={(_, dateString) =>
+            setEndTime(typeof dateString === "string" ? dateString : null)
+          }
         />
 
         <p>Nhập lý do:</p>
@@ -665,7 +675,7 @@ const StylistSchedule: React.FC = () => {
                 type="primary"
                 onClick={async () => {
                   try {
-                    // Gọi API thay đổi trạng thái booking
+                    // Thay đổi trạng thái booking
                     handleStatusChange(selectedEvent.id, "Đã hoàn thành");
 
                     // Cập nhật ngay lập tức trạng thái của selectedEvent trong UI
@@ -698,7 +708,7 @@ const StylistSchedule: React.FC = () => {
                   title="Chọn phương thức thanh toán"
                   visible={isPaymentModalVisible}
                   onCancel={() => setIsPaymentModalVisible(false)}
-                  footer={null} // Không hiển thị footer mặc định
+                  footer={null}
                 >
                   <p>Nhập số tiền:</p>
                   <InputNumber
@@ -751,7 +761,7 @@ const StylistSchedule: React.FC = () => {
                       const totalPrice = services
                         .filter((service) =>
                           service.bookings.some(
-                            (booking) => booking.id === selectedEvent.id // Chỉ dùng booking.id, không phải booking.bookingId
+                            (booking) => booking.id === selectedEvent.id
                           )
                         )
                         .reduce(
@@ -767,13 +777,12 @@ const StylistSchedule: React.FC = () => {
                         return; // Dừng lại nếu giá quá lớn
                       }
 
-                      // Code tiếp theo cho thanh toán
                       try {
                         const paymentDate = selectedEvent.start
                           .toISOString()
                           .split("T")[0];
                         const paymentType = "Tiền mặt";
-                        const bookingId = selectedEvent.id; // Sử dụng `selectedEvent.id`
+                        const bookingId = selectedEvent.id;
 
                         console.log(
                           "Thanh toán bằng tiền mặt cho Booking ID:",
@@ -781,7 +790,7 @@ const StylistSchedule: React.FC = () => {
                         );
                         console.log("Số tiền:", paymentAmount);
 
-                        // Gọi API tạo payment
+                        // Tạo payment
                         await api.post("/payment/createPayment", {
                           amount: paymentAmount,
                           payment_date: paymentDate,
@@ -789,9 +798,8 @@ const StylistSchedule: React.FC = () => {
                           bookingId: [bookingId],
                         });
 
-                        // Xử lý sau khi thanh toán thành công
                         handleStatusChange(selectedEvent.id, "Đã thanh toán");
-                        setIsPaymentModalVisible(false); // Đóng modal sau khi thanh toán
+                        setIsPaymentModalVisible(false);
                       } catch (error) {
                         message.error("Lỗi khi thực hiện thanh toán.");
                         console.error("Lỗi:", error);
@@ -808,21 +816,19 @@ const StylistSchedule: React.FC = () => {
                         const paymentDate = new Date()
                           .toISOString()
                           .split("T")[0]; // Lấy ngày hiện tại
-                        const paymentType = "Chuyển khoản"; // Xác định loại thanh toán là chuyển khoản
+                        const paymentType = "Chuyển khoản";
                         const bookingId = selectedEvent.bookingId;
 
-                        // Lưu thông tin vào localStorage
                         localStorage.setItem("paymentDate", paymentDate);
                         localStorage.setItem("paymentType", paymentType);
                         localStorage.setItem("bookingId", bookingId);
 
-                        // Console log các giá trị đã lưu
                         console.log("Payment Date:", paymentDate);
                         console.log("Payment Type:", paymentType);
                         console.log("Booking ID:", bookingId);
 
                         // Lấy giá trị từ ô InputNumber
-                        const amountToSend = paymentAmount; // Giả sử paymentAmount là state chứa giá trị từ ô InputNumber
+                        const amountToSend = paymentAmount;
 
                         console.log(
                           "Thanh toán chuyển khoản cho Booking ID:",
@@ -830,7 +836,7 @@ const StylistSchedule: React.FC = () => {
                         );
                         console.log("Số tiền:", amountToSend);
 
-                        // Gọi API tạo payment trước khi thay đổi trạng thái của booking
+                        // Tạo payment
                         const response = await api.post(
                           "/payment/payment-vnpay",
                           null,
@@ -838,12 +844,12 @@ const StylistSchedule: React.FC = () => {
                             params: {
                               amount: amountToSend, // Gửi giá tiền vào parameter amount
                               orderInfo: bookingId, // Gửi bookingId vào parameter orderInfo
-                              payment_type: paymentType, // Gửi "Chuyển khoản" vào API
+                              payment_type: paymentType,
                             },
                           }
                         );
 
-                        console.log("API Response:", response.data); // Log giá trị trả về từ API
+                        console.log("API Response:", response.data);
                         window.open(response.data);
                       } catch (error) {
                         message.error("Lỗi khi thực hiện thanh toán.");

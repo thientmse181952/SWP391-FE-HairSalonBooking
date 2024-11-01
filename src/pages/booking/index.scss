@@ -39,7 +39,6 @@ body {
       }
     }
 
-    /* Style for the checkbox and label alignment */
     .ant-checkbox-group {
       display: flex;
       flex-wrap: wrap;
@@ -49,12 +48,12 @@ body {
     .ant-checkbox-group-item {
       display: flex;
       align-items: center;
-      font-size: 14px; /* Adjust font size */
+      font-size: 14px;
       margin-right: 10px;
       margin-bottom: 10px;
 
       .ant-checkbox {
-        margin-right: 5px; /* Space between checkbox and label */
+        margin-right: 5px;
       }
     }
   }

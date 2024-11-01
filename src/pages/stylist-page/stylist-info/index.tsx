@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
-import uploadFile from "../../../utils/file"; // Giả định bạn đã có hàm uploadFile
+import uploadFile from "../../../utils/file";
 import "./index.scss";
 
 interface Service {
@@ -34,15 +34,15 @@ interface Stylist {
 
 const StylistInfo: React.FC = () => {
   const [stylist, setStylist] = useState<Stylist | null>(null);
-  const [allServices, setAllServices] = useState<Service[]>([]); // Toàn bộ dịch vụ
+  const [allServices, setAllServices] = useState<Service[]>([]);
   const [filteredServices, setFilteredServices] = useState<number[]>([]); // ID của dịch vụ stylist đã làm
   const [loading, setLoading] = useState(true);
-  const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
+  const [editable, setEditable] = useState(false);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
 
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-  const [passwordForm] = Form.useForm(); // Form cho modal đổi mật khẩu
+  const [passwordForm] = Form.useForm();
 
   const showPasswordModal = () => {
     setIsPasswordModalVisible(true);
@@ -81,37 +81,37 @@ const StylistInfo: React.FC = () => {
   useEffect(() => {
     const fetchAndUpdateStylistRating = async () => {
       try {
-        const accountId = localStorage.getItem("accountId"); // Lấy accountID từ localStorage
-        console.log("Account ID from localStorage:", accountId); // Log kiểm tra accountId
+        const accountId = localStorage.getItem("accountId");
+        console.log("Account ID from localStorage:", accountId);
 
         if (!accountId) {
           console.error("Không tìm thấy accountID trong localStorage.");
           return;
         }
 
-        // Gọi API để lấy thông tin tài khoản và từ đó lấy stylistID
+        // Lấy thông tin tài khoản và từ đó lấy stylistID
         const accountResponse = await api.get(`/${accountId}`);
         const accountData = accountResponse.data;
-        console.log("Account Data:", accountData); // Log để kiểm tra dữ liệu tài khoản nhận được
+        console.log("Account Data:", accountData);
 
-        const stylistID = accountData.stylists?.[0]?.id; // Lấy stylistID từ dữ liệu tài khoản
-        console.log("Stylist ID:", stylistID); // Log stylistID để kiểm tra
+        const stylistID = accountData.stylists?.[0]?.id;
+        console.log("Stylist ID:", stylistID);
 
         if (!stylistID) {
           console.error("Stylist ID không tồn tại trong dữ liệu tài khoản.");
           return;
         }
 
-        // Gọi API để lấy toàn bộ feedbacks
+        // Lấy toàn bộ feedbacks
         const feedbackResponse = await api.get("/feedback/getAllFeedback");
         const feedbacks = feedbackResponse.data;
-        console.log("All Feedback Data:", feedbacks); // Log toàn bộ feedbacks để kiểm tra
+        console.log("All Feedback Data:", feedbacks);
 
-        // Lọc feedback của stylist có ID tương ứng (stylistID nằm trong booking.stylist.id)
+        // Lọc feedback của stylist có ID tương ứng
         const stylistFeedbacks = feedbacks.filter(
           (feedback: any) => feedback.booking.stylist?.id === stylistID
         );
-        console.log("Filtered Feedbacks for Stylist:", stylistFeedbacks); // Kiểm tra feedbacks đã được lọc
+        console.log("Filtered Feedbacks for Stylist:", stylistFeedbacks);
 
         if (stylistFeedbacks.length > 0) {
           const totalRating = stylistFeedbacks.reduce(
@@ -123,22 +123,21 @@ const StylistInfo: React.FC = () => {
             1
           );
 
-          console.log("Average Rating for Stylist:", averageRating); // Kiểm tra giá trị rating trung bình
+          console.log("Average Rating for Stylist:", averageRating);
 
-          // Kiểm tra dữ liệu trước khi gọi API
           console.log("Sending PUT request to update rating for stylist:", {
             stylistID,
             rating: averageRating,
           });
 
-          // Gửi PUT request để cập nhật rating
+          // Cập nhật rating
           await api.put(`/stylist/${stylistID}/rating`, averageRating, {
             headers: {
               "Content-Type": "text/plain",
             },
           });
 
-          // Cập nhật rating trong state nếu cần
+          // Cập nhật rating trong state
           setStylist((prevStylist) => ({
             ...prevStylist!,
             rating: averageRating,
@@ -170,9 +169,9 @@ const StylistInfo: React.FC = () => {
         const currentUser = responseAccount.data;
 
         if (currentUser && currentUser.role === "STYLIST") {
-          const stylistID = currentUser.stylists[0].id; // Lấy stylistID từ danh sách stylists
+          const stylistID = currentUser.stylists[0].id;
 
-          // Gọi API để lấy toàn bộ dịch vụ
+          // Lấy toàn bộ dịch vụ
           const responseAllServices = await api.get("/service/getService");
           setAllServices(responseAllServices.data);
 
@@ -200,7 +199,7 @@ const StylistInfo: React.FC = () => {
           });
 
           setStylist({
-            id: stylistID, // Đặt stylistID đúng chỗ này
+            id: stylistID,
             fullName: currentUser.fullName,
             gender: currentUser.gender || "",
             email: currentUser.email || "",
@@ -213,13 +212,20 @@ const StylistInfo: React.FC = () => {
 
         setLoading(false);
       } catch (error) {
-        console.error(
-          "Lỗi khi lấy thông tin tài khoản và dịch vụ:",
-          error.message
-        );
-        message.error(
-          "Lỗi khi lấy thông tin tài khoản và dịch vụ: " + error.message
-        );
+        if (error instanceof Error) {
+          console.error(
+            "Lỗi khi lấy thông tin tài khoản và dịch vụ:",
+            error.message
+          );
+          message.error(
+            "Lỗi khi lấy thông tin tài khoản và dịch vụ: " + error.message
+          );
+        } else {
+          console.error("Lỗi không xác định:", error);
+          message.error(
+            "Lỗi không xác định khi lấy thông tin tài khoản và dịch vụ"
+          );
+        }
       }
     };
 
@@ -227,7 +233,7 @@ const StylistInfo: React.FC = () => {
   }, [form]);
 
   const handleEditClick = () => {
-    setEditable(true); // Chỉ kích hoạt chỉnh sửa, không gửi API
+    setEditable(true);
   };
 
   const handleChange = ({ fileList: newFileList }: any) =>
@@ -273,7 +279,7 @@ const StylistInfo: React.FC = () => {
       }));
 
       message.success("Cập nhật thông tin stylist thành công!");
-      setEditable(false); // Sau khi cập nhật, ngừng chế độ chỉnh sửa
+      setEditable(false);
     } catch (error) {
       console.error("Lỗi khi cập nhật thông tin:", error);
       message.error("Cập nhật thông tin thất bại, vui lòng thử lại sau.");
@@ -321,7 +327,7 @@ const StylistInfo: React.FC = () => {
                   listType="picture-card"
                   fileList={fileList}
                   onChange={handleChange}
-                  beforeUpload={() => false} // Ngăn việc upload tự động, xử lý khi submit form
+                  beforeUpload={() => false}
                 >
                   {fileList.length >= 1 ? null : uploadButton}
                 </Upload>
@@ -347,7 +353,7 @@ const StylistInfo: React.FC = () => {
               </Select>
             </Form.Item>
 
-            {/* Nút để kích hoạt chế độ chỉnh sửa */}
+            {/* Button kích hoạt chế độ chỉnh sửa */}
             {!editable && (
               <div style={{ display: "flex", gap: "10px" }}>
                 <Button type="primary" onClick={handleEditClick}>

@@ -18,20 +18,20 @@ const AdminInformation: React.FC = () => {
     email: "",
     gender: "",
   });
-  const [accountId, setAccountId] = useState<number | null>(null); // Lưu ID của tài khoản
-  const [editable, setEditable] = useState(false); // Điều khiển trạng thái editable
+  const [accountId, setAccountId] = useState<number | null>(null);
+  const [editable, setEditable] = useState(false);
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
   const [passwordForm] = Form.useForm();
 
   useEffect(() => {
     const fetchAdminInformation = async () => {
       try {
-        const token = localStorage.getItem("token"); // Lấy token từ localStorage
-        const loggedInPhone = localStorage.getItem("phone"); // Lấy số điện thoại đã lưu khi đăng nhập
+        const token = localStorage.getItem("token");
+        const loggedInPhone = localStorage.getItem("phone");
 
         const response = await api.get("account", {
           headers: {
-            Authorization: `Bearer ${token}`, // Gửi token để lấy thông tin tài khoản
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -69,7 +69,7 @@ const AdminInformation: React.FC = () => {
   }, [form]);
 
   const handleEditClick = () => {
-    setEditable(true); // Chỉ kích hoạt chỉnh sửa, không gửi API
+    setEditable(true);
   };
 
   const handleSubmit = async (values: Admin) => {
