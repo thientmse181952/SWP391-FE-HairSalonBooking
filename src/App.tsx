@@ -120,7 +120,7 @@ function App() {
           path: "adminEmployeeRegistration",
           element: <AdminEmployeeRegistration />,
         },
-        { path: "adminDashboard", element: <AdminDashboard /> },
+       
         {
           path: "adminCalendarManagement",
           element: <CalendarManagement />,
@@ -138,6 +138,8 @@ function App() {
           element: <StylistAccountManagement />,
         },
         { path: "stylist-schedule", element: <StylistScheduleAdmin /> },
+        { path: "adminDashboard", element: <AdminDashboard /> },
+        { path: "FeedbackManagement", element: <FeedbackManagement /> },
       ],
     },
     {
