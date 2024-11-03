@@ -88,6 +88,13 @@ const ServicesDetail = () => {
             </span>{" "}
             VND
           </p>
+    
+          <button class="button">
+            <h3> Thời lượng:{serviceDetail.duration} phút </h3>
+            <div class="hoverEffect">
+              <div></div>
+            </div>
+          </button>
           {/* Hiển thị description với định dạng HTML */}
           <div
             className="description"
