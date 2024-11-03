@@ -35,6 +35,7 @@ import SuccessPage from "./pages/payment";
 import CategoryCollectionManagement from "./pages/admin/category-collection-management";
 import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 import CalendarManagement from "./pages/admin/calendar-management";
+import FeedbackManagement from "./pages/admin/feedback-management";
 
 function App() {
   const router = createBrowserRouter([
@@ -139,7 +140,7 @@ function App() {
         },
         { path: "stylist-schedule", element: <StylistScheduleAdmin /> },
         { path: "adminDashboard", element: <AdminDashboard /> },
-        { path: "FeedbackManagement", element: <FeedbackManagement /> },
+        { path: "feedbackManagement", element: <FeedbackManagement /> },
       ],
     },
     {

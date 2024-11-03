@@ -71,6 +71,7 @@ const AdminCategory: React.FC = () => {
     ), // Đường dẫn cho Đăng ký nhân viên
     getItem("Dashboard", "adminDashboard", <DashboardOutlined />), // Đường dẫn cho Dashboard
     getItem("Quản Lý Lịch", "adminCalendarManagement", <CalendarOutlined />), // Đường dẫn cho Xếp lịch Stylist
+    getItem("Xem FeedBack ", "feedbackManagement", <ScheduleOutlined />),
     getItem("Quản Lý Lịch Nghỉ", "stylist-schedule", <ScheduleOutlined />),
     getItem(
       "Quản Lý Danh Mục Dịch Vụ",
