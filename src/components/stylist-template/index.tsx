@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   CalendarOutlined,
   CommentOutlined,
@@ -10,6 +10,7 @@ import { Breadcrumb, Layout, Menu, message, theme, Avatar } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 import { useLocation } from "react-router-dom";
+import "./index.scss";
 
 const { Content, Sider } = Layout;
 
@@ -29,29 +30,10 @@ function getItem(
 
 const StylistPage: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(""); // State để lưu ảnh đại diện
   const { setUser } = useUser(); // Lấy hàm setUser từ UserContext để cập nhật trạng thái người dùng
   const navigate = useNavigate(); // Sử dụng hook navigate để điều hướng
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
   const location = useLocation();
   const currentCategory = location.pathname.split("/").pop();
-
-  // Hàm gọi API để lấy ảnh đại diện
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      try {
-        const response = await fetch('/stylist/'${id}); // Thay thế bằng URL API của bạn
-        const data = await response.json();
-        setAvatarUrl(data.image); // Lưu URL ảnh từ phản hồi
-      } catch (error) {
-        console.error("Error fetching avatar:", error);
-      }
-    };
-
-    fetchAvatar();
-  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -79,8 +61,11 @@ const StylistPage: React.FC = () => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="demo-logo-vertical" />
-        <Avatar src={avatarUrl} size={64} style={{ margin: '16px' }} /> {/* Hiển thị ảnh đại diện */}
+        <button className={`button ${collapsed ? "collapsed" : ""}`}>
+          <div className="blob1"></div>
+          <div className="inner">KIM HAIRSALON</div>
+        </button>
+
         <Menu
           theme="dark"
           defaultSelectedKeys={["stylistInfo"]}
@@ -106,8 +91,8 @@ const StylistPage: React.FC = () => {
             style={{
               padding: 24,
               minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
+              background: theme.useToken().token.colorBgContainer,
+              borderRadius: theme.useToken().token.borderRadiusLG,
             }}
           >
             <Outlet />

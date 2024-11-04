@@ -11,6 +11,7 @@
 
   /* From Uiverse.io by Wendell47 */ 
 .button {
+  margin: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +23,8 @@
   transition: all 0.02s;
   font-weight: bold;
   cursor: pointer;
-  color: rgb(37, 37, 37);
+  // color: rgb(37, 37, 37);
+  color: #f5f5f5;
   z-index: 0;
   box-shadow: 0 0px 7px -5px rgba(0, 0, 0, 0.5);
 }

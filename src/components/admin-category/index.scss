@@ -41,8 +41,17 @@ $text-color: #000000;
   padding: 2px;
   background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
   position: relative;
-  margin: 10px;
+  margin: 0;
+  transition: width 0.3s ease; // Thêm hiệu ứng chuyển tiếp khi thay đổi kích thước
+
+  &.collapsed {
+    width: 5rem; // Kích thước nhỏ hơn khi Sider thu gọn
+    font-size: 0.2rem; // Giảm kích thước chữ
+    align-items: center;
+    text-align: center;
+  }
 }
+
 .button::after {
   content: "";
   position: absolute;
@@ -57,7 +66,7 @@ $text-color: #000000;
 
 .blob1 {
   position: absolute;
-  width: 70px;
+  width: 65px;
   height: 100%;
   border-radius: 16px;
   bottom: 0;
@@ -69,6 +78,7 @@ $text-color: #000000;
     transparent
   );
   box-shadow: -10px 10px 30px #0051ff2d;
+  margin: 0;
 }
 
 .inner {
@@ -79,6 +89,7 @@ $text-color: #000000;
   position: relative;
   background: radial-gradient(circle 80px at 80% -50%, #777777, #0f1111);
 }
+
 .inner::before {
   content: "";
   width: 100%;
@@ -94,3 +105,4 @@ $text-color: #000000;
   );
   position: absolute;
 }
+

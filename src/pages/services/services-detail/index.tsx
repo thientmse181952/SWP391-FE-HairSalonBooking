@@ -3,6 +3,7 @@ import "./index.scss";
 import { Image, Card, message } from "antd";
 import { useParams, useNavigate } from "react-router-dom"; // Để lấy id từ URL và điều hướng
 import api from "../../../config/axios"; // Sử dụng api để gọi dữ liệu
+import { Button } from "antd/lib";
 
 const ServicesDetail = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -88,21 +89,23 @@ const ServicesDetail = () => {
             </span>{" "}
             VND
           </p>
+          <Button>
+            <h3> Thời lượng: {serviceDetail.duration} phút </h3>
+          </Button>
     
-          <button class="button">
-            <h3> Thời lượng:{serviceDetail.duration} phút </h3>
-            <div class="hoverEffect">
-              <div></div>
-            </div>
-          </button>
+          
           {/* Hiển thị description với định dạng HTML */}
           <div
             className="description"
             dangerouslySetInnerHTML={{ __html: serviceDetail.description }}
           />
           {/* Nút Đặt Lịch Ngay */}
-          <button className="book-now" onClick={handleBookingClick}>
-            Đặt Lịch Ngay
+        
+          <button class="button" onClick={handleBookingClick}>
+            <h3> Đặt Lịch Ngay </h3>
+            <div class="hoverEffect">
+              <div></div>
+            </div>
           </button>
         </div>
       </div>

@@ -102,12 +102,11 @@ const AdminCategory: React.FC = () => {
         onCollapse={(value) => setCollapsed(value)}
         width={250}
       >
-        <div className="demo-logo-vertical" />
-        <button class="button">
-        <div class="blob1"></div>
-        <div class="blob2"></div>
-        <div class="inner">KIM HAIRSALON</div>
-      </button>
+
+        <button className={`button ${collapsed ? 'collapsed' : ''}`}>
+  <div className="blob1"></div>
+  <div className="inner">KIM HAIRSALON</div>
+</button>
         <Menu
           theme="dark"
           defaultSelectedKeys={["adminInfo"]}
