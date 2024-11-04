@@ -94,6 +94,8 @@ const AdminCategory: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      
+
       <Sider
         collapsible
         collapsed={collapsed}
@@ -101,6 +103,11 @@ const AdminCategory: React.FC = () => {
         width={250}
       >
         <div className="demo-logo-vertical" />
+        <button class="button">
+        <div class="blob1"></div>
+        <div class="blob2"></div>
+        <div class="inner">KIM HAIRSALON</div>
+      </button>
         <Menu
           theme="dark"
           defaultSelectedKeys={["adminInfo"]}

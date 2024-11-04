@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CalendarOutlined,
   CommentOutlined,
@@ -7,7 +6,7 @@ import {
   ScheduleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, message, theme } from "antd";
+import { Breadcrumb, Layout, Menu, message, theme, Avatar } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext"; // Sử dụng UserContext để quản lý người dùng
 import { useLocation } from "react-router-dom";
@@ -30,6 +29,7 @@ function getItem(
 
 const StylistPage: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(""); // State để lưu ảnh đại diện
   const { setUser } = useUser(); // Lấy hàm setUser từ UserContext để cập nhật trạng thái người dùng
   const navigate = useNavigate(); // Sử dụng hook navigate để điều hướng
   const {
@@ -37,14 +37,26 @@ const StylistPage: React.FC = () => {
   } = theme.useToken();
   const location = useLocation();
   const currentCategory = location.pathname.split("/").pop();
-  // Hàm handleLogout tương tự admin
+
+  // Hàm gọi API để lấy ảnh đại diện
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      try {
+        const response = await fetch('/stylist/'${id}); // Thay thế bằng URL API của bạn
+        const data = await response.json();
+        setAvatarUrl(data.image); // Lưu URL ảnh từ phản hồi
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
+      }
+    };
+
+    fetchAvatar();
+  }, []);
+
   const handleLogout = () => {
     localStorage.clear();
     setUser(null); // Reset lại trạng thái người dùng
-
-    // Thêm thông báo đăng xuất thành công
     message.success("Đăng xuất thành công!");
-
     navigate("/"); // Điều hướng về trang đăng nhập
   };
 
@@ -56,7 +68,7 @@ const StylistPage: React.FC = () => {
     {
       key: "logout",
       icon: <LogoutOutlined />,
-      label: <span onClick={handleLogout}>Logout</span>, // Gọi trực tiếp handleLogout khi click vào Logout
+      label: <span onClick={handleLogout}>Logout</span>,
     },
   ];
 
@@ -68,6 +80,7 @@ const StylistPage: React.FC = () => {
         onCollapse={(value) => setCollapsed(value)}
       >
         <div className="demo-logo-vertical" />
+        <Avatar src={avatarUrl} size={64} style={{ margin: '16px' }} /> {/* Hiển thị ảnh đại diện */}
         <Menu
           theme="dark"
           defaultSelectedKeys={["stylistInfo"]}
