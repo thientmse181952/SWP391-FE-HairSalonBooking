@@ -6,12 +6,14 @@ import isBetween from "dayjs/plugin/isBetween";
 import api from "../../config/axios";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useNavigate } from "react-router-dom";
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 const { Option } = Select;
 
 const Booking: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedServices, setSelectedServices] = useState<number[]>([]); // Chọn nhiều service
   const [selectedStylist, setSelectedStylist] = useState<number | null>(null);
@@ -488,6 +490,7 @@ const Booking: React.FC = () => {
     }
 
     try {
+     
       const customerIdFromLocalStorage = localStorage.getItem("customerId");
 
       console.log(
@@ -634,6 +637,16 @@ const Booking: React.FC = () => {
         setEstimatedDuration(0);
         setEstimatedPrice(0);
         setShowAllSlots(false);
+        navigate('/customer/view-bookings', {
+          state: {
+            date: selectedDate,
+            services: selectedServices,
+            stylist: selectedStylist,
+            timeSlot: selectedTimeSlot,
+            duration: estimatedDuration,
+            price: estimatedPrice,
+          },
+        });
       }
     } catch (error) {
       console.error("Lỗi khi tạo đặt lịch:", error);

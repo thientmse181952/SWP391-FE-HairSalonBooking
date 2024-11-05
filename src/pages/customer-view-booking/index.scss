@@ -1,0 +1,332 @@
+
+.plan {
+    border-radius: 16px;
+    box-shadow: 0 30px 30px -25px rgba(0, 38, 255, 0.205);
+    padding: 10px;
+    background-color: #ffffff;
+    color: #697e91;
+    max-width: 500px;
+    margin: auto;
+  }
+  
+  .plan strong {
+    font-weight: 600;
+    color: #00c5cc;
+  }
+  
+  .plan .inner {
+    align-items: center;
+    padding: 20px;
+    padding-top: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    position: relative;
+  }
+  
+  .plan .pricing {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #bed6fb;
+    border-radius: 99em 0 0 99em;
+    display: flex;
+    align-items: center;
+    padding: 0.625em 0.75em;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #425475;
+  }
+  
+  .plan .pricing small {
+    color: #90a6db;
+    font-size: 0.75em;
+    margin-left: 0.25em;
+  }
+  
+  .plan .title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #425675;
+  }
+  
+  .plan .title + * {
+    margin-top: 0.75rem;
+  }
+  
+  .plan .info + * {
+    margin-top: 1rem;
+    text-align: center;
+    align-content: center;
+  }
+  
+  .plan .features {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .plan .features li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .plan .features li + * {
+    margin-top: 0.75rem;
+  }
+  
+  .plan .features .icon {
+    background-color: #1FCAC5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .plan .features .icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .plan .features + * {
+    margin-top: 1.25rem;
+  }
+  
+  .plan .action {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+  
+  .plan .button {
+    background-color: #6558d3;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 1.125rem;
+    text-align: center;
+    border: 0;
+    outline: 0;
+    width: 100%;
+    padding: 0.625em 0.75em;
+    text-decoration: none;
+  }
+  
+  .plan .button:hover, .plan .button:focus {
+    background-color: #4133B7;
+  }
+
+  /* From Uiverse.io by SouravBandyopadhyay */ 
+.notification {
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+    position: relative;
+    width: 28rem;
+    height: 8rem;
+    background: #29292c;
+    border-radius: 1rem;
+    overflow: hidden;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 16px;
+    --gradient: linear-gradient(to bottom, #2eadff, #3d83ff, #7e61ff);
+    --color: #32a6ff
+  }
+  
+  .notification:before {
+    position: absolute;
+    content: "";
+    inset: 0.0625rem;
+    border-radius: 0.9375rem;
+    background: #18181b;
+    z-index: 2
+  }
+  
+  .notification:after {
+    position: absolute;
+    content: "";
+    width: 0.25rem;
+    inset: 0.65rem auto 0.65rem 0.5rem;
+    border-radius: 0.125rem;
+    background: var(--gradient);
+    transition: transform 300ms ease;
+    z-index: 4;
+  }
+  
+  .notification:hover:after {
+    transform: translateX(0.15rem)
+  }
+  
+  .notititle {
+    color: var(--color);
+    padding: 0.65rem 0.25rem 0.4rem 1.25rem;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: transform 300ms ease;
+    z-index: 5;
+  }
+  
+  .notification:hover .notititle {
+    transform: translateX(0.15rem)
+  }
+  
+  .notibody {
+    color: #99999d;
+    padding: 0 1.25rem;
+    transition: transform 300ms ease;
+    z-index: 5;
+  }
+  
+  .notification:hover .notibody {
+    transform: translateX(0.25rem)
+  }
+  
+  .notiglow,
+  .notiborderglow {
+    position: absolute;
+    width: 20rem;
+    height: 20rem;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle closest-side at center, white, transparent);
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  
+  .notiglow {
+    z-index: 3;
+  }
+  
+  .notiborderglow {
+    z-index: 1;
+  }
+  
+  .notification:hover .notiglow {
+    opacity: 0.1
+  }
+  
+  .notification:hover .notiborderglow {
+    opacity: 0.1
+  }
+  
+  .note {
+    color: var(--color);
+    position: fixed;
+    top: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 0.9rem;
+    width: 75%;
+  }
+
+  /* From Uiverse.io by Spacious74 */ 
+.outer {
+    width: 700px;
+    height: 100px;
+    border-radius: 10px;
+    padding: 1px;
+    background: radial-gradient(circle 230px at 0% 0%, #ffffff, #0c0d0d);
+    position: relative;
+    margin: auto;
+  }
+  
+  .dot {
+    width: 5px;
+    aspect-ratio: 1;
+    position: absolute;
+    background-color: #fff;
+    box-shadow: 0 0 10px #ffffff;
+    border-radius: 100px;
+    z-index: 2;
+    right: 10%;
+    top: 10%;
+    animation: moveDot 6s linear infinite;
+  }
+  
+  @keyframes moveDot {
+    0%,
+    100% {
+      top: 10%;
+      right: 10%;
+    }
+    25% {
+      top: 10%;
+      right: calc(100% - 35px);
+    }
+    50% {
+      top: calc(100% - 30px);
+      right: calc(100% - 35px);
+    }
+    75% {
+      top: calc(100% - 30px);
+      right: 10%;
+    }
+  }
+  
+  .card {
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    border: solid 1px #202222;
+    background-size: 20px 20px;
+    background: radial-gradient(circle 280px at 0% 0%, #444444, #0c0d0d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+    color: #fff;
+  }
+  .ray {
+    width: 220px;
+    height: 45px;
+    border-radius: 100px;
+    position: absolute;
+    background-color: #c7c7c7;
+    opacity: 0.4;
+    box-shadow: 0 0 50px #fff;
+    filter: blur(10px);
+    transform-origin: 10%;
+    top: 0%;
+    left: 0;
+    transform: rotate(40deg);
+  }
+  
+  .card .text {
+    font-weight: bolder;
+    font-size: 1rem;
+    background: linear-gradient(45deg, #000000 4%, #fff, #000);
+    background-clip: text;
+    color: transparent;
+    
+  }
+  
+  .line {
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    background-color: #2c2c2c;
+  }
+  .topl {
+    top: 10%;
+    background: linear-gradient(90deg, #888888 30%, #1d1f1f 70%);
+  }
+  .bottoml {
+    bottom: 10%;
+  }
+  .leftl {
+    left: 10%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, #747474 30%, #222424 70%);
+  }
+  .rightl {
+    right: 10%;
+    width: 1px;
+    height: 100%;
+  }
+  

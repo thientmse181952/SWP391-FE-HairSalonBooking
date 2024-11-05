@@ -36,6 +36,8 @@ import CategoryCollectionManagement from "./pages/admin/category-collection-mana
 import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 import CalendarManagement from "./pages/admin/calendar-management";
 import FeedbackManagement from "./pages/admin/feedback-management";
+import ViewBooking from "./pages/customer-view-booking";
+import CustomerViewBooking from "./pages/customer-view-booking";
 
 function App() {
   const router = createBrowserRouter([
@@ -94,6 +96,11 @@ function App() {
       element: <Layout />,
       children: [{ path: "", element: <Booking /> }],
     },
+    // {
+    //   path: "viewBooking",
+    //   element: <Layout />,
+    //   children: [{ path: "ViewBooking/:id", element: <ViewBooking /> }],
+    // },
     // Layout dành cho Customer
     {
       path: "customer",
@@ -102,6 +109,7 @@ function App() {
         { path: "information", element: <CustomerInformation /> },
         { path: "change-password", element: <ChangePassword /> },
         { path: "bookings", element: <CustomerBookingList /> },
+        { path: "view-bookings", element: <CustomerViewBooking /> },
       ],
     },
     {

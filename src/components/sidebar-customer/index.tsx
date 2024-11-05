@@ -6,6 +6,7 @@ import {
   CommentOutlined,
   ShoppingOutlined,
   SettingOutlined,
+  CalendarFilled,
 } from "@ant-design/icons";
 import { NavLink, useNavigate, useLocation } from "react-router-dom"; // Thêm useLocation
 import "./index.scss";
@@ -25,6 +26,12 @@ const SidebarCustomer: React.FC = () => {
       path: "/customer/information",
     },
     {
+      id: "CustomerViewBooking",
+      label: "Xem lịch vừa đặt",
+      icon: <CalendarFilled  />,
+      path: "/customer/view-bookings",
+    },
+    {
       id: "bookings",
       label: "Danh sách đặt lịch",
       icon: <ScheduleOutlined />,
@@ -36,6 +43,7 @@ const SidebarCustomer: React.FC = () => {
       icon: <SettingOutlined />, // Bạn có thể thay đổi biểu tượng nếu cần
       path: "/customer/change-password", // Đường dẫn đến trang đổi mật khẩu
     },
+
     { id: "logout", label: "Đăng xuất", icon: <LogoutOutlined />, path: "/" }, // Đường dẫn đến đăng xuất
   ];
 
