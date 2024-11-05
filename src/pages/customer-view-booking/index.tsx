@@ -180,21 +180,21 @@ const CustomerBookingList: React.FC = () => {
 
   return (
     <div className="booking-list">
-     
-<div class="outer">
-  <div class="dot"></div>
-  <div class="card">
-    <div class="ray"></div>
-    <div class="text"> <h2>KIM HAIRSALON</h2></div>
+      <div class="outer">
+        <div class="dot"></div>
+        <div class="card_view">
+          <div class="ray"></div>
+          <div class="text">
+            {" "}
+            <h2>KIM HAIRSALON</h2>
+          </div>
 
-    <div class="line topl"></div>
-    <div class="line leftl"></div>
-    <div class="line bottoml"></div>
-    <div class="line rightl"></div>
-  </div>
-</div>
-
-     
+          <div class="line topl"></div>
+          <div class="line leftl"></div>
+          <div class="line bottoml"></div>
+          <div class="line rightl"></div>
+        </div>
+      </div>
 
       {updatedBookings.map((booking) => (
         <div class="plan">
@@ -308,9 +308,6 @@ const CustomerBookingList: React.FC = () => {
           </div>
         </div>
       ))}
-
-      
-      
     </div>
   );
 };

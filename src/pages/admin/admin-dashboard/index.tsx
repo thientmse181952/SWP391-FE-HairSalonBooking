@@ -20,7 +20,7 @@ import "./index.scss";
 const { Option } = Select;
 
 interface RevenueData {
-  totalRevenue: number;
+  totalRevenue: string; // Đổi thành string vì API trả về là string
   month: number;
   year: number;
 }
@@ -61,7 +61,12 @@ function DashboardStatistic() {
   const fetchMonthlyRevenueData = async () => {
     try {
       const response = await api.get<{ monthsWithRevenue: any[] }>("/dashboard/revenue/months");
-      setMonthlyRevenueData(response.data.monthsWithRevenue);
+      // Chuyển đổi dữ liệu để phù hợp với biểu đồ
+      const formattedData = response.data.monthsWithRevenue.map(item => ({
+        month: `${item.month}/${item.year}`, // Định dạng tháng/năm
+        revenue: Number(item.totalRevenue) // Chuyển đổi thành số
+      }));
+      setMonthlyRevenueData(formattedData);
     } catch (error) {
       console.log(error);
     }
@@ -222,7 +227,7 @@ function DashboardStatistic() {
           ))}
         </Select>
         <div style={{ marginTop: 16 }}>
-          <h3>Tổng Doanh Thu: {revenueData?.totalRevenue?Number(revenueData.totalRevenue).toLocaleString(): "0"} VNĐ</h3>
+          <h3>Tổng Doanh Thu: {revenueData?.totalRevenue ? Number(revenueData.totalRevenue).toLocaleString() : "0"} VNĐ</h3>
           <p>
             Tháng: {revenueData?.month}, Năm: {revenueData?.year}
           </p>
