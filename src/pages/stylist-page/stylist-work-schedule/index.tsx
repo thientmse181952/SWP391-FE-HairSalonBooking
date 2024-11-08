@@ -474,7 +474,7 @@ const StylistSchedule: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("Events before rendering Calendar:", events); // Log dữ liệu sự kiện trước khi truyền vào Calendar
+    console.log("Events before rendering Calendar:", events);
   }, [events]);
 
   // Hàm xử lý khi click vào sự kiện trong lịch
@@ -497,7 +497,7 @@ const StylistSchedule: React.FC = () => {
           bookingId: bookingId,
         });
 
-        showModal(); // Gọi modal hiển thị thông tin booking
+        showModal();
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết booking:", error);
       }

@@ -200,7 +200,7 @@ const StylistAccountManagement: React.FC = () => {
         }}
         footer={null}
       >
-        <Form form={form} onFinish={onFinish}>
+        <Form form={form} onFinish={onFinish} labelCol={{span:24}}>
           {/* Tên stylist */}
           <Form.Item
             label="Tên stylist"

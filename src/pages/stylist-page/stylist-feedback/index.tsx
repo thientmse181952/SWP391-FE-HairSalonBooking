@@ -23,18 +23,17 @@ const StylistFeedback: React.FC = () => {
             (feedback: any) =>
               feedback.booking.stylist.id === parseInt(stylistId || "0")
           )
-          .map((feedback: any) => {
-            return {
-              key: feedback.id, // hoặc feedback.feedbackId nếu `feedbackId` là thuộc tính chính xác
-              customerId: feedback.booking.customer.id,
-              bookingId: feedback.booking.id, // Cập nhật chỗ này để lấy booking.id thay vì booking.bookingId
-              appointmentDate: feedback.booking.appointmentDate,
-              startTime: feedback.booking.startTime,
-              endTime: feedback.booking.endTime,
-              feedback: feedback.comment,
-              rating: parseFloat(feedback.rating_stylist),
-            };
-          });
+          .map((feedback: any) => ({
+            key: feedback.id,
+            customerId: feedback.booking.customer.id,
+            bookingId: feedback.booking.id,
+            appointmentDate: feedback.booking.appointmentDate,
+            startTime: feedback.booking.startTime,
+            endTime: feedback.booking.endTime,
+            feedback: feedback.comment,
+            rating: parseFloat(feedback.rating_stylist),
+          }))
+          .reverse();
 
         setFeedbacks(filteredFeedbacks);
       } catch (error) {

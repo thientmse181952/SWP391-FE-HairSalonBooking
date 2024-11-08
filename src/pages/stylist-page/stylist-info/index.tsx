@@ -268,8 +268,8 @@ const StylistInfo: React.FC = () => {
       // PUT request cho hình ảnh và rating
       await api.put(`/stylist/${stylistID}`, {
         id: stylistID,
-        image: imageUrl ?? "", // Đảm bảo imageUrl là chuỗi
-        service_id: values.service_id, // Truyền dưới dạng mảng số nguyên
+        image: imageUrl ?? "",
+        service_id: values.service_id,
       });
 
       // Cập nhật lại stylist state để hiển thị hình ảnh mới ngay lập tức

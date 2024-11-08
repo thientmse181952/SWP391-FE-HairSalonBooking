@@ -131,11 +131,23 @@ const AdminServiceManagement: React.FC = () => {
     try {
       const modifiedValues = {
         ...values,
-        description: values.description.replace(/\n/g, "<br>"), // Thay \n bằng <br>
+        name: values.name || editingService?.name,
+        description: values.description
+          ? values.description.replace(/\n/g, "<br>")
+          : editingService?.description,
+        price:
+          values.price !== undefined
+            ? values.price.toString()
+            : editingService?.price,
+        duration:
+          values.duration !== undefined
+            ? values.duration.toString()
+            : editingService?.duration,
+        categoryId: values.categoryId || editingService?.category?.id,
       };
 
-      let imageUrl = "";
-      if (fileList.length > 0) {
+      let imageUrl = editingService?.serviceImage || ""; // Giữ ảnh gốc nếu không có thay đổi
+      if (fileList.length > 0 && fileList[0].originFileObj) {
         const file = fileList[0];
         imageUrl = await uploadFile(file.originFileObj);
       }
@@ -144,10 +156,8 @@ const AdminServiceManagement: React.FC = () => {
 
       const serviceData = {
         ...modifiedValues,
-        price: modifiedValues.price.toString(),
-        duration: modifiedValues.duration.toString(),
         category: { id: modifiedValues.categoryId },
-        serviceImage: imageUrl || editingService?.serviceImage || "",
+        serviceImage: imageUrl,
         date: currentDate,
       };
 
@@ -392,7 +402,7 @@ const AdminServiceManagement: React.FC = () => {
         }}
         footer={null}
       >
-        <Form form={form} onFinish={onFinish}>
+        <Form form={form} onFinish={onFinish} labelCol={{span:24}}>
           <Form.Item
             label="Tên dịch vụ"
             name="name"

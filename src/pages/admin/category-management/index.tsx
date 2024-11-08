@@ -74,7 +74,11 @@ const CategoryManagement: React.FC = () => {
       message.success("Xóa danh mục thành công!");
       // Fetch lại danh sách sau khi xóa thành công
       const response = await api.get("/category/getCategory");
-      setCategories(response.data);
+      const sortedCategories = response.data.sort(
+        (a: any, b: any) => b.id - a.id
+      );
+
+      setCategories(sortedCategories);
     } catch (error) {
       message.error("Lỗi khi xóa danh mục!");
     }

@@ -1,14 +1,71 @@
 /* Import font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&display=swap");
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Old Standard TT', serif;
+  font-family: "Old Standard TT", serif;
 }
 
 .card {
   max-width: 950px;
   width: 100%;
+  background-image: linear-gradient(
+      0deg,
+      transparent 0%,
+      transparent 58%,
+      rgba(104, 104, 104, 0.05) 58%,
+      rgba(104, 104, 104, 0.05) 92%,
+      transparent 92%,
+      transparent 100%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 0%,
+      transparent 34%,
+      rgba(104, 104, 104, 0.05) 34%,
+      rgba(104, 104, 104, 0.05) 77%,
+      transparent 77%,
+      transparent 100%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 0%,
+      transparent 33%,
+      rgba(104, 104, 104, 0.05) 33%,
+      rgba(104, 104, 104, 0.05) 53%,
+      transparent 53%,
+      transparent 100%
+    ),
+    linear-gradient(90deg, rgb(255, 255, 255), rgb(255, 255, 255));
+  border-radius: 10px;
+  transition: border-radius 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: inset 0 -3em 3em rgba(0, 0, 0, 0.1), 0 0 0 2px rgb(190, 190, 190),
+    0.3em 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+
+/* styles.css */
+.title_form {
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: block;
+  font-weight: bold;
+  font-size: x-large;
+}
+
+.card_form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 700px;
+  width: 100%;
+  flex-direction: column;
+  gap: 35px;
+  background: #e3e3e3;
+  box-shadow: 16px 16px 32px #c8c8c8,
+              -16px -16px 32px #fefefe;
+  border-radius: 8px;
 }

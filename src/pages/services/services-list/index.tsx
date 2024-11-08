@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
 import "./index.scss";
 
-// Component hiển thị từng mục dịch vụ
 const ServiceItem = ({ id, imageSrc, title, price, onClick }) => (
   <div className="service-item" onClick={() => onClick(id)}>
     <img src={imageSrc} alt={title} />
@@ -15,11 +14,11 @@ const ServiceItem = ({ id, imageSrc, title, price, onClick }) => (
 );
 
 const Services = () => {
-  const [categories, setCategories] = useState([]); // State để lưu các danh mục
-  const [services, setServices] = useState([]); // State để lưu tất cả các dịch vụ từ API
-  const [filteredServices, setFilteredServices] = useState([]); // Dịch vụ được lọc theo category
-  const [activeCategory, setActiveCategory] = useState(null); // Theo dõi category hiện tại
-  const navigate = useNavigate(); // Khởi tạo useNavigate để điều hướng
+  const [categories, setCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const navigate = useNavigate();
 
   // Gọi API để lấy danh sách category
   useEffect(() => {
@@ -40,9 +39,9 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get("/service/getService"); // Lấy toàn bộ dịch vụ
-        console.log("Dịch vụ trả về từ API:", response.data); // Kiểm tra dữ liệu trả về từ API
-        setServices(response.data); // Lưu toàn bộ dịch vụ vào state
+        const response = await api.get("/service/getService");
+        console.log("Dịch vụ trả về từ API:", response.data);
+        setServices(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách services: ", error);
       }

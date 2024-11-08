@@ -156,6 +156,8 @@ const AdminInformation: React.FC = () => {
   return (
     <div className="admin-content">
       <h1>Thông tin Admin</h1>
+    
+    
       <Form
         form={form}
         labelCol={{ span: 24 }}
@@ -226,7 +228,6 @@ const AdminInformation: React.FC = () => {
           </Form.Item>
         )}
       </Form>
-
       {/* Modal đổi mật khẩu */}
       <Modal
         title="Đổi Mật Khẩu"

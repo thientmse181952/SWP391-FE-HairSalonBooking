@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { Image, Card, message } from "antd";
-import { useParams, useNavigate } from "react-router-dom"; // Để lấy id từ URL và điều hướng
-import api from "../../../config/axios"; // Sử dụng api để gọi dữ liệu
+import { useParams, useNavigate } from "react-router-dom";
+import api from "../../../config/axios";
 import { Button } from "antd/lib";
 
 const ServicesDetail = () => {
-  const { id } = useParams(); // Lấy id từ URL
-  const navigate = useNavigate(); // Sử dụng để điều hướng
-  const [serviceDetail, setServiceDetail] = useState(null); // Chi tiết dịch vụ
-  const [similarServices, setSimilarServices] = useState([]); // Dịch vụ cùng loại
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [serviceDetail, setServiceDetail] = useState(null);
+  const [similarServices, setSimilarServices] = useState([]);
 
   // Cuộn lên đầu trang mỗi khi id thay đổi
   useEffect(() => {
@@ -23,7 +23,7 @@ const ServicesDetail = () => {
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
-        const response = await api.get("/service/getService"); // Lấy toàn bộ danh sách dịch vụ
+        const response = await api.get("/service/getService");
         const selectedService = response.data.find(
           (service) => service.id === parseInt(id)
         ); // Tìm dịch vụ có id khớp với id từ URL
@@ -36,16 +36,16 @@ const ServicesDetail = () => {
     fetchServiceDetail();
   }, [id]);
 
-  // Gọi API để lấy các dịch vụ tương tự (lọc dựa trên category của dịch vụ hiện tại)
+  // Lấy các dịch vụ tương tự
   useEffect(() => {
     const fetchSimilarServices = async () => {
       try {
-        const response = await api.get("/service/getService"); // Lấy toàn bộ dịch vụ
+        const response = await api.get("/service/getService");
         setSimilarServices(
           response.data.filter(
             (service) =>
-              service.category.id === serviceDetail.category.id && // Lọc dịch vụ có cùng category id
-              service.id !== parseInt(id) // Loại bỏ dịch vụ hiện tại
+              service.category.id === serviceDetail.category.id &&
+              service.id !== parseInt(id)
           )
         );
       } catch (error) {
@@ -54,18 +54,18 @@ const ServicesDetail = () => {
     };
 
     if (serviceDetail) {
-      fetchSimilarServices(); // Chỉ gọi khi đã có chi tiết dịch vụ
+      fetchSimilarServices();
     }
   }, [serviceDetail, id]);
 
   // Hàm xử lý khi nhấn nút "Đặt Lịch Ngay"
   const handleBookingClick = () => {
-    const token = localStorage.getItem("token"); // Lấy token từ localStorage
+    const token = localStorage.getItem("token");
     if (token) {
-      navigate("/booking"); // Nếu đã đăng nhập, điều hướng đến trang booking
+      navigate("/booking");
     } else {
-      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!"); // Hiển thị thông báo yêu cầu đăng nhập
-      navigate("/login"); // Điều hướng đến trang login nếu chưa đăng nhập
+      message.error("Vui lòng đăng nhập để sử dụng dịch vụ!");
+      navigate("/login");
     }
   };
 
@@ -92,15 +92,14 @@ const ServicesDetail = () => {
           <Button>
             <h3> Thời lượng: {serviceDetail.duration} phút </h3>
           </Button>
-    
-          
+
           {/* Hiển thị description với định dạng HTML */}
           <div
             className="description"
             dangerouslySetInnerHTML={{ __html: serviceDetail.description }}
           />
           {/* Nút Đặt Lịch Ngay */}
-        
+
           <button class="button" onClick={handleBookingClick}>
             <h3> Đặt Lịch Ngay </h3>
             <div class="hoverEffect">

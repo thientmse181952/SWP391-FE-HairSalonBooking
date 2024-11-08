@@ -37,32 +37,36 @@ const adminEmployeeRegistration: React.FC = () => {
 
   const [services, setServices] = useState([]);
 
-useEffect(() => {
-  const fetchServices = async () => {
-    try {
-      const response = await api.get("http://localhost:8080/api/service/getService");
-      setServices(response.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách dịch vụ:", error);
-    }
-  };
-  fetchServices();
-}, []);
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await api.get(
+          "http://localhost:8080/api/service/getService"
+        );
+        setServices(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách dịch vụ:", error);
+      }
+    };
+    fetchServices();
+  }, []);
 
   useEffect(() => {
     const fetchStylists = async () => {
       try {
-        const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
-        setStylists(response.data);
-        
+        const response = await api.get(
+          "http://localhost:8080/api/stylist/getAllStylist"
+        );
+        const sortedStylists = response.data.sort(
+          (a: any, b: any) => b.id - a.id
+        );
+        setStylists(sortedStylists); // Sắp xếp theo id giảm dần
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
       }
     };
     fetchStylists();
   }, []);
-
- 
 
   const handleChange = ({ fileList: newFileList }: any) => {
     setFileList(newFileList);
@@ -92,7 +96,9 @@ useEffect(() => {
 
       setOpenModal(false);
       form.resetFields();
-      const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
+      const response = await api.get(
+        "http://localhost:8080/api/stylist/getAllStylist"
+      );
       setStylists(response.data);
       setEditingStylist(null);
     } catch (error) {
@@ -105,7 +111,11 @@ useEffect(() => {
       title: "Ảnh đại diện",
       dataIndex: "image",
       render: (text: string) => (
-        <img src={text} alt="avatar" style={{ borderRadius: "50%", width: 50, height: 50 }} />
+        <img
+          src={text}
+          alt="avatar"
+          style={{ borderRadius: "50%", width: 50, height: 50 }}
+        />
       ),
     },
     {
@@ -121,12 +131,12 @@ useEffect(() => {
       title: "Các dịch vụ đảm nhiệm",
       dataIndex: "id",
       render: (stylistId: number) => {
-        const stylistServices = services.filter(service => 
-          service.stylists.some(stylist => stylist.id === stylistId)
+        const stylistServices = services.filter((service) =>
+          service.stylists.some((stylist) => stylist.id === stylistId)
         );
 
-        return stylistServices.length > 0 
-          ? stylistServices.map(service => service.name).join(", ") 
+        return stylistServices.length > 0
+          ? stylistServices.map((service) => service.name).join(", ")
           : "Không có dịch vụ";
       },
     },
@@ -135,14 +145,13 @@ useEffect(() => {
   return (
     <div className="card">
       <h1>Quản Lý Stylist</h1>
-    
+
       <Table
         columns={columns}
         dataSource={stylists}
         rowKey="id"
         style={{ marginTop: 20 }}
       />
-      
     </div>
   );
 };

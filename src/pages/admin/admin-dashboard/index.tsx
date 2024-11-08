@@ -2,7 +2,11 @@ import { Card, Col, Row, Statistic as AntStatistic, Table, Select } from "antd";
 import { ScissorOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import api from "../../../config/axios";
-import { CalendarOutlined, UserOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  UserOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons";
 import {
   PieChart,
   Pie,
@@ -20,7 +24,7 @@ import "./index.scss";
 const { Option } = Select;
 
 interface RevenueData {
-  totalRevenue: string; // Đổi thành string vì API trả về là string
+  totalRevenue: number;
   month: number;
   year: number;
 }
@@ -28,7 +32,7 @@ interface RevenueData {
 interface DataType {
   totalbookings: number;
   customercount: number;
-  stylistcount: number;
+  serviceofstylistcount: number;
   topStylists: Array<{ stylistName: string; bookingCount: number }>;
   top5services: Array<{ serviceName: string; bookingCount: number }>;
 }
@@ -51,7 +55,9 @@ function DashboardStatistic() {
 
   const fetchRevenueData = async (month: number, year: number) => {
     try {
-      const response = await api.get<RevenueData>(`/dashboard/revenue/${month}/${year}`);
+      const response = await api.get<RevenueData>(
+        `/dashboard/revenue/${month}/${year}`
+      );
       setRevenueData(response.data);
     } catch (error) {
       console.log(error);
@@ -60,13 +66,10 @@ function DashboardStatistic() {
 
   const fetchMonthlyRevenueData = async () => {
     try {
-      const response = await api.get<{ monthsWithRevenue: any[] }>("/dashboard/revenue/months");
-      // Chuyển đổi dữ liệu để phù hợp với biểu đồ
-      const formattedData = response.data.monthsWithRevenue.map(item => ({
-        month: `${item.month}/${item.year}`, // Định dạng tháng/năm
-        revenue: Number(item.totalRevenue) // Chuyển đổi thành số
-      }));
-      setMonthlyRevenueData(formattedData);
+      const response = await api.get<{ monthsWithRevenue: any[] }>(
+        "/dashboard/revenue/months"
+      );
+      setMonthlyRevenueData(response.data.monthsWithRevenue);
     } catch (error) {
       console.log(error);
     }
@@ -101,7 +104,9 @@ function DashboardStatistic() {
               <div className="booking-title">Số lượng Booking</div>
               <div className="booking-content">
                 {data?.totalbookings?.toLocaleString() || "0"}
-                <span><CalendarOutlined /></span>
+                <span>
+                  <CalendarOutlined />
+                </span>
               </div>
               <div className="booking-unit">Lượt Đặt lịch</div>
             </div>
@@ -113,7 +118,9 @@ function DashboardStatistic() {
               <div className="booking-title">Số lượng Khách Hàng</div>
               <div className="booking-content">
                 {data?.customercount?.toLocaleString() || "0"}
-                <span><UserOutlined /></span>
+                <span>
+                  <UserOutlined />
+                </span>
               </div>
               <div className="booking-unit">Khách hàng</div>
             </div>
@@ -125,7 +132,9 @@ function DashboardStatistic() {
               <div className="booking-title">Số lượng Stylist</div>
               <div className="booking-content">
                 {data?.stylistcount?.toLocaleString() || "0"}
-                <span><ScissorOutlined /></span>
+                <span>
+                  <ScissorOutlined />
+                </span>
               </div>
               <div className="booking-unit">Dày dạn kinh nghiệm</div>
             </div>
@@ -136,8 +145,10 @@ function DashboardStatistic() {
             <div className="content">
               <div className="booking-title">Số lượng Dịch Vụ</div>
               <div className="booking-content">
-                {data?.top5services.length || "0"}
-                <span><AppstoreAddOutlined /></span>
+                {data?.serviceofstylistcount || "0"}
+                <span>
+                  <AppstoreAddOutlined />
+                </span>
               </div>
               <div className="booking-unit">Sẵn sàng phục vụ quý khách</div>
             </div>
@@ -162,22 +173,27 @@ function DashboardStatistic() {
 
       <Row gutter={16}>
         <Col span={12}>
-          <Card title="Top 3 Stylist có lượng booking cao nhất" style={{ marginTop: 16 }}>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card
+            title="Top 3 Stylist có lượng booking cao nhất"
+            style={{ marginTop: 16 }}
+          >
+            <ResponsiveContainer width="100%" height={500}>
               <PieChart>
                 <Pie
                   data={
                     data?.topStylists?.map((stylist, index) => ({
                       name: stylist.stylistName,
                       value: stylist.bookingCount,
-                      fill: `hsl(${(index * 360) / data.topStylists.length}, 55%, 50%)`,
+                      fill: `hsl(${
+                        (index * 360) / data.topStylists.length
+                      }, 80%, 50%)`,
                     })) || []
                   }
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={120}
                   label
                 />
                 <Legend />
@@ -189,21 +205,23 @@ function DashboardStatistic() {
 
         <Col span={12}>
           <Card title="Top 5 Dịch vụ được quan tâm" style={{ marginTop: 16 }}>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={500}>
               <PieChart>
                 <Pie
                   data={
                     data?.top5services?.map((service, index) => ({
                       name: service.serviceName,
                       value: service.bookingCount,
-                      fill: `hsl(${(index * 360) / data.top5services.length}, 60%, 50%)`,
+                      fill: `hsl(${
+                        (index * 360) / data.top5services.length
+                      }, 90%, 50%)`,
                     })) || []
                   }
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={120}
                   label
                 />
                 <Legend />
@@ -227,7 +245,13 @@ function DashboardStatistic() {
           ))}
         </Select>
         <div style={{ marginTop: 16 }}>
-          <h3>Tổng Doanh Thu: {revenueData?.totalRevenue ? Number(revenueData.totalRevenue).toLocaleString() : "0"} VNĐ</h3>
+          <h3>
+            Tổng Doanh Thu:{" "}
+            {revenueData?.totalRevenue
+              ? Number(revenueData.totalRevenue).toLocaleString()
+              : "0"}{" "}
+            VNĐ
+          </h3>
           <p>
             Tháng: {revenueData?.month}, Năm: {revenueData?.year}
           </p>
@@ -235,7 +259,7 @@ function DashboardStatistic() {
       </Card>
 
       <Card title="Biểu Đồ Doanh Thu 12 Tháng" style={{ marginTop: 16 }}>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={500}>
           <BarChart data={monthlyRevenueData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />

@@ -15,7 +15,6 @@ const CustomerBookingList: React.FC = () => {
   const [currentBookingId, setCurrentBookingId] = useState<number | null>(null);
   const [ratingStylist, setRatingStylist] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
-
   const [currentFeedbackId, setCurrentFeedbackId] = useState<number | null>(
     null
   );
@@ -78,7 +77,7 @@ const CustomerBookingList: React.FC = () => {
       title: "Hành động",
       key: "action",
       render: (text: any, record: any) => {
-        // Chỉ hiển thị nút feedback và xóa khi trạng thái là "Đã xác nhận"
+        // Chỉ hiển thị nút xóa khi trạng thái là "Đã xác nhận"
         const isConfirmed = record.status === "Đã xác nhận";
         const bookingFeedback = feedbacks.find(
           (feedback: any) => feedback.booking.id === record.id
@@ -120,18 +119,17 @@ const CustomerBookingList: React.FC = () => {
 
   const handleDeleteBooking = async (bookingId: number) => {
     try {
-      console.log("Deleting booking with ID:", bookingId); // Log ID của booking trước khi gọi API
+      console.log("Deleting booking with ID:", bookingId);
 
       const response = await api.delete(`/bookings/${bookingId}`);
       if (response.status === 200) {
         message.success("Xóa đặt lịch thành công!");
 
-        // Cập nhật lại danh sách booking sau khi xóa thành công và sắp xếp lại theo thứ tự giảm dần
-        setBookings(
-          (prevBookings) =>
-            prevBookings
-              .filter((booking) => booking.id !== bookingId)
-              .sort((a, b) => b.id - a.id) // Sắp xếp theo ID giảm dần
+        // Cập nhật lại danh sách booking sau khi xóa thành công
+        setBookings((prevBookings) =>
+          prevBookings
+            .filter((booking) => booking.id !== bookingId)
+            .sort((a, b) => b.id - a.id)
         );
       } else {
         message.error("Không thể xóa đặt lịch. Vui lòng thử lại.");
@@ -147,7 +145,7 @@ const CustomerBookingList: React.FC = () => {
     feedbackId?: number,
     status?: string
   ) => {
-    // Kiểm tra trạng thái của booking, chỉ cho phép feedback nếu status là "Đã thanh toán"
+    // Chỉ cho phép feedback nếu status là "Đã thanh toán"
     if (status !== "Đã thanh toán") {
       message.warning("Chỉ có thể đánh giá khi dịch vụ đã được thanh toán.");
       return;
@@ -196,7 +194,7 @@ const CustomerBookingList: React.FC = () => {
       const feedbackData = {
         rating_stylist: ratingStylist,
         comment,
-        booking: { id: currentBookingId }, // Thay 'bookingId' thành 'id'
+        booking: { id: currentBookingId },
       };
 
       let response;
@@ -222,7 +220,6 @@ const CustomerBookingList: React.FC = () => {
         const feedbackResponse = await api.get("/feedback/getAllFeedback");
         setFeedbacks(feedbackResponse.data); // Cập nhật state feedbacks
 
-        // Đóng modal sau khi thực hiện thành công
         setIsModalVisible(false);
       }
     } catch (error) {
@@ -244,7 +241,7 @@ const CustomerBookingList: React.FC = () => {
             (booking: any) =>
               booking.customer.id === parseInt(customerId || "0")
           )
-          .reverse(); // Sắp xếp ngược dữ liệu từ API trả về
+          .reverse();
 
         setBookings(customerBookings);
       } catch (error) {
@@ -259,7 +256,7 @@ const CustomerBookingList: React.FC = () => {
     const fetchFeedbacks = async () => {
       try {
         const response = await api.get("/feedback/getAllFeedback");
-        setFeedbacks(response.data); // Lưu feedbacks vào state
+        setFeedbacks(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách feedback:", error);
         message.error("Không thể tải danh sách feedback.");
@@ -335,7 +332,7 @@ const CustomerBookingList: React.FC = () => {
         visible={isModalVisible}
         onOk={handleSubmitFeedback}
         onCancel={closeFeedbackModal}
-        okText={currentFeedbackId ? "Sửa" : "Gửi đánh giá"} // Thay đổi văn bản tùy thuộc vào trạng thái
+        okText={currentFeedbackId ? "Sửa" : "Gửi đánh giá"}
         cancelText="Hủy"
       >
         <div>

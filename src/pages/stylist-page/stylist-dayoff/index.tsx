@@ -25,9 +25,11 @@ function StylistDayoff() {
         const allSchedules = response.data;
 
         // Lọc các schedule có stylistId khớp với stylist đang đăng nhập
-        const stylistSchedules = allSchedules.filter(
-          (schedule: Schedule) => schedule.stylist.id === parseInt(stylistId)
-        );
+        const stylistSchedules = allSchedules
+          .filter(
+            (schedule: Schedule) => schedule.stylist.id === parseInt(stylistId)
+          )
+          .reverse();
 
         setSchedules(stylistSchedules);
       } catch (error) {

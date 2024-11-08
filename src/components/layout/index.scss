@@ -1,0 +1,25 @@
+// index.scss
+
+.container {
+    max-width: 1200px; // Đặt chiều rộng tối đa cho container
+    margin: 0 auto; // Căn giữa container
+    padding: 20px; // Thêm khoảng cách bên trong
+    background-color: #f9f9f9; // Màu nền cho container
+  }
+  
+  header {
+    background-color: #333; // Màu nền cho header
+    color: #fff; // Màu chữ cho header
+    padding: 15px 0; // Khoảng cách bên trong cho header
+    text-align: center; // Căn giữa nội dung trong header
+  }
+  
+  footer {
+    background-color: #333; // Màu nền cho footer
+    color: #fff; // Màu chữ cho footer
+    padding: 10px 0; // Khoảng cách bên trong cho footer
+    text-align: center; // Căn giữa nội dung trong footer
+  }
+  
+  // Bạn có thể thêm các kiểu khác cho các thành phần trong Outlet ở đây
+  
