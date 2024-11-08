@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Form, Input, Checkbox, Radio, message } from "antd";
 import AuthenTemplate from "../../components/authen-template";
 import { useForm } from "antd/lib/form/Form";
@@ -6,15 +6,18 @@ import { RuleObject } from "rc-field-form/lib/interface";
 import { Store } from "antd/lib/form/interface";
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import api from "../../config/axios";
-import "./index.scss";
 import { useNavigate } from "react-router-dom";
+import "./index.scss";
+import Loading from "../../components/loading";
 
 const Register: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Trạng thái loading
 
   // Hàm gửi yêu cầu đăng ký
   const registerUser = async (values: Store) => {
+    setLoading(true); // Bắt đầu hiệu ứng loading
     try {
       const registerResponse = await api.post("/register", {
         fullName: values.fullname,
@@ -34,6 +37,8 @@ const Register: React.FC = () => {
     } catch (error) {
       console.error("Đã xảy ra lỗi khi đăng ký:", error);
       message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
+    } finally {
+      setLoading(false); // Kết thúc hiệu ứng loading
     }
   };
 
@@ -147,7 +152,7 @@ const Register: React.FC = () => {
         </Form.Item>
 
         <Form.Item className="submit-button">
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={loading}>
             Tạo tài khoản
           </Button>
         </Form.Item>
@@ -158,6 +163,8 @@ const Register: React.FC = () => {
           </span>
         </Form.Item>
       </Form>
+
+      {loading && <Loading />} {/* Sử dụng component Loading */}
     </AuthenTemplate>
   );
 };
