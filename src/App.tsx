@@ -36,6 +36,7 @@ import CategoryCollectionManagement from "./pages/admin/category-collection-mana
 import StylistScheduleAdmin from "./pages/admin/stylist-schedule";
 import CalendarManagement from "./pages/admin/calendar-management";
 import FeedbackManagement from "./pages/admin/feedback-management";
+import CustomerViewBooking from "./pages/customer-view-booking";
 
 function App() {
   const router = createBrowserRouter([
@@ -102,6 +103,7 @@ function App() {
         { path: "information", element: <CustomerInformation /> },
         { path: "change-password", element: <ChangePassword /> },
         { path: "bookings", element: <CustomerBookingList /> },
+        { path: "view-booking", element: <CustomerViewBooking /> },
       ],
     },
     {

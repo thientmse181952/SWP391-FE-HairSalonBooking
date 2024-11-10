@@ -6,6 +6,8 @@ import isBetween from "dayjs/plugin/isBetween";
 import api from "../../config/axios";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import Loading from "../../components/loading";
+import { useNavigate } from "react-router-dom"; 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -37,6 +39,8 @@ const Booking: React.FC = () => {
     { time: "19:00 PM", status: "available" },
   ]);
   const stylistsRef = useRef<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const accountId = localStorage.getItem("accountId");
@@ -488,6 +492,7 @@ const Booking: React.FC = () => {
     }
 
     try {
+      setLoading(true);
       const customerIdFromLocalStorage = localStorage.getItem("customerId");
 
       console.log(
@@ -634,10 +639,14 @@ const Booking: React.FC = () => {
         setEstimatedDuration(0);
         setEstimatedPrice(0);
         setShowAllSlots(false);
+        navigate("/customer/view-booking");
       }
     } catch (error) {
       console.error("Lỗi khi tạo đặt lịch:", error);
       message.error("Đặt lịch không thành công, vui lòng thử lại.");
+    } finally{
+      setLoading(false);
+      
     }
   };
 
@@ -647,6 +656,21 @@ const Booking: React.FC = () => {
   };
 
   return (
+    <div>
+    {loading ? (
+     <div
+       style={{
+         display: "flex",
+         justifyContent: "center",
+         alignItems: "center",
+         height: "100vh",
+       }}
+     >
+       <Loading/> {/* Hiển thị component Loading khi đang loading */}
+     </div>
+   ) : (
+
+
     <div className="booking-wrapper">
       <h1>Đặt Lịch</h1>
 
@@ -782,9 +806,11 @@ const Booking: React.FC = () => {
         className="submit-button"
         onClick={handleSubmit}
         size="large"
+        
       >
         Đặt lịch ngay
       </Button>
+    </div>)}
     </div>
   );
 };
