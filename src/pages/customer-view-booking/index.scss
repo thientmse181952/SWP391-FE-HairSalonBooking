@@ -331,3 +331,56 @@
     height: 100%;
   }
   
+
+  /* From Uiverse.io by tiagoadag1203 */ 
+.input {
+  max-width: 190px;
+  background-color: #1a1a1a;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  outline: none;
+  color: white;
+}
+
+.input:focus {
+  animation: rotateShadow 2s infinite linear;
+}
+
+@keyframes rotateShadow {
+  0% {
+    box-shadow: -2px -2px 8px 1px #aa00ff, 2px 2px 8px 1px #3700ff;
+  }
+  25% {
+    box-shadow: -2px 2px 8px 1px #aa00ff, 2px -2px 8px 1px #3700ff;
+  }
+  50% {
+    box-shadow: 2px 2px 8px 1px #aa00ff, -2px -2px 8px 1px #3700ff;
+  }
+  75% {
+    box-shadow: 2px -2px 8px 1px #aa00ff, -2px 2px 8px 1px #3700ff;
+  }
+  100% {
+    box-shadow: -2px -2px 8px 1px #aa00ff, 2px 2px 8px 1px #3700ff;
+  }
+}
+
+
+/* From Uiverse.io by cssbuttons-io */ 
+.action-buttons {
+  margin-top: 10px;
+
+}
+
+.delete-button {
+  background-color: #ff4d4f; // Màu nền đỏ
+  color: white; // Màu chữ trắng
+  border: none; // Không có viền
+  padding: 8px 16px; // Padding cho nút
+  border-radius: 4px; // Bo tròn góc
+  cursor: pointer; // Con trỏ chuột khi hover
+  transition: background-color 0.3s; // Hiệu ứng chuyển màu
+  min-width: 100%;
+    
+}
+
