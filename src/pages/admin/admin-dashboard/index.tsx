@@ -156,20 +156,7 @@ function DashboardStatistic() {
         </Col>
       </Row>
 
-      <Card title="Top Khách Hàng tiềm năng Nhất" style={{ marginTop: 16 }}>
-        <Table
-          columns={[
-            {
-              title: "Khách Hàng",
-              dataIndex: "fullName",
-              key: "fullName",
-            },
-          ]}
-          dataSource={eliteCustomers}
-          rowKey="fullName"
-          pagination={false}
-        />
-      </Card>
+    
 
       <Row gutter={16}>
         <Col span={12}>
@@ -258,18 +245,7 @@ function DashboardStatistic() {
         </div>
       </Card>
 
-      <Card title="Biểu Đồ Doanh Thu 12 Tháng" style={{ marginTop: 16 }}>
-        <ResponsiveContainer width="100%" height={500}>
-          <BarChart data={monthlyRevenueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="revenue" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
+      
     </div>
   );
 }

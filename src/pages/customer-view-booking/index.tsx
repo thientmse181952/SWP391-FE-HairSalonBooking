@@ -11,26 +11,26 @@ const CustomerViewBooking: React.FC = () => {
   const customerId = localStorage.getItem("customerId");
   const [services, setServices] = useState<any[]>([]);
 
-  const handleDeleteBooking = async (bookingId: number) => {
-    try {
-      console.log("Deleting booking with ID:", bookingId);
+  // const handleDeleteBooking = async (bookingId: number) => {
+  //   try {
+  //     console.log("Deleting booking with ID:", bookingId);
 
-      const response = await api.delete(`/bookings/${bookingId}`);
-      if (response.status === 200) {
-        message.success("Xóa đặt lịch thành công!");
+  //     const response = await api.delete(`/bookings/${bookingId}`);
+  //     if (response.status === 200) {
+  //       message.success("Xóa đặt lịch thành công!");
 
-        // Cập nhật lại danh sách booking sau khi xóa thành công
-        setBookings((prevBookings) =>
-          prevBookings.filter((booking) => booking.id !== bookingId)
-        );
-      } else {
-        message.error("Không thể xóa đặt lịch. Vui lòng thử lại.");
-      }
-    } catch (error) {
-      console.error("Lỗi khi xóa đặt lịch:", error);
-      message.error("Đã xảy ra lỗi khi xóa đặt lịch.");
-    }
-  };
+  //       // Cập nhật lại danh sách booking sau khi xóa thành công
+  //       setBookings((prevBookings) =>
+  //         prevBookings.filter((booking) => booking.id !== bookingId)
+  //       );
+  //     } else {
+  //       message.error("Không thể xóa đặt lịch. Vui lòng thử lại.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi khi xóa đặt lịch:", error);
+  //     message.error("Đã xảy ra lỗi khi xóa đặt lịch.");
+  //   }
+  // };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -210,8 +210,8 @@ const CustomerViewBooking: React.FC = () => {
                 </p>
               </ul>
             </div>
-            <div className="action-buttons">
-              {booking.status === "Đã xác nhận" && (
+            {/* <div className="action-buttons"> */}
+              {/* {booking.status === "Đã xác nhận" && (
                 <Popconfirm
                   title="Bạn có chắc chắn muốn xóa đặt lịch này không?"
                   onConfirm={() => handleDeleteBooking(booking.id)}
@@ -222,8 +222,8 @@ const CustomerViewBooking: React.FC = () => {
                     <span>Xóa</span>
                   </Button>
                 </Popconfirm>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
           </div>
         </div>
       ))}

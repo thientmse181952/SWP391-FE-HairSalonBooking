@@ -26,7 +26,7 @@ const SidebarCustomer: React.FC = () => {
     },
     {
       id: "view-bookings",
-      label: "xem lịch vừa đặt",
+      label: "Xem lịch vừa đặt",
       icon: <ShoppingOutlined />,
       path: "/customer/view-booking",
     },
