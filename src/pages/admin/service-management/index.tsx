@@ -33,6 +33,7 @@ interface Service {
   price: string;
   duration: string;
   category: Category;
+  description: string;
   date: string;
   serviceImage: string;
 }
@@ -261,6 +262,14 @@ const AdminServiceManagement: React.FC = () => {
       key: "name",
     },
     {
+      title: "Miêu tả",
+      dataIndex: "description",
+      key: "description",
+      render: (description: string) => (
+        <div dangerouslySetInnerHTML={{ __html: description }} />
+      ),
+    },
+    {
       title: "Giá",
       dataIndex: "price",
       key: "price",
@@ -402,7 +411,7 @@ const AdminServiceManagement: React.FC = () => {
         }}
         footer={null}
       >
-        <Form form={form} onFinish={onFinish} labelCol={{span:24}}>
+        <Form form={form} onFinish={onFinish} labelCol={{ span: 24 }}>
           <Form.Item
             label="Tên dịch vụ"
             name="name"
