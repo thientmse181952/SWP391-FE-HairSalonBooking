@@ -123,7 +123,7 @@ function App() {
           path: "adminEmployeeRegistration",
           element: <AdminEmployeeRegistration />,
         },
-       
+
         {
           path: "adminCalendarManagement",
           element: <CalendarManagement />,
@@ -147,7 +147,11 @@ function App() {
     },
     {
       path: "stylistpage",
-      element: <StylistCategory />,
+      element: (
+        <ProtectedRoute roleRequired="STYLIST">
+          <StylistCategory />
+        </ProtectedRoute>
+      ),
       children: [
         { path: "stylistInfo", element: <StylistInfo /> },
         { path: "stylistFeedback", element: <StylistFeedback /> },
@@ -156,7 +160,6 @@ function App() {
         { path: "StylistDayoff", element: <StylistDayoff /> },
       ],
     },
-    
   ]);
 
   return <RouterProvider router={router} />;

@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     password: string;
   }) => {
     try {
-    setLoading(true);
+      setLoading(true);
       console.log("Đang đăng nhập với:", values);
 
       const response = await api.post("login", {
@@ -208,8 +208,8 @@ const Login: React.FC = () => {
       } else {
         message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
       }
-    } finally{
-      setLoading(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -219,65 +219,69 @@ const Login: React.FC = () => {
 
   return (
     <div>
-    {loading ? (
-     <div
-       style={{
-         display: "flex",
-         justifyContent: "center",
-         alignItems: "center",
-         height: "100vh",
-       }}
-     >
-       <Loading /> {/* Hiển thị component Loading khi đang loading */}
-     </div>
-   ) : (
-    
-    <div className="authen-template">
-      <div className="authen-template__form">
-        <h1 className="title">Đăng nhập</h1>
-        <Form
-          form={form}
-          labelCol={{ span: 24 }}
-          className="form"
-          onFinish={onFinish}
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
         >
-          <Form.Item
-            label="Số điện thoại"
-            name="username"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Mật khẩu"
-            name="password"
-            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
+          <Loading /> {/* Hiển thị component Loading khi đang loading */}
+        </div>
+      ) : (
+        <div className="authen-template">
+          <div className="authen-template__form">
+            <h1 className="title">Đăng nhập</h1>
+            <Form
+              form={form}
+              labelCol={{ span: 24 }}
+              className="form"
+              onFinish={onFinish}
+            >
+              <Form.Item
+                label="Số điện thoại"
+                name="username"
+                rules={[
+                  { required: true, message: "Vui lòng nhập số điện thoại!" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label="Mật khẩu"
+                name="password"
+                rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+              >
+                <Input.Password />
+              </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" className="login-button" htmlType="submit">
-              Đăng nhập
-            </Button>
-          </Form.Item>
+              <Form.Item>
+                <Button
+                  type="primary"
+                  className="login-button"
+                  htmlType="submit"
+                >
+                  Đăng nhập
+                </Button>
+              </Form.Item>
 
-          <Form.Item className="register-link">
-            <span onClick={() => navigate("/register")}>
-              Chưa có tài khoản? Đăng ký tại đây
-            </span>
-          </Form.Item>
+              <Form.Item className="register-link">
+                <span onClick={() => navigate("/register")}>
+                  Chưa có tài khoản? Đăng ký tại đây
+                </span>
+              </Form.Item>
 
-          <Form.Item className="forgot-password-link">
-            <span onClick={() => navigate("/reset-password")}>
-              Quên mật khẩu?
-            </span>
-          </Form.Item>
-        </Form>
-      </div>
-    </div> )}
+              <Form.Item className="forgot-password-link">
+                <span onClick={() => navigate("/reset-password")}>
+                  Quên mật khẩu?
+                </span>
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
