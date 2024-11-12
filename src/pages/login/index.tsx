@@ -209,7 +209,7 @@ const Login: React.FC = () => {
         message.error("Đã xảy ra lỗi, vui lòng thử lại sau!");
       }
     } finally{
-      setLoading(true);
+      setLoading(false);
     }
   };
 

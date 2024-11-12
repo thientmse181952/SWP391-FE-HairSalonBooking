@@ -1,48 +1,23 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Table,
-  Modal,
-  Form,
-  Input,
-  Upload,
-  Popconfirm,
-  message,
-  Checkbox,
-  Select,
-} from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table, Form, message } from "antd";
 import uploadFile from "../../../utils/file";
 import "./index.scss";
 import api from "../../../config/axios";
 
-const { TextArea } = Input;
-
-const servicesList = [
-  { id: 1, name: "Dịch vụ 1" },
-  { id: 2, name: "Dịch vụ 2" },
-  { id: 3, name: "Dịch vụ 3" },
-  { id: 4, name: "Dịch vụ 4" },
-  { id: 5, name: "Dịch vụ 5" },
-];
-
-const adminEmployeeRegistration: React.FC = () => {
+const AdminEmployeeRegistration: React.FC = () => {
   const [stylists, setStylists] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
   const [editingStylist, setEditingStylist] = useState<any>(null);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
-
   const [services, setServices] = useState([]);
+  const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get(
-          "http://localhost:8080/api/service/getService"
-        );
+        const response = await api.get("http://localhost:8080/api/service/getService");
         setServices(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách dịch vụ:", error);
@@ -54,13 +29,9 @@ const adminEmployeeRegistration: React.FC = () => {
   useEffect(() => {
     const fetchStylists = async () => {
       try {
-        const response = await api.get(
-          "http://localhost:8080/api/stylist/getAllStylist"
-        );
-        const sortedStylists = response.data.sort(
-          (a: any, b: any) => b.id - a.id
-        );
-        setStylists(sortedStylists); // Sắp xếp theo id giảm dần
+        const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
+        const sortedStylists = response.data.sort((a: any, b: any) => b.id - a.id);
+        setStylists(sortedStylists);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách stylist:", error);
       }
@@ -68,9 +39,17 @@ const adminEmployeeRegistration: React.FC = () => {
     fetchStylists();
   }, []);
 
-  const handleChange = ({ fileList: newFileList }: any) => {
-    setFileList(newFileList);
-  };
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await api.get("http://localhost:8080/api/account");
+        setAccounts(response.data); // Lưu danh sách tài khoản
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách thông tin:", error);
+      }
+    };
+    fetchAccounts();
+  }, []);
 
   const onFinish = async (values: any) => {
     try {
@@ -94,11 +73,8 @@ const adminEmployeeRegistration: React.FC = () => {
         message.success("Thêm stylist thành công!");
       }
 
-      setOpenModal(false);
       form.resetFields();
-      const response = await api.get(
-        "http://localhost:8080/api/stylist/getAllStylist"
-      );
+      const response = await api.get("http://localhost:8080/api/stylist/getAllStylist");
       setStylists(response.data);
       setEditingStylist(null);
     } catch (error) {
@@ -107,6 +83,10 @@ const adminEmployeeRegistration: React.FC = () => {
   };
 
   const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+    },
     {
       title: "Ảnh đại diện",
       dataIndex: "image",
@@ -119,9 +99,16 @@ const adminEmployeeRegistration: React.FC = () => {
       ),
     },
     {
-      title: "ID",
+      title: "Tên Stylist",
       dataIndex: "id",
+      render: (stylistId: number) => {
+        const stylistAccount = accounts.find((account: any) =>
+          account.stylists.some((stylist: any) => stylist.id === stylistId)
+        );
+        return stylistAccount ? stylistAccount.fullName : "Không có tên";
+      },
     },
+    
     {
       title: "Đánh giá",
       dataIndex: "rating",
@@ -145,7 +132,6 @@ const adminEmployeeRegistration: React.FC = () => {
   return (
     <div className="card">
       <h1>Quản Lý Stylist</h1>
-
       <Table
         columns={columns}
         dataSource={stylists}
@@ -156,4 +142,4 @@ const adminEmployeeRegistration: React.FC = () => {
   );
 };
 
-export default adminEmployeeRegistration;
+export default AdminEmployeeRegistration;
