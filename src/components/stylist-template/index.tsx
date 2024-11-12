@@ -44,7 +44,7 @@ const StylistPage: React.FC = () => {
 
   const items = [
     getItem("Thông Tin Stylist", "stylistInfo", <UserOutlined />),
-    getItem("Danh Sách Feedback", "stylistFeedback", <CommentOutlined />),
+    getItem("Feedbacks", "stylistFeedback", <CommentOutlined />),
     getItem("Lịch Làm Việc", "stylistSchedule", <CalendarOutlined />),
     getItem("Lịch Nghỉ", "stylistDayoff", <ScheduleOutlined />),
     {

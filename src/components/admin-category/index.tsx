@@ -73,11 +73,7 @@ const AdminCategory: React.FC = () => {
     getItem("Quản Lý Lịch", "adminCalendarManagement", <CalendarOutlined />), // Đường dẫn cho Xếp lịch Stylist
     getItem("Xem FeedBack ", "feedbackManagement", <ScheduleOutlined />),
     getItem("Quản Lý Lịch Nghỉ", "stylist-schedule", <ScheduleOutlined />),
-    getItem(
-      "Quản Lý Danh Mục Dịch Vụ",
-      "category-management",
-      <AppstoreOutlined />
-    ),
+    getItem("Quản Lý Danh Mục DV", "category-management", <AppstoreOutlined />),
     getItem("Quản Lý Dịch Vụ", "adminServiceManagement", <SolutionOutlined />),
     getItem(
       "Quản Lý Danh Mục BST",
@@ -94,19 +90,16 @@ const AdminCategory: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      
-
       <Sider
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         width={250}
       >
-
-        <button className={`button ${collapsed ? 'collapsed' : ''}`}>
-  <div className="blob1"></div>
-  <div className="inner">KIM HAIRSALON</div>
-</button>
+        <button className={`button ${collapsed ? "collapsed" : ""}`}>
+          <div className="blob1"></div>
+          <div className="inner">KIM HAIRSALON</div>
+        </button>
         <Menu
           theme="dark"
           defaultSelectedKeys={["adminInfo"]}
