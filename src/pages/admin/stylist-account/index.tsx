@@ -12,6 +12,7 @@ import {
   Radio,
 } from "antd";
 import api from "../../../config/axios"; // Sử dụng api để gọi API
+import Loading from "../../../components/loading";
 
 const StylistAccountManagement: React.FC = () => {
   const [accounts, setAccounts] = useState([]); // Trạng thái lưu danh sách stylist
@@ -44,6 +45,7 @@ const StylistAccountManagement: React.FC = () => {
   // Xử lý khi form được submit để thêm hoặc sửa stylist
   const onFinish = async (values: any) => {
     try {
+      setLoading(true);
       if (editingAccount) {
         // Nếu đang trong trạng thái chỉnh sửa, gọi API PUT và chỉ gửi các thông tin cần thiết
         const updateData = {
@@ -79,6 +81,8 @@ const StylistAccountManagement: React.FC = () => {
     } catch (error) {
       console.error("Lỗi khi tạo/cập nhật stylist:", error);
       message.error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -167,6 +171,19 @@ const StylistAccountManagement: React.FC = () => {
   ];
 
   return (
+    <div>
+    {loading ? (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Loading /> {/* Hiển thị component Loading khi đang loading */}
+      </div>
+    ) : (
     <div className="card">
       <h1>Quản Lý Tài Khoản Stylist</h1>
       <Button
@@ -294,6 +311,7 @@ const StylistAccountManagement: React.FC = () => {
         </Form>
       </Modal>
     </div>
+    )}</div>
   );
 };
 

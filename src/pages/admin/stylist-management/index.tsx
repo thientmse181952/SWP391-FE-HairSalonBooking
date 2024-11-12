@@ -5,6 +5,7 @@ import { Table, Form, message } from "antd";
 import uploadFile from "../../../utils/file";
 import "./index.scss";
 import api from "../../../config/axios";
+import Loading from "../../../components/loading";
 
 const AdminEmployeeRegistration: React.FC = () => {
   const [stylists, setStylists] = useState([]);
@@ -13,6 +14,7 @@ const AdminEmployeeRegistration: React.FC = () => {
   const [fileList, setFileList] = useState([]);
   const [services, setServices] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -53,6 +55,7 @@ const AdminEmployeeRegistration: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
+      setLoading(true);
       let imageUrl = "";
       if (fileList.length > 0) {
         const file = fileList[0];
@@ -79,6 +82,8 @@ const AdminEmployeeRegistration: React.FC = () => {
       setEditingStylist(null);
     } catch (error) {
       console.error("Lỗi khi tạo/cập nhật stylist:", error);
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -130,6 +135,20 @@ const AdminEmployeeRegistration: React.FC = () => {
   ];
 
   return (
+
+    <div>
+    {loading ? (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Loading /> {/* Hiển thị component Loading khi đang loading */}
+      </div>
+    ) : (
     <div className="card">
       <h1>Quản Lý Stylist</h1>
       <Table
@@ -139,6 +158,7 @@ const AdminEmployeeRegistration: React.FC = () => {
         style={{ marginTop: 20 }}
       />
     </div>
+    )}</div>
   );
 };
 
